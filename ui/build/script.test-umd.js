@@ -1,10 +1,9 @@
-const fs = require('fs')
-const { resolve } = require('path')
-const open = require('open')
-const rimraf = require('rimraf').sync
+import fs from 'node:fs'
+import open from 'open'
+import { sync as rimraf } from 'rimraf'
 
-const src = resolve(__dirname, '../dist')
-const dest = resolve(__dirname, '../dev-umd/dist')
+const src = new URL('../dist', import.meta.url)
+const dest = new URL('../dev-umd/dist', import.meta.url)
 
 if (!fs.existsSync(src)) {
   console.error('ERROR: please "yarn build" or "npm run build" first')
@@ -15,5 +14,5 @@ rimraf(dest)
 fs.symlinkSync(src, dest, 'dir')
 
 open(
-  resolve(__dirname, '../dev-umd/index.umd.html')
+  new URL('../dev-umd/index.umd.html', import.meta.url)
 )

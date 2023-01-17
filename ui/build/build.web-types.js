@@ -1,6 +1,8 @@
-const path = require('path')
-const fs = require('fs')
-const { logError, writeFile, kebabCase } = require('./build.utils')
+import path from 'node:path'
+import fs from 'node:fs'
+
+import { version } from './version.js'
+import { logError, writeFile, kebabCase } from './build.utils.js'
 
 function resolveType ({ type, values }) {
   // TODO transform Object with "values" and arrays Objects with values
@@ -25,13 +27,13 @@ function getDescription (propApi) {
     : propApi.desc
 }
 
-module.exports.generate = function (data) {
+export function buildWebTypes (data) {
   try {
     const webtypes = JSON.stringify({
       $schema: '',
       framework: 'vue',
       name: 'quasar',
-      version: process.env.VERSION || require('../package.json').version,
+      version,
       contributions: {
         html: {
           'types-syntax': 'typescript',
@@ -150,11 +152,12 @@ module.exports.generate = function (data) {
         }
       }
     }, null, 2)
-    const webTypesPath = path.resolve(__dirname, '../dist/web-types')
+    const webTypesPath = new URL('../dist/web-types', import.meta.url).pathname
 
     if (!fs.existsSync(webTypesPath)) {
       fs.mkdirSync(webTypesPath)
     }
+
     writeFile(path.resolve(webTypesPath, 'web-types.json'), webtypes)
   }
   catch (err) {

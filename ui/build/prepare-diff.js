@@ -1,18 +1,13 @@
-const fs = require('fs')
-const path = require('path')
-const { sync: fastGlob } = require('fast-glob')
-const { createPatch } = require('diff')
-const { highlight } = require('cli-highlight')
+import fs from 'node:fs'
+import path from 'node:path'
+import { default as fg } from 'fast-glob'
+import { createPatch } from 'diff'
+import { highlight } from 'cli-highlight'
 
-const rootFolder = path.resolve(__dirname, '..')
-
-function resolve (_path) {
-  return path.resolve(rootFolder, _path)
-}
-
-function relative (_path) {
-  return path.relative(rootFolder, _path)
-}
+const { sync: fastGlob } = fg
+const rootFolder = new URL('..', import.meta.url).pathname
+const resolve = _path => path.resolve(rootFolder, _path)
+const relative = _path => path.relative(rootFolder, _path)
 
 /**
  * Call this with the path to file (or folder) you want to track, before the file gets updated.
@@ -20,7 +15,7 @@ function relative (_path) {
  *
  * @param {string} locationPath
  */
-module.exports = function prepareDiff (locationPath) {
+export function prepareDiff (locationPath) {
   let absolutePath = resolve(locationPath)
 
   // If there is no "old" file/folder, then there is no diff (everything will be new)

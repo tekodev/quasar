@@ -1,10 +1,11 @@
-const fs = require('fs')
-const path = require('path')
-const prettier = require('prettier')
+import fs, { readFileSync } from 'node:fs'
+import path from 'node:path'
+import prettier from 'prettier'
 
-const { logError, writeFile, clone } = require('./build.utils')
-const typeRoot = path.resolve(__dirname, '../types')
-const distRoot = path.resolve(__dirname, '../dist/types')
+import { logError, writeFile, clone } from './build.utils.js'
+
+const typeRoot = new URL('../types', import.meta.url).pathname
+const distRoot = new URL('../dist/types', import.meta.url).pathname
 const resolvePath = file => path.resolve(distRoot, file)
 const toCamelCase = str => str.replace(/(-\w)/g, m => m[ 1 ].toUpperCase())
 
@@ -234,7 +235,9 @@ function writeInterface (contents, typeName, props) {
 function addQuasarLangCodes (contents) {
   // We are able to read this file only because
   //  it's been generated before type generation take place
-  const langJson = require('../lang/index.json')
+  const langJson = JSON.parse(
+    readFileSync(resolvePath('../../lang/index.json'), 'utf-8')
+  )
 
   // Assure we are doing a module augmentation instead of a module overwrite
   writeLine(contents, 'import \'./lang\'')
@@ -567,7 +570,7 @@ function writeIndexDTS (apis) {
   )
 }
 
-module.exports.generate = function (data) {
+export function buildTypes (data) {
   const apis = data.plugins
     .concat(data.directives)
     .concat(data.components)

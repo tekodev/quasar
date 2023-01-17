@@ -1,13 +1,13 @@
-const path = require('path')
-const sass = require('sass')
-const rtl = require('postcss-rtlcss')
-const postcss = require('postcss')
-const cssnano = require('cssnano')
-const autoprefixer = require('autoprefixer')
+import path from 'node:path'
+import sass from 'sass'
+import rtl from 'postcss-rtlcss'
+import postcss from 'postcss'
+import cssnano from 'cssnano'
+import autoprefixer from 'autoprefixer'
 
-const buildConf = require('./build.conf')
-const buildUtils = require('./build.utils')
-const prepareDiff = require('./prepare-diff')
+import { buildConf } from './build.conf.js'
+import * as buildUtils from './build.utils.js'
+import { prepareDiff } from './prepare-diff.js'
 
 const nano = postcss([
   cssnano({
@@ -64,8 +64,8 @@ function renderAsset (cssCode, middleName = '') {
 }
 
 function generateBase (source) {
-  const src = path.join(__dirname, '..', source)
-  const sassDistDest = path.join(__dirname, '../dist/quasar.sass')
+  const src = new URL(path.join('..', source), import.meta.url).pathname
+  const sassDistDest = new URL('../dist/quasar.sass', import.meta.url).pathname
 
   const result = sass.renderSync({ file: src })
 
@@ -82,7 +82,7 @@ function generateBase (source) {
 }
 
 function generateAddon (source) {
-  const src = path.join(__dirname, '..', source)
+  const src = new URL(path.join('..', source), import.meta.url).pathname
 
   const result = sass.renderSync({ file: src })
   const cssCode = result.css.toString()
@@ -90,7 +90,7 @@ function generateAddon (source) {
   return renderAsset(cssCode, '.addon')
 }
 
-module.exports = function (withDiff) {
+export function buildCss (withDiff) {
   if (withDiff === true) {
     prepareDiff('dist/quasar.sass')
   }

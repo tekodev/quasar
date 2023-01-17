@@ -1,6 +1,6 @@
-const version = process.env.VERSION || require('../package.json').version
+import { version } from './version.js'
 
-module.exports = {
+export const buildConf = {
   version,
   banner:
     '/*!\n'

@@ -1,7 +1,8 @@
-const path = require('path')
+import path from 'node:path'
 
-const { logError, writeFile, kebabCase } = require('./build.utils')
-const resolve = file => path.resolve(__dirname, '../dist/vetur', file)
+import { logError, writeFile, kebabCase } from './build.utils.js'
+const rootFolder = new URL('..', import.meta.url).pathname
+const resolve = file => path.resolve(rootFolder, 'dist/vetur', file)
 
 function getTags (data) {
   const tags = {}
@@ -35,7 +36,7 @@ function getAttributes (data) {
   return attrs
 }
 
-module.exports.generate = function ({ components }) {
+export function buildVetur ({ components }) {
   const data = components.map(c => ({
     name: kebabCase(c.name),
     props: c.api.props || {}

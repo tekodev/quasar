@@ -1,5 +1,7 @@
-const rimraf = require('rimraf')
-const path = require('path')
+import rimraf from 'rimraf'
 
-rimraf.sync(path.resolve(__dirname, '../dist/*'))
-console.log(' 💥 Cleaned build artifacts.\n')
+export function clean () {
+  const folder = new URL('../dist/*', import.meta.url).pathname
+  rimraf.sync(folder)
+  console.log(' 💥 Cleaned build artifacts.\n')
+}

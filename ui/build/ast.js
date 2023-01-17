@@ -1,9 +1,8 @@
-const
-  recast = require('recast'),
-  parser = require('recast/parsers/babel')
+import recast from 'recast'
+import parser from 'recast/parsers/babel.js'
 
 // Analyze component JS file
-module.exports.evaluate = (source, lookup, callback) => {
+export function ast (source, lookup, callback) {
   const ast = recast.parse(source, { parser })
   for (const node of ast.program.body) {
     if (node.type === 'ExportDefaultDeclaration') {

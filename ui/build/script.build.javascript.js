@@ -1,25 +1,22 @@
 process.env.BABEL_ENV = 'production'
 
-const path = require('path')
-const fs = require('fs')
-const rollup = require('rollup')
-const uglify = require('uglify-es')
+import path from 'node:path'
+import fs from 'node:fs'
+import { rollup } from 'rollup'
+import uglify from 'uglify-es'
 
-const { nodeResolve } = require('@rollup/plugin-node-resolve')
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 // const typescript = require('rollup-plugin-typescript2')
-const replace = require('@rollup/plugin-replace')
+import replace from '@rollup/plugin-replace'
 
-const { version } = require('../package.json')
+import { version } from './version.js'
 
-const buildConf = require('./build.conf')
-const buildUtils = require('./build.utils')
-const prepareDiff = require('./prepare-diff')
+import { buildConf } from './build.conf.js'
+import * as buildUtils from './build.utils.js'
+import { prepareDiff } from './prepare-diff.js'
 
-const rootFolder = path.resolve(__dirname, '..')
-
-function resolve (_path) {
-  return path.resolve(rootFolder, _path)
-}
+const rootFolder = new URL('..', import.meta.url).pathname
+const resolve = _path => path.resolve(rootFolder, _path)
 
 // const tsConfig = {
 //   tsconfigOverride: {
@@ -126,8 +123,8 @@ const builds = [
         input: resolve('src/index.ssr.js')
       },
       output: {
-        file: resolve('dist/quasar.cjs.js'),
-        format: 'cjs'
+        file: resolve('dist/quasar.ssr-server.esm.prod.js'),
+        format: 'es'
       }
     },
     build: {
@@ -256,8 +253,7 @@ function injectVueRequirement (code) {
 }
 
 function buildEntry (config) {
-  return rollup
-    .rollup(config.rollup.input)
+  return rollup(config.rollup.input)
     .then(bundle => bundle.generate(config.rollup.output))
     .then(({ output }) => {
       const code = config.rollup.output.format === 'umd'
@@ -293,15 +289,19 @@ function buildEntry (config) {
 
 const runBuild = {
   async full () {
-    await require('./build.lang').generate()
-    await require('./build.icon-sets').generate()
+    const { buildLang } = await import('./build.lang.js')
+    await buildLang()
 
-    const data = await require('./build.api').generate()
+    const { buildIconSets } = await import('./build.icon-sets.js')
+    await buildIconSets()
 
-    require('./build.transforms').generate()
-    require('./build.vetur').generate(data)
-    require('./build.types').generate(data)
-    require('./build.web-types').generate(data)
+    const { buildApi } = await import('./build.api.js')
+    const data = await buildApi()
+
+    ;(await import('./build.transforms.js')).buildTransforms()
+    ;(await import('./build.vetur.js')).buildVetur(data)
+    ;(await import('./build.types.js')).buildTypes(data)
+    ;(await import('./build.web-types.js')).buildWebTypes(data)
 
     addUmdAssets(builds, 'lang', 'lang')
     addUmdAssets(builds, 'icon-set', 'iconSet')
@@ -312,42 +312,43 @@ const runBuild = {
   async types () {
     prepareDiff('dist/types/index.d.ts')
 
-    const data = await require('./build.api').generate()
+    const { buildApi } = await import('./build.api.js')
+    const data = await buildApi()
 
-    require('./build.vetur').generate(data)
-    require('./build.web-types').generate(data)
+    ;(await import('./build.vetur')).buildVetur(data)
+    ;(await import('./build.web-types')).buildWebTypes(data)
 
     // 'types' depends on 'lang-index'
-    await require('./build.lang').generate()
-    require('./build.types').generate(data)
+    ;(await import('./build.lang')).buildLang()
+    ;(await import('./build.types')).buildTypes(data)
   },
 
   async api () {
     await prepareDiff('dist/api')
-    await require('./build.api').generate()
+    await import('./build.api').generate()
   },
 
   async vetur () {
     await prepareDiff('dist/vetur')
 
-    const data = await require('./build.api').generate()
-    require('./build.vetur').generate(data)
+    const data = await import('./build.api').generate()
+    import('./build.vetur').generate(data)
   },
 
   async webtypes () {
     await prepareDiff('dist/web-types')
 
-    const data = await require('./build.api').generate()
-    require('./build.web-types').generate(data)
+    const data = await import('./build.api').generate()
+    import('./build.web-types').generate(data)
   },
 
   async transforms () {
     await prepareDiff('dist/transforms')
-    require('./build.transforms').generate()
+    import('./build.transforms').generate()
   }
 }
 
-module.exports = function (subtype) {
+export function buildJavascript (subtype) {
   if (runBuild[ subtype ] === void 0) {
     console.log(` Unrecognized subtype specified: "${ subtype }".`)
     console.log(` Available: ${ Object.keys(runBuild).join(' | ') }\n`)

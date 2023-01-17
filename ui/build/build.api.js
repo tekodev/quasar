@@ -1,14 +1,17 @@
-const glob = require('fast-glob')
-const path = require('path')
-const { merge } = require('webpack-merge')
-const fs = require('fs')
+import glob from 'fast-glob'
+import path from 'node:path'
+import { merge } from 'webpack-merge'
+import { readFileSync, existsSync } from 'node:fs'
 
-const root = path.resolve(__dirname, '..')
-const resolvePath = file => path.resolve(root, file)
-const dest = path.join(root, 'dist/api')
-const extendApi = require(resolvePath('src/api.extends.json'))
-const { logError, writeFile, kebabCase } = require('./build.utils')
-const ast = require('./ast')
+const rootFolder = new URL('..', import.meta.url).pathname
+const resolvePath = file => path.resolve(rootFolder, file)
+const dest = path.join(rootFolder, 'dist/api')
+import { logError, writeFile, kebabCase } from './build.utils.js'
+import { ast } from './ast.js'
+
+const extendApi = JSON.parse(
+  readFileSync(new URL('../src/api.extends.json', import.meta.url), 'utf8')
+)
 
 const slotRegex = /\(slots\[['`](\S+)['`]\]|\(slots\.([A-Za-z]+)|hSlot\(this, '(\S+)'|hUniqueSlot\(this, '(\S+)'|hMergeSlot\(this, '(\S+)'|hMergeSlotSafely\(this, '(\S+)'/g
 
@@ -16,12 +19,14 @@ function getMixedInAPI (api, mainFile) {
   api.mixins.forEach(mixin => {
     const mixinFile = resolvePath('src/' + mixin + '.json')
 
-    if (!fs.existsSync(mixinFile)) {
-      logError(`build.api.js: ${ path.relative(root, mainFile) } -> no such mixin ${ mixin }`)
+    if (!existsSync(mixinFile)) {
+      logError(`build.api.js: ${ path.relative(rootFolder, mainFile) } -> no such mixin ${ mixin }`)
       process.exit(1)
     }
 
-    const content = require(mixinFile)
+    const content = JSON.parse(
+      readFileSync(mixinFile, 'utf8')
+    )
 
     api = merge(
       {},
@@ -408,13 +413,13 @@ function handleAddedIn (addedIn, banner) {
 }
 
 function parseAPI (file, apiType) {
-  let api = require(file)
+  let api = JSON.parse(readFileSync(file, 'utf-8'))
 
   if (api.mixins !== void 0) {
     api = getMixedInAPI(api, file)
   }
 
-  const banner = `build.api.js: ${ path.relative(root, file) } -> `
+  const banner = `build.api.js: ${ path.relative(rootFolder, file) } -> `
 
   if (api.meta === void 0 || api.meta.docsUrl === void 0) {
     logError(`${ banner } API file does not contain meta > docsUrl`)
@@ -532,9 +537,9 @@ function fillAPI (apiType, list) {
 
       // QUploader has different definition
       if (name !== 'QUploader.json') {
-        const filePath = file.replace('.json', fs.existsSync(file.replace('.json', '.js')) ? '.js' : '.ts')
+        const filePath = file.replace('.json', existsSync(file.replace('.json', '.js')) ? '.js' : '.ts')
 
-        const definition = fs.readFileSync(filePath, 'utf-8')
+        const definition = readFileSync(filePath, 'utf-8')
 
         let slotMatch
         while ((slotMatch = slotRegex.exec(definition)) !== null) {
@@ -549,7 +554,7 @@ function fillAPI (apiType, list) {
           }
         }
 
-        ast.evaluate(definition, topSections[ apiType ], (prop, key, definition) => {
+        ast(definition, topSections[ apiType ], (prop, key, definition) => {
           if (prop === 'props') {
             if (!key && ('' + definition.type) === 'Function,Array') {
               // TODO
@@ -687,19 +692,19 @@ function writeTransformAssetUrls (components) {
   })
 
   writeFile(
-    path.join(root, 'dist/transforms/loader-asset-urls.json'),
+    path.join(rootFolder, 'dist/transforms/loader-asset-urls.json'),
     JSON.stringify(transformAssetUrls, null, 2)
   )
 }
 
 function writeApiIndex (list) {
   writeFile(
-    path.join(root, 'dist/transforms/api-list.json'),
+    path.join(rootFolder, 'dist/transforms/api-list.json'),
     JSON.stringify(list, null, 2)
   )
 }
 
-module.exports.generate = function () {
+export function buildApi () {
   return new Promise((resolve) => {
     const list = []
 

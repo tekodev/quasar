@@ -1,17 +1,16 @@
-const fs = require('fs')
-const path = require('path')
-const zlib = require('zlib')
-const { green, blue, red, magenta, grey, underline } = require('chalk')
+import fs from 'node:fs'
+import path from 'node:path'
+import zlib from 'zlib'
+import { green, blue, red, magenta, gray, underline } from 'kolorist'
+import { table } from 'table'
+
+import { version } from './version.js'
 
 const kebabRegex = /[A-Z\u00C0-\u00D6\u00D8-\u00DE]/g
 const tableData = []
 
-const { version } = require('../package.json')
-
 process.on('exit', code => {
   if (code === 0 && tableData.length > 0) {
-    const { table } = require('table')
-
     tableData.sort((a, b) => {
       return a[ 0 ] === b[ 0 ]
         ? a[ 1 ] < b[ 1 ] ? -1 : 1
@@ -44,8 +43,8 @@ function getSize (code) {
   return (code.length / 1024).toFixed(2) + 'kb'
 }
 
-module.exports.createFolder = function (folder) {
-  const dir = path.join(__dirname, '..', folder)
+export function createFolder (folder) {
+  const dir = new URL(path.join('..', folder), import.meta.url)
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
@@ -54,8 +53,8 @@ module.exports.createFolder = function (folder) {
 function getDestinationInfo (dest) {
   if (dest.endsWith('.json')) {
     return {
-      banner: grey('[json]'),
-      tableEntryType: grey('json'),
+      banner: gray('[json]'),
+      tableEntryType: gray('json'),
       toTable: false
     }
   }
@@ -88,7 +87,7 @@ function getDestinationInfo (dest) {
   process.exit(1)
 }
 
-module.exports.writeFile = function (dest, code, zip) {
+export function writeFile (dest, code, zip) {
   const { banner, tableEntryType, toTable } = getDestinationInfo(dest)
 
   const fileSize = getSize(code)
@@ -126,11 +125,11 @@ module.exports.writeFile = function (dest, code, zip) {
   })
 }
 
-module.exports.readFile = function (file) {
+export function readFile (file) {
   return fs.readFileSync(file, 'utf-8')
 }
 
-module.exports.writeFileIfChanged = function (dest, newContent, zip) {
+export function writeFileIfChanged (dest, newContent, zip) {
   let currentContent = ''
   try {
     currentContent = fs.readFileSync(dest, 'utf-8')
@@ -138,32 +137,30 @@ module.exports.writeFileIfChanged = function (dest, newContent, zip) {
   catch (e) {}
 
   return newContent.split(/[\n\r]+/).join('\n') !== currentContent.split(/[\n\r]+/).join('\n')
-    ? module.exports.writeFile(dest, newContent, zip)
+    ? writeFile(dest, newContent, zip)
     : Promise.resolve()
 }
 
-module.exports.convertToCjs = function (content, banner = '') {
+export function convertToCjs (content, banner = '') {
   return banner + content
     .replace(/export default {/, 'module.exports = {')
     .replace(/import {/g, 'const {')
-    .replace(/} from '(.*)'/g, (_, pkg) => `} = require('${ pkg }')`)
+    .replace(/} from '(.*)'/g, (_, pkg) => `} from '${ pkg }')`)
 }
 
-function logError (err) {
+export function logError (err) {
   console.error('\n' + red('[Error]'), err)
   console.log()
 }
 
-module.exports.logError = logError
-
-module.exports.kebabCase = function (str) {
+export function kebabCase (str) {
   return str.replace(
     kebabRegex,
     match => '-' + match.toLowerCase()
   ).substring(1)
 }
 
-module.exports.clone = function clone (data) {
+export function clone (data) {
   const str = JSON.stringify(data)
 
   if (str) {

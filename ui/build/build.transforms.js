@@ -1,17 +1,18 @@
 // Partly used with babel-plugin-transform-imports
 // and by @quasar/app auto-import feature
 
-const glob = require('fast-glob')
-const path = require('path')
+import path from 'node:path'
+import glob from 'fast-glob'
 
-const root = path.resolve(__dirname, '..')
-const resolvePath = file => path.resolve(root, file)
-const { writeFile, kebabCase } = require('./build.utils')
+import { writeFile, kebabCase } from './build.utils.js'
+
+const rootFolder = new URL('..', import.meta.url).pathname
+const resolvePath = file => path.resolve(rootFolder, file)
 
 const sourceFileSuffixRE = /\.spec\.js$/
 
 function relative (name) {
-  return path.relative(root, name).split('\\').join('/')
+  return path.relative(rootFolder, name).split('\\').join('/')
 }
 
 function getWithoutExtension (filename) {
@@ -121,7 +122,7 @@ function getAutoImportFile (autoImport) {
   }, null, 2)
 }
 
-module.exports.generate = function () {
+export function buildTransforms () {
   const map = {
     Quasar: relative(resolvePath('src/vue-plugin.js'))
   }

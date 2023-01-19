@@ -1,9 +1,10 @@
-const path from 'path')
 
-const injectHtml from '../inject.html')
-const { QuasarSSRClientPlugin } from './plugin.client-side')
+import path from 'path'
 
-module.exports = function (chain, cfg) {
+import { injectHtml } from '../inject.html.js'
+import { QuasarSSRClientPlugin } from './plugin.client-side.js'
+
+export function injectSSRClient (chain, cfg) {
   if (cfg.ctx.prod) {
     chain.output
       .path(path.join(cfg.build.distDir, 'www'))

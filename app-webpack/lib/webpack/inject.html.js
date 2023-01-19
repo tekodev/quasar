@@ -1,8 +1,9 @@
-const { join } from 'path')
-const HtmlWebpackPlugin from 'html-webpack-plugin')
 
-const appPaths from '../app-paths')
-const HtmlAddonsPlugin from './plugin.html-addons').plugin
+import { join } from 'node:path'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+
+import appPaths from '../app-paths.js'
+import { HtmlAddonsPlugin } from './plugin.html-addons.js'
 
 function getHtmlFilename (cfg) {
   if (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa) {
@@ -16,7 +17,7 @@ function getHtmlFilename (cfg) {
     : join(cfg.build.distDir, cfg.build.htmlFilename)
 }
 
-module.exports = function (chain, cfg, templateParam) {
+export function injectHtml (chain, cfg, templateParam) {
   chain.plugin('html-webpack')
     .use(HtmlWebpackPlugin, [{
       filename: getHtmlFilename(cfg),

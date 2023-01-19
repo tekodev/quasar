@@ -1,19 +1,26 @@
-const webpack from 'webpack')
-const WebpackChain from 'webpack-chain')
 
-const ExpressionDependency from './plugin.expression-dependency')
-const parseBuildEnv from '../../helpers/parse-build-env')
-const injectNodeBabel from '../inject.node-babel')
-const injectNodeTypescript from '../inject.node-typescript')
+import { readFileSync } from 'node:fs'
+import webpack from 'webpack'
+import WebpackChain from 'webpack-chain'
 
-const appPaths from '../../app-paths')
-const WebpackProgressPlugin from '../plugin.progress')
+import { ExpressionDependencyPlugin } from './plugin.expression-dependency.js'
+import { parseBuildEnv } from '../../helpers/parse-build-env.js'
+import { injectNodeBabel } from '../inject.node-babel.js'
+import { injectNodeTypescript } from '../inject.node-typescript.js'
+
+import appPaths from '../../app-paths.js'
+import { WebpackProgressPlugin } from '../plugin.progress.js'
 
 const tempElectronDir = '.quasar/electron'
 
-module.exports = (nodeType, cfg, configName) => {
-  const { dependencies:appDeps = {} } from appPaths.resolve.app('package.json'))
-  const { dependencies:cliDeps = {} } from appPaths.resolve.cli('package.json'))
+export async function createNodeChain (nodeType, cfg, configName) {
+  const { dependencies:appDeps = {} } = JSON.parse(
+    readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+  )
+
+  const { dependencies:cliDeps = {} } = JSON.parse(
+    readFileSync(appPaths.resolve.cli('package.json'), 'utf-8')
+  )
 
   const chain = new WebpackChain()
   const resolveModules = [
@@ -45,7 +52,7 @@ module.exports = (nodeType, cfg, configName) => {
   ])
 
   chain.plugin('expression-dependency')
-    .use(ExpressionDependency)
+    .use(ExpressionDependencyPlugin)
 
   injectNodeBabel(cfg, chain)
   injectNodeTypescript(cfg, chain)
@@ -98,7 +105,7 @@ module.exports = (nodeType, cfg, configName) => {
     }
 
     if (cfg.build.minify) {
-      const TerserPlugin from 'terser-webpack-plugin')
+      const { default: TerserPlugin } = await import('terser-webpack-plugin')
 
       chain.optimization
         .minimizer('js')

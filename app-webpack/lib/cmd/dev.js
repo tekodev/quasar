@@ -3,9 +3,9 @@ if (process.env.NODE_ENV === void 0) {
   process.env.NODE_ENV = 'development'
 }
 
-const parseArgs from 'minimist')
+import parseArgs from 'minimist'
 
-const { log, warn, fatal } from '../helpers/logger')
+import { log, warn, fatal } from '../helpers/logger.js'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -76,10 +76,10 @@ if (argv.help) {
   process.exit(0)
 }
 
-const ensureArgv from '../helpers/ensure-argv')
+import { ensureArgv } from '../helpers/ensure-argv.js'
 ensureArgv(argv, 'dev')
 
-const ensureVueDeps from '../helpers/ensure-vue-deps')
+import { ensureVueDeps } from '../helpers/ensure-vue-deps.js'
 ensureVueDeps()
 
 console.log(
@@ -89,10 +89,10 @@ console.log(
   )
 )
 
-const banner from '../helpers/banner')
+import { banner } from '../helpers/banner.js'
 banner(argv, 'dev')
 
-const findPort from '../helpers/net').findClosestOpenPort
+import { findClosestOpenPort } from '../helpers/net.js'
 
 async function parseAddress ({ host, port }) {
   if (this.chosenHost) {
@@ -102,13 +102,13 @@ async function parseAddress ({ host, port }) {
     ['cordova', 'capacitor'].includes(argv.mode) &&
     (!host || ['0.0.0.0', 'localhost', '127.0.0.1', '::1'].includes(host.toLowerCase()))
   ) {
-    const getExternalIP from '../helpers/get-external-ip')
+    const { getExternalIP } = await import('../helpers/get-external-ip')
     host = await getExternalIP()
     this.chosenHost = host
   }
 
   try {
-    const openPort = await findPort(port, host)
+    const openPort = await findClosestOpenPort(port, host)
     if (port !== openPort) {
       warn()
       warn(`️️Setting port to closest one available: ${openPort}`)
@@ -144,9 +144,9 @@ async function parseAddress ({ host, port }) {
   return { host, port }
 }
 
-function startVueDevtools () {
-  const { spawn } from '../helpers/spawn')
-  const getPackagePath from '../helpers/get-package-path')
+async function startVueDevtools () {
+  const { spawn } = await import('../helpers/spawn.js')
+  const { getPackagePath } = await import('../helpers/get-package-path.js')
 
   let vueDevtoolsBin = getPackagePath('@vue/devtools/bin.js')
 
@@ -160,7 +160,7 @@ function startVueDevtools () {
     return
   }
 
-  const nodePackager from '../helpers/node-packager')
+  const { nodePackager } = await import('../helpers/node-packager.js')
 
   nodePackager.installPackage('@vue/devtools', { isDev: true })
 
@@ -180,13 +180,14 @@ async function goLive () {
   }
 
   const DevServer = argv.mode === 'ssr'
-    ? require('../dev-server-ssr')
-    : require('../dev-server-regular')
-  const QuasarConfFile from '../quasar-conf-file')
-  const Generator from '../generator')
-  const getQuasarCtx from '../helpers/get-quasar-ctx')
-  const { extensionRunner } from '../app-extension/extensions-runner')
-  const { regenerateTypesFeatureFlags } from '../helpers/types-feature-flags')
+    ? await import('../dev-server-ssr.js')
+    : await import('../dev-server-regular.js')
+
+  const { QuasarConfFile } = await import('../quasar-conf-file.js')
+  const { Generator } = await import('../generator.js')
+  const { getQuasarCtx } = await import('../helpers/get-quasar-ctx.js')
+  const { extensionRunner } = await import('../app-extension/extensions-runner.js')
+  const { regenerateTypesFeatureFlags } = await import('../helpers/types-feature-flags.js')
 
   const ctx = getQuasarCtx({
     mode: argv.mode,
@@ -245,7 +246,7 @@ async function goLive () {
   let runMode
 
   if (['cordova', 'capacitor', 'electron', 'bex', 'pwa', 'ssr'].includes(argv.mode)) {
-    const ModeRunner from '../' + (argv.mode === 'ssr' ? 'pwa' : argv.mode))
+    const ModeRunner = await import(`../${ argv.mode === 'ssr' ? 'pwa' : argv.mode }.js`)
     ModeRunner.init(ctx)
     runMode = () => ModeRunner.run(quasarConfFile, argv)
   }

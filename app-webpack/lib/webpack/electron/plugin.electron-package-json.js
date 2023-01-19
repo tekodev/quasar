@@ -1,13 +1,17 @@
-const { sources } from 'webpack')
 
-const appPaths from '../../app-paths')
-const getFixedDeps from '../../helpers/get-fixed-deps')
+import { readFileSync } from 'node:fs'
+import { sources } from 'webpack'
 
-module.exports = class ElectronPackageJson {
+import appPaths from '../../app-paths.js'
+import { getFixedDeps } from '../../helpers/get-fixed-deps.js'
+
+export class ElectronPackageJsonPlugin {
   constructor (cfg = {}) {
     this.cfg = cfg
 
-    const pkg from appPaths.resolve.app('package.json'))
+    const pkg = JSON.parse(
+      readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
 
     if (pkg.dependencies) {
       pkg.dependencies = getFixedDeps(pkg.dependencies)

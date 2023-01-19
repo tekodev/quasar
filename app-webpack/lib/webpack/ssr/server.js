@@ -1,9 +1,10 @@
-const { existsSync } from 'fs')
-const { join, sep, normalize } from 'path')
-const nodeExternals from 'webpack-node-externals')
 
-const appPaths from '../../app-paths')
-const { QuasarSSRServerPlugin } from './plugin.server-side')
+import { existsSync } from 'node:fs'
+import { join, sep, normalize } from 'node:path'
+import nodeExternals from 'webpack-node-externals'
+
+import appPaths from '../../app-paths.js'
+import { QuasarSSRServerPlugin } from './plugin.server-side.js'
 
 function getModuleDirs () {
   const folders = []
@@ -23,7 +24,7 @@ function getModuleDirs () {
 
 const additionalModuleDirs = getModuleDirs()
 
-module.exports = function (chain, cfg) {
+export function injectSSRServer (chain, cfg) {
   chain.entry('app')
     .clear()
     .add(appPaths.resolve.app('.quasar/server-entry.js'))

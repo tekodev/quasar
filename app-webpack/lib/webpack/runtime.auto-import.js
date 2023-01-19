@@ -9,7 +9,7 @@
  * @param {type}      One of 'components' or 'directives'
  * @param {items}     Object containing components or directives
  */
-module.exports = function qInstall (component, type, items) {
+export default function qInstall (component, type, items) {
   const targetComponent = component.__vccOpts !== void 0
     ? component.__vccOpts
     : component

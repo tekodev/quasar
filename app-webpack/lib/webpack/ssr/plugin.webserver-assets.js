@@ -1,11 +1,12 @@
-const fs from 'fs')
-const { sources } from 'webpack')
 
-const appPaths from '../../app-paths')
-const getFixedDeps from '../../helpers/get-fixed-deps')
-const { getIndexHtml } from '../../ssr/html-template')
+import { readFileSync} from 'node:fs'
+import { sources } from 'webpack'
 
-module.exports = class WebserverAssetsPlugin {
+import appPaths from '../../app-paths.js'
+import { getFixedDeps } from '../../helpers/get-fixed-deps.js'
+import { getIndexHtml } from '../../ssr/html-template.js'
+
+export class WebserverAssetsPlugin {
   constructor (cfg = {}) {
     this.cfg = cfg
     this.initPackageJson()
@@ -20,8 +21,13 @@ module.exports = class WebserverAssetsPlugin {
   }
 
   initPackageJson () {
-    const appPkg from appPaths.resolve.app('package.json'))
-    const cliPkg from appPaths.resolve.cli('package.json'))
+    const appPkg = JSON.parse(
+      readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
+
+    const cliPkg = JSON.parse(
+      readFileSync(appPaths.resolve.cli('package.json'), 'utf-8')
+    )
 
     if (appPkg.dependencies !== void 0) {
       delete appPkg.dependencies['@quasar/extras']
@@ -64,7 +70,7 @@ module.exports = class WebserverAssetsPlugin {
 
   initHtmlTemplate () {
     const htmlFile = appPaths.resolve.app(this.cfg.sourceFiles.indexHtmlTemplate)
-    const renderTemplate = getIndexHtml(fs.readFileSync(htmlFile, 'utf-8'), this.cfg)
+    const renderTemplate = getIndexHtml(readFileSync(htmlFile, 'utf-8'), this.cfg)
     this.htmlTemplate = `module.exports=${renderTemplate.source}`
   }
 }

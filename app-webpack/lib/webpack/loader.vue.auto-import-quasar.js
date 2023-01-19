@@ -1,11 +1,12 @@
+
 import hash from 'hash-sum'
 
 import { getPackage } from '../helpers/get-package.js'
 
 const autoImportData = await getPackage('quasar/dist/transforms/auto-import.json')
 const importTransformation = await getPackage('quasar/dist/transforms/import-transformation.js')
-const autoImportRuntimePath = require.resolve('./runtime.auto-import.js')
-const injectModuleIdRuntimePath = require.resolve('./runtime.inject-module-id.js')
+const autoImportRuntimePath = new URL('./runtime.auto-import.js', import.meta.url).pathname
+const injectModuleIdRuntimePath = new URL('./runtime.inject-module-id.js', import.meta.url).pathname
 
 const compRegex = {
   'kebab': new RegExp(autoImportData.regex.kebabComponents || autoImportData.regex.components, 'g'),
@@ -80,7 +81,7 @@ qInject(script, '${id}');
 `
 }
 
-module.exports = function (content, map) {
+export default function (content, map) {
   let newContent = content
 
   if (!this.resourceQuery) {

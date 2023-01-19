@@ -62,9 +62,6 @@ const uglifyJsOptions = {
     conditionals: true,
     dead_code: true,
     evaluate: true
-  },
-  mangle: {
-    safari10: true
   }
 }
 

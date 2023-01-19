@@ -1,21 +1,27 @@
-const appPaths from '../../app-paths')
-const PwaManifestPlugin from './plugin.pwa-manifest')
-const HtmlPwaPlugin from './plugin.html-pwa').plugin
-const getPackage from '../../helpers/get-package')
+
+import { readFileSync } from 'node:fs'
+import { merge } from 'webpack-merge'
+
+import appPaths from '../../app-paths.js'
+import { log } from '../../helpers/logger.js'
+import { PwaManifestPlugin } from './plugin.pwa-manifest.js'
+import { HtmlPwaPlugin } from './plugin.html-pwa.js'
+import { getPackage } from '../../helpers/get-package.js'
 
 const WorkboxPlugin = await getPackage('workbox-webpack-plugin')
 
-module.exports = function (chain, cfg) {
+export function injectPwa (chain, cfg) {
   // write manifest.json file
   chain.plugin('pwa-manifest')
     .use(PwaManifestPlugin, [ cfg ])
 
   let defaultOptions
   const pluginMode = cfg.pwa.workboxPluginMode
-  const { log } from '../../helpers/logger')
 
   if (pluginMode === 'GenerateSW') {
-    const pkg from appPaths.resolve.app('package.json'))
+    const pkg = JSON.parse(
+      readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
 
     defaultOptions = {
       cacheId: pkg.name || 'quasar-pwa-app'
@@ -45,7 +51,6 @@ module.exports = function (chain, cfg) {
   if (cfg.ctx.mode.ssr) {
     // if Object form:
     if (cfg.ssr.pwa && cfg.ssr.pwa !== true) {
-      const { merge } from 'webpack-merge')
       opts = merge({}, opts, cfg.ssr.pwa)
     }
 

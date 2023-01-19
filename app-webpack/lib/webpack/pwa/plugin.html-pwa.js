@@ -1,4 +1,5 @@
-const HtmlWebpackPlugin from 'html-webpack-plugin')
+
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 
 function makeTag (tagName, attributes) {
   return {
@@ -8,7 +9,7 @@ function makeTag (tagName, attributes) {
   }
 }
 
-function fillPwaTags (data, { pwa: { manifest, metaVariables, metaVariablesFn, useCredentials }}) {
+export function fillPwaTags (data, { pwa: { manifest, metaVariables, metaVariablesFn, useCredentials }}) {
   data.headTags.push(
     // Add to home screen for Android and modern mobile browsers
     makeTag('link', {
@@ -87,9 +88,7 @@ function fillPwaTags (data, { pwa: { manifest, metaVariables, metaVariablesFn, u
   }
 }
 
-module.exports.fillPwaTags = fillPwaTags
-
-module.exports.plugin = class HtmlPwaPlugin {
+export class HtmlPwaPlugin {
   constructor (cfg = {}) {
     this.cfg = cfg
   }

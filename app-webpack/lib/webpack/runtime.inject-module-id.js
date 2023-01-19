@@ -7,7 +7,7 @@
  * @param {component} Vue Component object
  * @param {id}        Hashed id representing the module id
  */
-module.exports = function injectModuleId (component, id) {
+export default function injectModuleId (component, id) {
   const targetComponent = component.__vccOpts !== void 0
     ? component.__vccOpts
     : component

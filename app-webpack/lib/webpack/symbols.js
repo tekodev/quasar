@@ -1,5 +1,5 @@
 
-const webpackNames = {
+export const webpackNames = {
   spa: {
     renderer: 'UI'
   },
@@ -35,7 +35,7 @@ const webpackNames = {
   }
 }
 
-function splitWebpackConfig (webpackConfigs, mode) {
+export function splitWebpackConfig (webpackConfigs, mode) {
   return Object.keys(webpackNames[ mode ])
     .filter(name => webpackConfigs[ name ] !== void 0)
     .map(name => ({
@@ -43,6 +43,3 @@ function splitWebpackConfig (webpackConfigs, mode) {
       webpack: webpackConfigs[ name ]
     }))
 }
-
-module.exports.webpackNames = webpackNames
-module.exports.splitWebpackConfig = splitWebpackConfig

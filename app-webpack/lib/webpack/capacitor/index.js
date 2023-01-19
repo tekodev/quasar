@@ -1,9 +1,10 @@
-const appPaths from '../../app-paths')
-const injectHtml from '../inject.html')
+
+import appPaths from '../../app-paths.js'
+import { injectHtml } from '../inject.html.js'
 
 const capNodeModules = appPaths.resolve.capacitor('node_modules')
 
-module.exports = function (chain, cfg) {
+export function injectElectron (chain, cfg) {
   // need to also look into /src-capacitor
   // for deps like @capacitor/core
   chain.resolve.modules

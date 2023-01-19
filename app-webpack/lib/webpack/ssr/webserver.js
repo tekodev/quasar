@@ -1,11 +1,13 @@
-const webpack from 'webpack')
-const WebpackChain from 'webpack-chain')
-const { existsSync } from 'fs-extra')
 
-const appPaths from '../../app-paths')
-const WebserverAssetsPlugin from './plugin.webserver-assets')
-const injectNodeTypescript from '../inject.node-typescript')
-const WebpackProgressPlugin from '../plugin.progress')
+import { existsSync, readFileSync } from 'node:fs'
+import webpack from 'webpack'
+import WebpackChain from 'webpack-chain'
+import CopyWebpackPlugin from 'copy-webpack-plugin'
+
+import appPaths from '../../app-paths.js'
+import { WebserverAssetsPlugin } from './plugin.webserver-assets.js'
+import { injectNodeTypescript } from '../inject.node-typescript.js'
+import { WebpackProgressPlugin } from '../plugin.progress.js'
 
 const nodeEnvBanner = `if(process.env.NODE_ENV===void 0){process.env.NODE_ENV='production'}`
 const prodExportFile = {
@@ -30,9 +32,14 @@ const flattenObject = (obj, prefix = 'process.env') => {
     }, {})
 }
 
-module.exports = function (cfg, configName) {
-  const { dependencies:appDeps = {} } from appPaths.resolve.app('package.json'))
-  const { dependencies:cliDeps = {} } from appPaths.resolve.cli('package.json'))
+export function injectSSRWebserver (cfg, configName) {
+  const { dependencies:appDeps = {} } = JSON.parse(
+    readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+  )
+
+  const { dependencies:cliDeps = {} } = JSON.parse(
+    readFileSync(appPaths.resolve.cli('package.json'), 'utf-8')
+  )
 
   const chain = new WebpackChain()
   const resolveModules = [
@@ -150,7 +157,6 @@ module.exports = function (cfg, configName) {
       noErrorOnMissing: true
     }))
 
-    const CopyWebpackPlugin from 'copy-webpack-plugin')
     chain.plugin('copy-webpack')
       .use(CopyWebpackPlugin, [{ patterns }])
   }

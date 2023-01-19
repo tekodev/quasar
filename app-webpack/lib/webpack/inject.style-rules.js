@@ -1,11 +1,15 @@
-const ExtractLoader from 'mini-css-extract-plugin').loader
-const { merge } from 'webpack-merge')
-const path from 'node:path'
-import cssnano from 'cssnano'
 
-const appPaths from '../app-paths')
-const cssVariables from '../helpers/css-variables')
-const postCssConfigFile = appPaths.resolve.app('.postcssrc.js')
+import path from 'node:path'
+import { loader as ExtractLoader } from 'mini-css-extract-plugin'
+import { merge } from 'webpack-merge'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
+
+import appPaths from '../app-paths.js'
+import { cssVariables } from '../helpers/css-variables.js'
+
+const postCssConfigFile = appPaths.resolve.app('.postcssrc.js') // TODO? change?
 const quasarCssPaths = [
   path.join('node_modules', 'quasar', 'dist'),
   path.join('node_modules', 'quasar', 'src'),
@@ -34,21 +38,21 @@ function shouldRequireUrl (url) {
   ) === false
 }
 
-function injectRule (chain, pref, lang, test, loader, loaderOptions) {
+async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
   const baseRule = chain.module.rule(lang).test(test)
 
   // rules for <style lang="module">
   const modulesRule = baseRule.oneOf('modules-query').resourceQuery(/module/)
-  create(modulesRule, true)
+  await create(modulesRule, true)
 
   // rules for *.module.* files
   const modulesExtRule = baseRule.oneOf('modules-ext').test(/\.module\.\w+$/)
-  create(modulesExtRule, true)
+  await create(modulesExtRule, true)
 
   const normalRule = baseRule.oneOf('normal')
-  create(normalRule, false)
+  await create(normalRule, false)
 
-  function create (rule, modules) {
+  async function create (rule, modules) {
     if (pref.isServerBuild === true) {
       rule.use('null-loader')
         .loader('null-loader')
@@ -91,6 +95,8 @@ function injectRule (chain, pref, lang, test, loader, loaderOptions) {
       .options(cssLoaderOptions)
 
     if (!pref.extract && pref.minify) {
+      const { default: cssnano } = await import('cssnano')
+
       // needs to be applied separately,
       // otherwise it messes up RTL
       rule.use('cssnano')
@@ -115,11 +121,11 @@ function injectRule (chain, pref, lang, test, loader, loaderOptions) {
     // need a fresh copy, otherwise plugins
     // will keep on adding making N duplicates for each one
     delete require.cache[postCssConfigFile]
-    const postCssConfig from postCssConfigFile)
+    const postCssConfig = require(postCssConfigFile)
     let postCssOpts = { sourceMap: pref.sourceMap, ...postCssConfig }
 
     if (pref.rtl) {
-      const postcssRTL from 'postcss-rtlcss')
+      const { default: postcssRTL } = await import('postcss-rtlcss')
       const postcssRTLOptions = pref.rtl === true ? {} : pref.rtl
 
       if (
@@ -175,16 +181,16 @@ function injectRule (chain, pref, lang, test, loader, loaderOptions) {
   }
 }
 
-module.exports = function (chain, pref) {
-  injectRule(chain, pref, 'css', /\.css$/)
-  injectRule(chain, pref, 'stylus', /\.styl(us)?$/, 'stylus-loader', pref.stylusLoaderOptions),
-  injectRule(chain, pref, 'scss', /\.scss$/, 'sass-loader', merge(
+export async function injectStyleRules (chain, pref) {
+  await injectRule(chain, pref, 'css', /\.css$/)
+  await injectRule(chain, pref, 'stylus', /\.styl(us)?$/, 'stylus-loader', pref.stylusLoaderOptions),
+  await injectRule(chain, pref, 'scss', /\.scss$/, 'sass-loader', merge(
     { sassOptions: { outputStyle: /* required for RTL */ 'expanded' } },
     pref.scssLoaderOptions
   ))
-  injectRule(chain, pref, 'sass', /\.sass$/, 'sass-loader', merge(
+  await injectRule(chain, pref, 'sass', /\.sass$/, 'sass-loader', merge(
     { sassOptions: { indentedSyntax: true, outputStyle: /* required for RTL */ 'expanded' } },
     pref.sassLoaderOptions
   ))
-  injectRule(chain, pref, 'less', /\.less$/, 'less-loader', pref.lessLoaderOptions)
+  await injectRule(chain, pref, 'less', /\.less$/, 'less-loader', pref.lessLoaderOptions)
 }

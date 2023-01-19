@@ -1,6 +1,7 @@
-const appPaths from '../app-paths')
 
-module.exports = function (cfg, chain) {
+import appPaths from '../app-paths.js'
+
+export function injectNodeBabel (cfg, chain) {
   if (cfg.build.transpile === true) {
     chain.module.rule('babel')
       .test(/\.js$/)

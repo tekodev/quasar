@@ -1,3 +1,4 @@
+
 import { readFileSync } from 'node:fs'
 import { join, basename } from 'node:path'
 import { gzipSync } from 'zlib'
@@ -5,7 +6,7 @@ import { table } from 'table'
 import { bold, underline, green, blue, magenta } from 'kolorist'
 
 import { warn } from './logger.js'
-import { printWebpackWarnings } from './print-webpack-issue.js'
+import { printWebpackWarnings } from './print-webpack-issue/index.js'
 
 const colorFn = {
   js: green,

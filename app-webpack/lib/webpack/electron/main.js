@@ -1,8 +1,9 @@
-const appPaths from '../../app-paths')
-const createNodeChain from './create-node-chain')
 
-module.exports = function (cfg, configName) {
-  const chain = createNodeChain('main', cfg, configName)
+import appPaths from '../../app-paths.js'
+import { createNodeChain } from './create-node-chain.js'
+
+export async function injectElectronMain (cfg, configName) {
+  const chain = await createNodeChain('main', cfg, configName)
 
   chain.entry('electron-main')
     .add(appPaths.resolve.app(
@@ -10,11 +11,11 @@ module.exports = function (cfg, configName) {
     ))
 
   if (cfg.ctx.prod) {
-    const ElectronPackageJson from './plugin.electron-package-json')
+    const { ElectronPackageJsonPlugin } = await import('./plugin.electron-package-json.js')
 
     // write package.json file
     chain.plugin('package-json')
-      .use(ElectronPackageJson, [ cfg ])
+      .use(ElectronPackageJsonPlugin, [ cfg ])
 
     const patterns = [
       appPaths.resolve.app('.npmrc'),
@@ -33,7 +34,7 @@ module.exports = function (cfg, configName) {
       noErrorOnMissing: true
     })
 
-    const CopyWebpackPlugin from 'copy-webpack-plugin')
+    const { default: CopyWebpackPlugin } = await import('copy-webpack-plugin.js')
     chain.plugin('copy-webpack')
       .use(CopyWebpackPlugin, [{ patterns }])
   }

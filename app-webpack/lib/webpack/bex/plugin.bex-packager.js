@@ -1,17 +1,18 @@
-const path from 'path')
-const fse from 'fs-extra')
-const archiver from 'archiver')
+
+import { join } from 'node:path'
+import fse from 'fs-extra'
+import archiver from 'archiver'
 
 function findAndReplaceInSection (sectionArray, find, replace) {
   const index = sectionArray.indexOf(find)
   sectionArray[index] = replace
 }
 
-class BexPackager {
+export class BexPackagerPlugin {
   constructor (options) {
     this.options = options
-    this.chromeDir = path.join(options.dest, 'chrome')
-    this.firefoxDir = path.join(options.dest, 'firefox')
+    this.chromeDir = join(options.dest, 'chrome')
+    this.firefoxDir = join(options.dest, 'firefox')
   }
 
   apply (compiler) {
@@ -29,7 +30,7 @@ class BexPackager {
    * This will fix some of the paths in the manifest file which are different in the build version vs dev version.
    */
   fixManifest () {
-    const manifestFilePath = path.join(this.options.src, 'manifest.json')
+    const manifestFilePath = join(this.options.src, 'manifest.json')
     if (fse.existsSync(manifestFilePath) === true) {
       const manifestFileData = fse.readFileSync(manifestFilePath)
       let manifestData = JSON.parse(manifestFileData.toString())
@@ -55,7 +56,7 @@ class BexPackager {
   }
 
   outputToZip (src, dest, fileName) {
-    let output = fse.createWriteStream(path.join(dest, fileName + '.zip'))
+    let output = fse.createWriteStream(join(dest, fileName + '.zip'))
     let archive = archiver('zip', {
       zlib: { level: 9 } // Sets the compression level.
     })
@@ -65,5 +66,3 @@ class BexPackager {
     archive.finalize()
   }
 }
-
-module.exports = BexPackager

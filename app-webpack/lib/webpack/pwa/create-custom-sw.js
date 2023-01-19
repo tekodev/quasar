@@ -1,10 +1,11 @@
-const path from 'path')
-const webpack from 'webpack')
-const WebpackChain from 'webpack-chain')
 
-const appPaths from '../../app-paths')
-const parseBuildEnv from '../../helpers/parse-build-env')
-const WebpackProgressPlugin from '../plugin.progress')
+import path from 'node:path'
+import webpack from 'webpack'
+import WebpackChain from 'webpack-chain'
+
+import appPaths from '../../app-paths.js'
+import { parseBuildEnv } from '../../helpers/parse-build-env.js'
+import { WebpackProgressPlugin } from '../plugin.progress.js'
 
 function getDependenciesRegex (list) {
   const deps = list.map(dep => {
@@ -20,7 +21,7 @@ function getDependenciesRegex (list) {
   return new RegExp(deps.join('|'))
 }
 
-module.exports = function (cfg, configName) {
+export function createCustomSw (cfg, configName) {
   const chain = new WebpackChain()
 
   const resolveModules = [

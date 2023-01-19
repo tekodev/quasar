@@ -1,17 +1,18 @@
-const path from 'path')
-const webpack from 'webpack')
-const { merge } from 'webpack-merge')
-const WebpackChain from 'webpack-chain')
-const { VueLoaderPlugin } from 'vue-loader')
 
-const WebpackProgressPlugin from './plugin.progress')
-const BootDefaultExport from './plugin.boot-default-export')
-const parseBuildEnv from '../helpers/parse-build-env')
-const getPackagePath from '../helpers/get-package-path')
+import path from 'node:path'
+import webpack from 'webpack'
+import { merge } from 'webpack-merge'
+import WebpackChain from 'webpack-chain'
+import { VueLoaderPlugin } from 'vue-loader'
 
-const appPaths from '../app-paths')
-const injectStyleRules from './inject.style-rules')
-const { webpackNames } from './symbols')
+import { WebpackProgressPlugin } from './plugin.progress.js'
+import { BootDefaultExportPlugin } from './plugin.boot-default-export.js'
+import { parseBuildEnv } from '../helpers/parse-build-env.js'
+import { getPackagePath } from '../helpers/get-package-path.js'
+
+import appPaths from '../app-paths.js'
+import injectStyleRules from './inject.style-rules.js'
+import { webpackNames } from './symbols.js'
 
 function getDependenciesRegex (list) {
   const deps = list.map(dep => {
@@ -46,7 +47,7 @@ const extrasPath = (() => {
     : false
 })()
 
-module.exports = function (cfg, configName) {
+export async function createChain (cfg, configName) {
   const chain = new WebpackChain()
 
   const useFastHash = cfg.ctx.dev || ['electron', 'cordova', 'capacitor', 'bex'].includes(cfg.ctx.modeName)
@@ -193,7 +194,7 @@ module.exports = function (cfg, configName) {
           transpileOnly: true
         })
 
-    const ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin')
+    const { default: ForkTsCheckerWebpackPlugin } = await import('fork-ts-checker-webpack-plugin')
     chain
       .plugin('ts-checker')
       // https://github.com/TypeStrong/fork-ts-checker-webpack-plugin#options
@@ -280,7 +281,7 @@ module.exports = function (cfg, configName) {
 
   if (cfg.ctx.dev && configName !== webpackNames.ssr.serverSide && cfg.ctx.mode.pwa && cfg.pwa.workboxPluginMode === 'InjectManifest') {
     // need to place it here before the status plugin
-    const CustomSwWarningPlugin from './pwa/plugin.custom-sw-warning')
+    const { CustomSwWarningPlugin } = await import('./pwa/plugin.custom-sw-warning.js')
     chain.plugin('custom-sw-warning')
       .use(CustomSwWarningPlugin)
   }
@@ -289,7 +290,7 @@ module.exports = function (cfg, configName) {
     .use(WebpackProgressPlugin, [{ name: configName, cfg }])
 
   chain.plugin('boot-default-export')
-    .use(BootDefaultExport)
+    .use(BootDefaultExportPlugin)
 
   chain.performance
     .hints(false)
@@ -329,7 +330,7 @@ module.exports = function (cfg, configName) {
 
   // extract css into its own file
   if (configName !== webpackNames.ssr.serverSide && cfg.build.extractCSS) {
-    const MiniCssExtractPlugin from 'mini-css-extract-plugin')
+    const { default: MiniCssExtractPlugin } = await import('mini-css-extract-plugin')
 
     chain.plugin('mini-css-extract')
       .use(MiniCssExtractPlugin, [{
@@ -343,7 +344,7 @@ module.exports = function (cfg, configName) {
       configName !== webpackNames.ssr.serverSide
     ) {
       // copy /public to dist folder
-      const CopyWebpackPlugin from 'copy-webpack-plugin')
+      const { default: CopyWebpackPlugin } = await import('copy-webpack-plugin')
 
       const ignore = [
         '**/.DS_Store',
@@ -381,7 +382,7 @@ module.exports = function (cfg, configName) {
       chain.optimization.minimize(false)
     }
     else if (cfg.build.minify) {
-      const TerserPlugin from 'terser-webpack-plugin')
+      const { default: TerserPlugin } = await import('terser-webpack-plugin')
 
       chain.optimization
         .minimizer('js')
@@ -395,7 +396,7 @@ module.exports = function (cfg, configName) {
     if (configName !== webpackNames.ssr.serverSide) {
       // dedupe & minify CSS (only if extracted)
       if (cfg.build.extractCSS && cfg.build.minify) {
-        const CssMinimizerPlugin from 'css-minimizer-webpack-plugin')
+        const { default: CssMinimizerPlugin } = await import('css-minimizer-webpack-plugin')
 
         // We are using this plugin so that possible
         // duplicated CSS from different components) can be deduped.
@@ -408,13 +409,13 @@ module.exports = function (cfg, configName) {
 
       // also produce a gzipped version
       if (cfg.build.gzip) {
-        const CompressionWebpackPlugin from 'compression-webpack-plugin')
+        const { default: CompressionWebpackPlugin } = await import('compression-webpack-plugin')
         chain.plugin('compress-webpack')
           .use(CompressionWebpackPlugin, [ cfg.build.gzip ])
       }
 
       if (cfg.build.analyze) {
-        const BundleAnalyzerPlugin from 'webpack-bundle-analyzer').BundleAnalyzerPlugin
+        const { BundleAnalyzerPlugin } = await import('webpack-bundle-analyzer')
         chain.plugin('bundle-analyzer')
           .use(BundleAnalyzerPlugin, [ Object.assign({}, cfg.build.analyze) ])
       }

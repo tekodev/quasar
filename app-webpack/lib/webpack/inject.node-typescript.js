@@ -1,4 +1,5 @@
-module.exports = function (cfg, chain) {
+
+export function injectNodeTypescript (cfg, chain) {
   if (cfg.supportTS !== false) {
     chain.resolve.extensions
       .merge([ '.ts' ])

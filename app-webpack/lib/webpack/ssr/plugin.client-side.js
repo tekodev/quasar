@@ -2,8 +2,8 @@
  * Forked from vue-server-renderer/client-plugin.js v2.6.12 NPM package
  */
 
-const hash from 'hash-sum')
-const { sources, Compilation } from 'webpack')
+import hash from 'hash-sum'
+import { sources, Compilation } from 'webpack'
 
 const jsCssRE = /\.(js|css)(\?[^.]+)?$/
 const swRE = /\s\w+$/
@@ -11,7 +11,7 @@ const hotUpdateRE = /\.hot-update\.js$/
 
 const uniq = arr => [ ...new Set(arr) ]
 
-function getClientManifest (compilation) {
+export function getClientManifest (compilation) {
   const stats = compilation.getStats().toJson()
 
   const allFiles = uniq(
@@ -65,9 +65,7 @@ function getClientManifest (compilation) {
   return manifest
 }
 
-module.exports.getClientManifest = getClientManifest
-
-module.exports.QuasarSSRClientPlugin = class QuasarSSRClientPlugin {
+export class QuasarSSRClientPlugin {
   constructor (cfg = {}) {
     this.cfg = cfg
   }

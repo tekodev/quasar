@@ -1,4 +1,5 @@
-module.exports = class ExpressionDependency {
+
+export class ExpressionDependencyPlugin {
   apply (compiler) {
     compiler.hooks.done.tap('expression-dependency', stats => {
       stats.compilation.warnings = stats.compilation.warnings.filter(

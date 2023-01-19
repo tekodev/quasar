@@ -1,13 +1,15 @@
-const { ProgressPlugin } from 'webpack')
-const throttle from 'lodash/throttle')
-const kolorist from 'kolorist')
 
-const appPaths from '../app-paths')
-const { success, info, error, warning, clearConsole } from '../helpers/logger')
-const { quasarVersion, cliAppVersion } from '../helpers/banner')
-const isMinimalTerminal from '../helpers/is-minimal-terminal')
-const { printWebpackWarnings, printWebpackErrors } from '../helpers/print-webpack-issue')
-const progressLog from '../helpers/progress-log')
+import { ProgressPlugin } from 'webpack'
+import throttle from 'lodash/throttle'
+import kolorist from 'kolorist'
+
+import appPaths from '../app-paths.js'
+import { success, info, error, warning, clearConsole } from '../helpers/logger.js'
+import { quasarVersion, cliAppVersion } from '../helpers/banner.js'
+import { isMinimalTerminal } from '../helpers/is-minimal-terminal.js'
+import { printWebpackWarnings, printWebpackErrors } from '../helpers/print-webpack-issue/index.js'
+import { progressLog } from '../helpers/progress-log.js'
+import { getIPs } from '../helpers/net.js'
 
 let maxLengthName = 0
 let isDev = false
@@ -26,7 +28,6 @@ function isExternalProgressIdle () {
 function getIPList () {
   // expensive operation, so cache the response
   if (ipList === void 0) {
-    const { getIPs } from '../helpers/net')
     ipList = getIPs().map(ip => ip === '127.0.0.1' ? 'localhost' : ip)
   }
 
@@ -194,7 +195,7 @@ function printStatus () {
   }
 }
 
-module.exports = class WebpackProgressPlugin extends ProgressPlugin {
+export class WebpackProgressPlugin extends ProgressPlugin {
   constructor ({ name, cfg, hasExternalWork }) {
     const useBars = isMinimalTerminal !== true && cfg.build.showProgress === true
 
@@ -325,7 +326,7 @@ module.exports = class WebpackProgressPlugin extends ProgressPlugin {
   }
 }
 
-module.exports.doneExternalWork = function doneExternalWork (webpackName) {
+export function doneExternalWork (webpackName) {
   const state = compilations.find(entry => entry.name === webpackName)
   state.externalWork = false
   printStatus()

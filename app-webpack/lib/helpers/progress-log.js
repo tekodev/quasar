@@ -1,3 +1,4 @@
+
 import { createLogUpdate } from 'log-update'
 
 const logLine = createLogUpdate(process.stdout, { showCursor: true })
@@ -5,7 +6,7 @@ const logLine = createLogUpdate(process.stdout, { showCursor: true })
 let lastLog
 let consoleLog, consoleWarn, consoleError
 
-function progressLog (str) {
+export function progressLog (str) {
   lastLog = str
   logLine(str)
 }
@@ -55,5 +56,3 @@ progressLog.stop = function () {
   console.warn = consoleWarn
   console.error = consoleError
 }
-
-module.exports = progressLog

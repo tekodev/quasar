@@ -1,5 +1,6 @@
-const injectHtml from '../inject.html')
 
-module.exports = function (chain, cfg) {
+import { injectHtml } from '../inject.html.js'
+
+export function injectCordova (chain, cfg) {
   injectHtml(chain, cfg)
 }

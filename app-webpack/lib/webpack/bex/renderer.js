@@ -1,11 +1,13 @@
+
 import path from 'node:path'
 import fse from 'fs-extra'
+import { CopyWebpackPlugin } from 'copy-webpack-plugin'
 
 import appPaths from '../../app-paths.js'
 import { clean } from '../../artifacts.js'
 import { injectHtml } from '../inject.html.js'
 
-export default function (chain, cfg) {
+export async function injectBexRenderer (chain, cfg) {
   const rootPath = cfg.ctx.dev ? appPaths.bexDir : cfg.build.distDir
   const outputPath = path.join(rootPath, 'www')
 
@@ -40,9 +42,9 @@ export default function (chain, cfg) {
     cfg.build.htmlFilename = path.join('www', 'index.html')
 
     // Register our plugin, update the manifest and package the browser extension.
-    const { BexPackager } from './plugin.bex-packager')
+    const { BexPackagerPlugin } = await import('./plugin.bex-packager.js')
     chain.plugin('webpack-bex-packager')
-      .use(BexPackager, [{
+      .use(BexPackagerPlugin, [{
         src: cfg.bex.builder.directories.input,
         dest: cfg.bex.builder.directories.output,
         name: JSON.parse(fse.readFileSync(appPaths.resolve.app('package.json'), 'utf8')).name
@@ -67,7 +69,6 @@ export default function (chain, cfg) {
   injectHtml(chain, cfg)
 
   // Copy any files we've registered during the chain.
-  const CopyWebpackPlugin from 'copy-webpack-plugin')
   chain.plugin('copy-webpack')
     .use(CopyWebpackPlugin, [{ patterns: copyPatterns }])
 }

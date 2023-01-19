@@ -1,19 +1,20 @@
-const path from 'path')
-const fs from 'fs')
-const { merge } from 'webpack-merge')
-const chokidar from 'chokidar')
-const debounce from 'lodash/debounce')
-const { green } from 'kolorist')
+import path from 'node:path'
+import fs from 'node:fs'
+import { merge } from 'webpack-merge'
+import chokidar from 'chokidar'
+import debounce from 'lodash/debounce.js'
+import { green } from 'kolorist'
 
-const appPaths from './app-paths')
-const { log, warn, fatal } from './helpers/logger')
-const { extensionRunner } from './app-extension/extensions-runner')
-const appFilesValidations from './helpers/app-files-validations')
-const cssVariables from './helpers/css-variables')
-const getPackage from './helpers/get-package')
-const getPackageMajorVersion from './helpers/get-package-major-version')
-const storeProvider from './helpers/store-provider')
-const { quasarVersion } from './helpers/banner')
+import appPaths from './app-paths.js'
+import { log, warn, fatal } from './helpers/logger.js'
+import { extensionRunner } from './app-extension/extensions-runner.js'
+import { appFilesValidations } from './helpers/app-files-validations.js'
+import { cssVariables } from './helpers/css-variables.js'
+import { getPackage } from './helpers/get-package.js'
+import { getPackageMajorVersion } from './helpers/get-package-major-version.js'
+import { storeProvider } from './helpers/store-provider.js'
+import { quasarVersion } from './helpers/banner.js'
+import { createWebpackConfig } from './webpack/index.js'
 
 const transformAssetUrls = await getPackage('quasar/dist/transforms/loader-asset-urls.json')
 const urlRegex = /^http(s)?:\/\//
@@ -100,12 +101,14 @@ function uniqueRegexFilter (value, index, self) {
  * this.webpackConf         - Webpack config(s)
  */
 
-class QuasarConfFile {
+export class QuasarConfFile {
   constructor (ctx, opts = {}) {
     this.ctx = ctx
     this.opts = opts
     this.filename = appPaths.quasarConfigFilename
-    this.pkg from appPaths.resolve.app('package.json'))
+    this.pkg = JSON.parse(
+      fs.readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
     this.watch = opts.onBuildChange || opts.onAppChange
 
     if (this.watch) {
@@ -137,7 +140,7 @@ class QuasarConfFile {
     catch (e) {
       if (e.message !== 'NETWORK_ERROR') {
         console.error(e)
-        warn(`quasar.config.js has JS errors. Please fix them then save file again.\n`)
+        warn(`quasar.config file has JS errors. Please fix them then save file again.\n`)
       }
 
       return false
@@ -222,7 +225,8 @@ class QuasarConfFile {
     }, initialConf)
 
     if (cfg.animations === 'all') {
-      cfg.animations from './helpers/animations')
+      const { animations } = await import('./helpers/animations.js')
+      cfg.animations = animations
     }
 
     if (!cfg.framework.plugins) {
@@ -440,9 +444,6 @@ class QuasarConfFile {
           conditionals: true,
           dead_code: true,
           evaluate: true
-        },
-        mangle: {
-          safari10: true
         }
       }
     }, cfg.build)
@@ -579,7 +580,8 @@ class QuasarConfFile {
 
     if (this.ctx.dev) {
       const originalSetup = cfg.devServer.setupMiddlewares
-      const openInEditor from 'launch-editor-middleware')
+      const openInEditor = await import('launch-editor-middleware')
+      const express = await import('express')
 
       if (this.ctx.mode.bex === true) {
         cfg.devServer.devMiddleware = cfg.devServer.devMiddleware || {}
@@ -625,8 +627,6 @@ class QuasarConfFile {
           const { app } = opts
 
           if (!this.ctx.mode.ssr) {
-            const express from 'express')
-
             if (cfg.build.ignorePublicFolder !== true) {
               app.use((cfg.build.publicPath || '/'), express.static(appPaths.resolve.app('public'), {
                 maxAge: 0
@@ -689,7 +689,7 @@ class QuasarConfFile {
       }
 
       if (cfg.devServer.open) {
-        const isMinimalTerminal from './helpers/is-minimal-terminal')
+        const { isMinimalTerminal } = await import('./helpers/is-minimal-terminal.js')
         if (isMinimalTerminal) {
           cfg.devServer.open = false
         }
@@ -820,7 +820,7 @@ class QuasarConfFile {
       })
     }
     else if (this.ctx.mode.electron && this.ctx.prod) {
-      const bundler from './electron/bundler')
+      const { getDefaultName, ensureInstall } = await import('./electron/bundler.js')
 
       const icon = appPaths.resolve.electron('icons/icon.png')
       const builderIcon = process.platform === 'linux'
@@ -859,11 +859,11 @@ class QuasarConfFile {
         cfg.electron.bundler = cfg.ctx.bundlerName
       }
       else if (!cfg.electron.bundler) {
-        cfg.electron.bundler = bundler.getDefaultName()
+        cfg.electron.bundler = getDefaultName()
       }
 
       if (this.opts.argv !== void 0) {
-        const { ensureElectronArgv } from './helpers/ensure-argv')
+        const { ensureElectronArgv } = await import('./helpers/ensure-argv.js')
         ensureElectronArgv(cfg.electron.bundler, this.opts.argv)
       }
 
@@ -901,7 +901,7 @@ class QuasarConfFile {
         }
       }
 
-      bundler.ensureInstall(cfg.electron.bundler)
+      ensureInstall(cfg.electron.bundler)
     }
 
     cfg.htmlVariables = merge({
@@ -934,7 +934,7 @@ class QuasarConfFile {
     }
 
     if (this.ctx.mode.capacitor) {
-      const { capVersion } from './capacitor/cap-cli')
+      const { capVersion } = await import('./capacitor/cap-cli.js')
       cfg.__versions.capacitor = capVersion
 
       const getCapPluginVersion = capVersion <= 2
@@ -963,9 +963,7 @@ class QuasarConfFile {
     this.quasarConf = cfg
 
     if (this.webpackConfChanged !== false) {
-      this.webpackConf = await require('./webpack')(cfg)
+      this.webpackConf = await createWebpackConfig(cfg)
     }
   }
 }
-
-module.exports = QuasarConfFile

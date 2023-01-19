@@ -1,9 +1,10 @@
-const path from 'path')
 
-const appPaths from '../../app-paths')
+import { join } from 'node:path'
 
-module.exports = function (chain, cfg) {
-  const outputPath = path.join(cfg.ctx.dev ? appPaths.bexDir : cfg.build.distDir, 'www')
+import appPaths from '../../app-paths.js'
+
+export function injectBexMain (chain, cfg) {
+  const outputPath = join(cfg.ctx.dev ? appPaths.bexDir : cfg.build.distDir, 'www')
 
   // Reset some bits we don't need following the default createChain() call.
   // We only want the entry points we're adding in this file so remove all others.

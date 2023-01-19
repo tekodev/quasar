@@ -1,4 +1,5 @@
-const HtmlWebpackPlugin from 'html-webpack-plugin')
+
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 
 function makeTag (tagName, attributes, closeTag = false) {
   return {
@@ -16,16 +17,14 @@ function makeTag (tagName, attributes, closeTag = false) {
 //   }
 // }
 
-function fillBaseTag (html, base) {
+export function fillBaseTag (html, base) {
   return html.replace(
     /(<head[^>]*)(>)/i,
     (_, start, end) => `${start}${end}<base href="${base}">`
   )
 }
 
-module.exports.fillBaseTag = fillBaseTag
-
-module.exports.plugin = class HtmlAddonsPlugin {
+export class HtmlAddonsPlugin {
   constructor (cfg = {}) {
     this.cfg = cfg
   }

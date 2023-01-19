@@ -3,29 +3,29 @@ import { normalize, resolve, join, sep } from 'node:path'
 
 import { fatal } from './helpers/logger.js'
 
-let quasarConfigFilename
+function getAppInfo () {
+  let appDir = process.cwd()
 
-function getAppDir () {
-  let dir = process.cwd()
-
-  while (dir.length && dir[dir.length - 1] !== sep) {
-    // TODO .js | .ts | .cjs | .mjs
-    if (existsSync(join(dir, 'quasar.config.js'))) {
-      quasarConfigFilename = 'quasar.config.js'
-      return dir
-    }
-    if (existsSync(join(dir, 'quasar.conf.js'))) {
-      quasarConfigFilename = 'quasar.conf.js'
-      return dir
+  while (appDir.length && appDir[appDir.length - 1] !== sep) {
+    if (existsSync(join(appDir, 'quasar.config.js'))) {
+      return { appDir, quasarConfigFilename: 'quasar.config.js', quasarConfigFileFormat: 'module' }
     }
 
-    dir = normalize(join(dir, '..'))
+    if (existsSync(join(appDir, 'quasar.config.ts'))) {
+      return { appDir, quasarConfigFilename: 'quasar.config.ts', quasarConfigFileFormat: 'ts' }
+    }
+
+    if (existsSync(join(appDir, 'quasar.config.cjs'))) {
+      return { appDir, quasarConfigFilename: 'quasar.config.cjs', quasarConfigFileFormat: 'commonjs' }
+    }
+
+    appDir = normalize(join(appDir, '..'))
   }
 
   fatal(`Error. This command must be executed inside a Quasar project folder.`)
 }
 
-const appDir = getAppDir()
+const { appDir, quasarConfigFilename, quasarConfigFileFormat } = getAppDir()
 const cliDir = new URL('..', import.meta.url).pathname
 const srcDir = resolve(appDir, 'src')
 const pwaDir = resolve(appDir, 'src-pwa')
@@ -46,6 +46,7 @@ export default {
   electronDir,
   bexDir,
   quasarConfigFilename: resolve(appDir, quasarConfigFilename),
+  quasarConfigFileFormat,
 
   resolve: {
     cli: dir => join(cliDir, dir),

@@ -1,3 +1,4 @@
+
 import { dirname } from 'node:path'
 
 export function getCallerPath () {
@@ -5,5 +6,8 @@ export function getCallerPath () {
 	Error.prepareStackTrace = (_, stack) => stack
 	const stack = new Error().stack.slice(1)
   Error.prepareStackTrace = _prepareStackTrace
-  return dirname(stack[1].getFileName())
+  const file = stack[1].getFileName()
+  return dirname(
+    file.startsWith('file://') ? file.slice(7) : file
+  )
 }

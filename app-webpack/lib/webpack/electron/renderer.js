@@ -1,6 +1,7 @@
-const injectHtml from '../inject.html')
 
-module.exports = function (chain, cfg) {
+import { injectHtml } from '../inject.html.js'
+
+export function injectElectronRenderer (chain, cfg) {
   injectHtml(chain, cfg)
 
   if (cfg.ctx.build) {

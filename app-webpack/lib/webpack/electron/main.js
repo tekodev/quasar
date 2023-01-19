@@ -1,5 +1,5 @@
-const appPaths = require('../../app-paths')
-const createNodeChain = require('./create-node-chain')
+const appPaths from '../../app-paths')
+const createNodeChain from './create-node-chain')
 
 module.exports = function (cfg, configName) {
   const chain = createNodeChain('main', cfg, configName)
@@ -10,7 +10,7 @@ module.exports = function (cfg, configName) {
     ))
 
   if (cfg.ctx.prod) {
-    const ElectronPackageJson = require('./plugin.electron-package-json')
+    const ElectronPackageJson from './plugin.electron-package-json')
 
     // write package.json file
     chain.plugin('package-json')
@@ -33,7 +33,7 @@ module.exports = function (cfg, configName) {
       noErrorOnMissing: true
     })
 
-    const CopyWebpackPlugin = require('copy-webpack-plugin')
+    const CopyWebpackPlugin from 'copy-webpack-plugin')
     chain.plugin('copy-webpack')
       .use(CopyWebpackPlugin, [{ patterns }])
   }

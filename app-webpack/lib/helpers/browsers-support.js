@@ -1,7 +1,7 @@
-const browserslist = require('browserslist')
+import browserslist from 'browserslist'
 
-const appPaths = require('../app-paths')
-const { warn, fatal } = require('./logger')
+import appPaths from '../app-paths.js'
+import { warn, fatal } from './logger.js'
 
 const NAMES = {
   ie: 'IE',
@@ -21,7 +21,7 @@ function capitalize (str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-function getBrowsersList () {
+export function getBrowsersList () {
   if (browserListCache !== void 0) {
     return browserListCache
   }
@@ -71,7 +71,7 @@ function getSupportData () {
   }
 }
 
-function getBrowsersBanner () {
+export function getBrowsersBanner () {
   if (browserBannerCache !== void 0) {
     return browserBannerCache
   }
@@ -83,6 +83,3 @@ function getBrowsersBanner () {
 
   return browserBannerCache
 }
-
-module.exports.getBrowsersList = getBrowsersList
-module.exports.getBrowsersBanner = getBrowsersBanner

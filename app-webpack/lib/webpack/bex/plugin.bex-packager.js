@@ -1,6 +1,6 @@
-const path = require('path')
-const fse = require('fs-extra')
-const archiver = require('archiver')
+const path from 'path')
+const fse from 'fs-extra')
+const archiver from 'archiver')
 
 function findAndReplaceInSection (sectionArray, find, replace) {
   const index = sectionArray.indexOf(find)

@@ -1,13 +1,24 @@
-const fs = require('fs-extra')
-const path = require('path')
 
-const { log, warn, fatal } = require('../helpers/logger')
-const appPaths = require('../app-paths')
-const extensionJson = require('./extension-json')
+import path from 'node:path'
+import fse from 'fs-extra'
+import inquirer from 'inquirer'
+import { isBinaryFileSync as isBinary } from 'isbinaryfile'
+import compileTemplate from 'lodash/template.js'
+import { createRequire } from 'module'
+
+import appPaths from '../app-paths.js'
+import { log, warn, fatal } from '../helpers/logger.js'
+import { extensionJson } from './extension-json.js'
+import { nodePackager } from '../helpers/node-packager.js'
+
+import { IndexAPI } from './IndexAPI.js'
+import { InstallAPI } from './InstallAPI.js'
+import { UninstallAPI } from './UninstallAPI.js'
+import { getPackagePath } from '../helpers/get-package-path.js'
+
+const require = createRequire(import.meta.url)
 
 async function promptOverwrite ({ targetPath, options }) {
-  const inquirer = require('inquirer')
-
   const choices = [
     { name: 'Overwrite', value: 'overwrite' },
     { name: 'Overwrite all', value: 'overwriteAll' },
@@ -27,10 +38,7 @@ async function promptOverwrite ({ targetPath, options }) {
 }
 
 async function renderFile ({ sourcePath, targetPath, rawCopy, scope, overwritePrompt }) {
-  const { isBinaryFileSync: isBinary } = require('isbinaryfile')
-  const compileTemplate = require('lodash/template')
-
-  if (overwritePrompt === true && fs.existsSync(targetPath)) {
+  if (overwritePrompt === true && fse.existsSync(targetPath)) {
     const answer = await promptOverwrite({
       targetPath,
       options: [ 'overwrite', 'skip' ]
@@ -41,22 +49,21 @@ async function renderFile ({ sourcePath, targetPath, rawCopy, scope, overwritePr
     }
   }
 
-  fs.ensureFileSync(targetPath)
+  fse.ensureFileSync(targetPath)
 
   if (rawCopy || isBinary(sourcePath)) {
-    fs.copyFileSync(sourcePath, targetPath)
+    fse.copyFileSync(sourcePath, targetPath)
   }
   else {
-    const rawContent = fs.readFileSync(sourcePath, 'utf-8')
+    const rawContent = fse.readFileSync(sourcePath, 'utf-8')
     const template = compileTemplate(rawContent, { 'interpolate': /<%=([\s\S]+?)%>/g })
-    fs.writeFileSync(targetPath, template(scope), 'utf-8')
+    fse.writeFileSync(targetPath, template(scope), 'utf-8')
   }
 }
 
 async function renderFolders ({ source, rawCopy, scope }) {
-  const fglob = require('fast-glob')
-
   let overwrite
+  const { default: fglob } = await import('fast-glob')
   const files = fglob.sync(['**/*'], { cwd: source })
 
   for (const rawPath of files) {
@@ -75,7 +82,7 @@ async function renderFolders ({ source, rawCopy, scope }) {
     const targetPath = appPaths.resolve.app(targetRelativePath)
     const sourcePath = path.resolve(source, rawPath)
 
-    if (overwrite !== 'overwriteAll' && fs.existsSync(targetPath)) {
+    if (overwrite !== 'overwriteAll' && fse.existsSync(targetPath)) {
       if (overwrite === 'skipAll') {
         continue
       }
@@ -99,7 +106,7 @@ async function renderFolders ({ source, rawCopy, scope }) {
   }
 }
 
-module.exports = class Extension {
+export class Extension {
   constructor (name) {
     if (name.charAt(0) === '@') {
       const slashIndex = name.indexOf('/')
@@ -123,12 +130,25 @@ module.exports = class Extension {
 
   isInstalled () {
     try {
-      this.__getScriptFile('index')
+      const packagePath = getPackagePath(path.join(this.packageFullName, 'package.json'))
+      if (packagePath === void 0) {
+        return false
+      }
+
+      const packageJsonPath = packagePath
+      const pkg = JSON.parse(
+        fse.readFileSync(packageJsonPath, 'utf-8')
+      )
+
+      this.packageFormat = pkg.type === 'module' ? 'esm' : 'cjs'
+      this.packagePath = path.dirname(packagePath)
+
+      return true
     }
     catch (e) {
+      console.error(e)
       return false
     }
-    return true
   }
 
   async install (skipPkgInstall) {
@@ -153,7 +173,6 @@ module.exports = class Extension {
       }
     }
     else if (isInstalled) {
-      const inquirer = require('inquirer')
       const answer = await inquirer.prompt([{
         name: 'reinstall',
         type: 'confirm',
@@ -229,8 +248,7 @@ module.exports = class Extension {
       process.exit(1, 'ext-missing')
     }
 
-    const script = this.__getScript('index', true)
-    const IndexAPI = require('./IndexAPI')
+    const script = await this.__getScript('index', true)
 
     const api = new IndexAPI({
       extId: this.extId,
@@ -253,13 +271,12 @@ module.exports = class Extension {
   }
 
   async __getPrompts () {
-    const questions = this.__getScript('prompts')
+    const questions = await this.__getScript('prompts')
 
     if (!questions) {
       return {}
     }
 
-    const inquirer = require('inquirer')
     const prompts = await inquirer.prompt(questions())
 
     console.log()
@@ -267,14 +284,10 @@ module.exports = class Extension {
   }
 
   __installPackage () {
-    const nodePackager = require('../helpers/node-packager')
-
     nodePackager.installPackage(this.packageFullName, { isDev: true })
   }
 
   __uninstallPackage () {
-    const nodePackager = require('../helpers/node-packager')
-
     nodePackager.uninstallPackage(this.packageFullName)
   }
 
@@ -286,29 +299,31 @@ module.exports = class Extension {
    * as long as the corresponding file isn't available into the `src` folder, making the feature opt-in
    */
   __getScriptFile (scriptName) {
-    let script
-
-    try {
-      script = require.resolve(`${this.packageName}/src/${scriptName}`, {
-        paths: [ appPaths.appDir ]
-      })
-    }
-    catch (e) {
-      script = require.resolve(`${this.packageName}/dist/${scriptName}`, {
-        paths: [ appPaths.appDir ]
-      })
+    let scriptFile = path.join(this.packagePath, `src/${scriptName}.js`)
+    if (fse.existsSync(scriptFile)) {
+      return scriptFile
     }
 
-    return script
+    scriptFile = path.join(this.packagePath, `dist/${scriptName}.js`)
+    if (fse.existsSync(scriptFile)) {
+      return scriptFile
+    }
+
+    scriptFile = path.join(this.packagePath, `src/${scriptName}.ts`)
+    if (fse.existsSync(scriptFile)) {
+      return scriptFile
+    }
+
+    scriptFile = path.join(this.packagePath, `dist/${scriptName}.ts`)
+    if (fse.existsSync(scriptFile)) {
+      return scriptFile
+    }
   }
 
-  __getScript (scriptName, fatalError) {
-    let script
+  async __getScript (scriptName, fatalError) {
+    const script = this.__getScriptFile(scriptName)
 
-    try {
-      script = this.__getScriptFile(scriptName)
-    }
-    catch (e) {
+    if (!script) {
       if (fatalError) {
         fatal(`App Extension "${this.extId}" has missing ${scriptName} script...`)
       }
@@ -316,19 +331,22 @@ module.exports = class Extension {
       return
     }
 
+    if (this.packageFormat === 'esm') {
+      const { default: fn } = await import(script)
+      return fn
+    }
+
     return require(script)
   }
 
   async __runInstallScript (prompts) {
-    const script = this.__getScript('install')
+    const script = await this.__getScript('install')
 
     if (!script) {
       return
     }
 
     log('Running App Extension install script...')
-
-    const InstallAPI = require('./InstallAPI')
 
     const api = new InstallAPI({
       extId: this.extId,
@@ -352,8 +370,6 @@ module.exports = class Extension {
     }
 
     if (api.__needsNodeModulesUpdate) {
-      const nodePackager = require('../helpers/node-packager')
-
       nodePackager.install()
     }
 
@@ -361,7 +377,7 @@ module.exports = class Extension {
   }
 
   async __runUninstallScript (prompts) {
-    const script = this.__getScript('uninstall')
+    const script = await this.__getScript('uninstall')
 
     if (!script) {
       return
@@ -369,7 +385,6 @@ module.exports = class Extension {
 
     log('Running App Extension uninstall script...')
 
-    const UninstallAPI = require('./UninstallAPI')
     const api = new UninstallAPI({
       extId: this.extId,
       prompts

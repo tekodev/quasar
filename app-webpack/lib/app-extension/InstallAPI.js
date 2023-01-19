@@ -1,13 +1,13 @@
-const fs = require('fs-extra')
-const path = require('path')
-const { merge } = require('webpack-merge')
-const semver = require('semver')
+import path from 'node:path'
+import fse from 'fs-extra'
+import { merge } from 'webpack-merge'
+import semver from 'semver'
 
-const { warn, fatal } = require('../helpers/logger')
-const getPackageJson = require('../helpers/get-package-json')
-const getCallerPath = require('../helpers/get-caller-path')
-const extensionJson = require('./extension-json')
-const BaseAPI = require('./BaseAPI')
+import { warn, fatal } from '../helpers/logger.js'
+import { getPackageJson } from '../helpers/get-package-json.js'
+import { getCallerPath } from '../helpers/get-caller-path.js'
+import { extensionJson } from './extension-json.js'
+import { BaseAPI } from './BaseAPI.js'
 
 // for backward compatibility
 function getPackageName (packageName) {
@@ -19,7 +19,7 @@ function getPackageName (packageName) {
 /**
  * API for extension's /install.js script
  */
-module.exports = class InstallAPI extends BaseAPI {
+export class InstallAPI extends BaseAPI {
   __hooks = {
     renderFolders: [],
     renderFiles: [],
@@ -152,13 +152,13 @@ module.exports = class InstallAPI extends BaseAPI {
       const dir = getCallerPath()
       const source = path.resolve(dir, extPkg)
 
-      if (!fs.existsSync(source)) {
+      if (!fse.existsSync(source)) {
         warn()
         warn(`Extension(${this.extId}): extendPackageJson() - cannot locate ${extPkg}. Skipping...`)
         warn()
         return
       }
-      if (fs.lstatSync(source).isDirectory()) {
+      if (fse.lstatSync(source).isDirectory()) {
         warn()
         warn(`Extension(${this.extId}): extendPackageJson() - "${extPkg}" is a folder instead of file. Skipping...`)
         warn()
@@ -166,7 +166,9 @@ module.exports = class InstallAPI extends BaseAPI {
       }
 
       try {
-        extPkg = require(source)
+        extPkg = JSON.parse(
+          fse.readFileSync(source, 'utf-8')
+        )
       }
       catch (e) {
         warn(`Extension(${this.extId}): extendPackageJson() - "${extPkg}" is malformed`)
@@ -180,9 +182,9 @@ module.exports = class InstallAPI extends BaseAPI {
     }
 
     const filePath = this.resolve.app('package.json')
-    const pkg = merge({}, require(filePath), extPkg)
+    const pkg = merge({}, JSON.parse(fse.readFileSync(filePath, 'utf-8')), extPkg)
 
-    fs.writeFileSync(
+    fse.writeFileSync(
       filePath,
       JSON.stringify(pkg, null, 2),
       'utf-8'
@@ -216,9 +218,9 @@ module.exports = class InstallAPI extends BaseAPI {
       //  for example JSON with comments or JSON5.
       // Notable examples are TS 'tsconfig.json' or VSCode 'settings.json'
       try {
-        const data = merge({}, fs.existsSync(filePath) ? require(filePath) : {}, newData)
+        const data = merge({}, fse.existsSync(filePath) ? JSON.parse(fse.readFileSync(filePath, 'utf-8')) : {}, newData)
 
-        fs.writeFileSync(
+        fse.writeFileSync(
           this.resolve.app(file),
           JSON.stringify(data, null, 2),
           'utf-8'
@@ -245,12 +247,12 @@ module.exports = class InstallAPI extends BaseAPI {
     const source = path.resolve(dir, templatePath)
     const rawCopy = !scope || Object.keys(scope).length === 0
 
-    if (!fs.existsSync(source)) {
+    if (!fse.existsSync(source)) {
       warn()
       warn(`Extension(${this.extId}): render() - cannot locate ${templatePath}. Skipping...\n`)
       return
     }
-    if (!fs.lstatSync(source).isDirectory()) {
+    if (!fse.lstatSync(source).isDirectory()) {
       warn()
       warn(`Extension(${this.extId}): render() - "${templatePath}" is a file instead of folder. Skipping...\n`)
       return
@@ -273,16 +275,18 @@ module.exports = class InstallAPI extends BaseAPI {
    */
   renderFile (relativeSourcePath, relativeTargetPath, scope) {
     const dir = getCallerPath()
+    console.log('dir', dir)
     const sourcePath = path.resolve(dir, relativeSourcePath)
     const targetPath = this.resolve.app(relativeTargetPath)
     const rawCopy = !scope || Object.keys(scope).length === 0
 
-    if (!fs.existsSync(sourcePath)) {
+    console.log('sourcePath', sourcePath)
+    if (!fse.existsSync(sourcePath)) {
       warn()
       warn(`Extension(${this.extId}): renderFile() - cannot locate ${relativeSourcePath}. Skipping...\n`)
       return
     }
-    if (fs.lstatSync(sourcePath).isDirectory()) {
+    if (fse.lstatSync(sourcePath).isDirectory()) {
       warn()
       warn(`Extension(${this.extId}): renderFile() - "${relativeSourcePath}" is a folder instead of a file. Skipping...\n`)
       return

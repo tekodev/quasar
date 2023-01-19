@@ -1,11 +1,11 @@
-const { readFileSync } = require('fs')
-const { join, basename } = require('path')
-const { gzipSync } = require('zlib')
-const { table } = require('table')
-const { bold, underline, green, blue, magenta } = require('chalk')
+import { readFileSync } from 'node:fs'
+import { join, basename } from 'node:path'
+import { gzipSync } from 'zlib'
+import { table } from 'table'
+import { bold, underline, green, blue, magenta } from 'kolorist'
 
-const { warn } = require('./logger')
-const { printWebpackWarnings } = require('./print-webpack-issue')
+import { warn } from './logger.js'
+import { printWebpackWarnings } from './print-webpack-issue.js'
 
 const colorFn = {
   js: green,
@@ -96,7 +96,7 @@ function getTableIndexDelimiters (assets) {
   return delimiters
 }
 
-module.exports = (stats, outputFolder, name) => {
+export default (stats, outputFolder, name) => {
   const assets = getAssets(stats)
   const tableLines = getTableLines(assets, outputFolder)
   const tableIndexDelimiters = getTableIndexDelimiters(assets)

@@ -1,9 +1,9 @@
-const hash = require('hash-sum')
+import hash from 'hash-sum'
 
-const getPackage = require('../helpers/get-package')
+import { getPackage } from '../helpers/get-package.js'
 
-const autoImportData = getPackage('quasar/dist/transforms/auto-import.json')
-const importTransformation = getPackage('quasar/dist/transforms/import-transformation.js')
+const autoImportData = await getPackage('quasar/dist/transforms/auto-import.json')
+const importTransformation = await getPackage('quasar/dist/transforms/import-transformation.js')
 const autoImportRuntimePath = require.resolve('./runtime.auto-import.js')
 const injectModuleIdRuntimePath = require.resolve('./runtime.inject-module-id.js')
 

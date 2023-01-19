@@ -1,4 +1,5 @@
-const webpack = require('webpack')
+
+import webpack from 'webpack'
 
 class PwaRunner {
   constructor () {
@@ -73,4 +74,4 @@ class PwaRunner {
   }
 }
 
-module.exports = new PwaRunner()
+export default new PwaRunner()

@@ -1,5 +1,5 @@
 
-const parseArgs = require('minimist')
+import parseArgs from 'minimist'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -43,26 +43,33 @@ if (argv.help) {
   process.exit(0)
 }
 
-require('../helpers/ensure-argv')(argv, 'inspect')
-require('../helpers/banner')(argv, argv.cmd)
+import { ensureArgv } from '../helpers/ensure-argv.js'
+ensureArgv(argv, 'inspect')
 
-const { log, fatal } = require('../helpers/logger')
+import { banner } from '../helpers/banner.js'
+banner(argv, argv.cmd)
 
-if (argv.mode !== 'spa') {
-  const getMode = require('../mode/index')
-  if (getMode(argv.mode).isInstalled !== true) {
-    fatal('Requested mode for inspection is NOT installed.')
-  }
-}
+import { log, fatal } from '../helpers/logger.js'
+import { getMode } from '../mode/index.js'
 
-const QuasarConfFile = require('../quasar-conf-file')
-const { splitWebpackConfig } = require('../webpack/symbols')
+import QuasarConfFile from '../quasar-conf-file.js'
+import { splitWebpackConfig } from '../webpack/symbols.js'
+
+import util from 'node:util'
+import { getProperty } from 'dot-prop'
 
 const depth = parseInt(argv.depth, 10) || Infinity
 
 async function inspect () {
-  const extensionRunner = require('../app-extension/extensions-runner')
-  const getQuasarCtx = require('../helpers/get-quasar-ctx')
+  if (argv.mode !== 'spa') {
+    const mode = await getMode(argv.mode)
+    if (mode.isInstalled !== true) {
+      fatal('Requested mode for inspection is NOT installed.')
+    }
+  }
+
+  const { extensionRunner } = await import('../app-extension/extensions-runner.js')
+  const { getQuasarCtx } = await import('../helpers/get-quasar-ctx.js')
 
   const ctx = getQuasarCtx({
     mode: argv.mode,
@@ -89,13 +96,11 @@ async function inspect () {
 
   await quasarConfFile.compile()
 
-  const util = require('util')
   const cfgEntries = splitWebpackConfig(quasarConfFile.webpackConf, argv.mode)
 
   if (argv.path) {
-    const dot = require('dot-prop')
     cfgEntries.forEach(entry => {
-      entry.webpack = dot.get(entry.webpack, argv.path)
+      entry.webpack = getProperty(entry.webpack, argv.path)
     })
   }
 

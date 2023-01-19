@@ -1,5 +1,6 @@
-const logUpdate = require('log-update')
-const logLine = logUpdate.create(process.stdout, { showCursor: true })
+import { createLogUpdate } from 'log-update'
+
+const logLine = createLogUpdate(process.stdout, { showCursor: true })
 
 let lastLog
 let consoleLog, consoleWarn, consoleError

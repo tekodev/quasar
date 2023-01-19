@@ -1,21 +1,26 @@
-const fs = require('fs')
-const { join } = require('path')
-const webpack = require('webpack')
-const WebpackDevServer = require('webpack-dev-server')
-const chokidar = require('chokidar')
+import fs from 'node:fs'
+import { join } from 'node:path'
+import webpack from 'webpack'
+import WebpackDevServer from 'webpack-dev-server'
+import chokidar from 'chokidar'
 
-const express = require('express')
-const createRenderer = require('@quasar/ssr-helpers/create-renderer')
-const { getClientManifest } = require('./webpack/ssr/plugin.client-side')
-const { getServerManifest } = require('./webpack/ssr/plugin.server-side')
-const { doneExternalWork } = require('./webpack/plugin.progress')
-const { webpackNames } = require('./webpack/symbols')
+import express from 'express'
+import createRenderer from '@quasar/ssr-helpers/create-renderer.js'
 
-const appPaths = require('./app-paths')
-const getPackage = require('./helpers/get-package')
-const { renderToString } = getPackage('@vue/server-renderer')
-const openBrowser = require('./helpers/open-browser')
-const ouchInstance = require('./helpers/cli-error-handling').getOuchInstance()
+import { getClientManifest } from './webpack/ssr/plugin.client-side.js'
+import { getServerManifest } from './webpack/ssr/plugin.server-side.js'
+import { doneExternalWork } from './webpack/plugin.progress.js'
+import { webpackNames } from './webpack/symbols.js'
+
+import appPaths from './app-paths.js'
+import { getPackage } from './helpers/get-package.js'
+import { openBrowser } from './helpers/open-browser.js'
+import { getOuchInstance } from './helpers/cli-error-handling.js'
+
+import { getIndexHtml } from './ssr/html-template.js'
+
+const ouchInstance = await getOuchInstance()
+const { renderToString } = await getPackage('@vue/server-renderer')
 
 const banner = '[Quasar Dev Webserver]'
 const compiledMiddlewareFile = appPaths.resolve.app('.quasar/ssr/compiled-middlewares.js')
@@ -30,7 +35,7 @@ const doubleSlashRE = /\/\//g
 
 let openedBrowser = false
 
-module.exports = class DevServer {
+export class DevServer {
   constructor (quasarConfFile) {
     this.quasarConfFile = quasarConfFile
     this.setInitialState()
@@ -111,7 +116,6 @@ module.exports = class DevServer {
       })
     }
 
-    const { getIndexHtml } = require('./ssr/html-template')
     const templatePath = appPaths.resolve.app(cfg.sourceFiles.indexHtmlTemplate)
 
     function updateTemplate () {
@@ -157,7 +161,8 @@ module.exports = class DevServer {
     webserverCompiler.hooks.done.tap('done-compiling', stats => {
       if (stats.hasErrors() === false) {
         delete require.cache[compiledMiddlewareFile]
-        const injectMiddleware = require(compiledMiddlewareFile)
+        // TODO
+        const injectMiddleware from compiledMiddlewareFile
 
         startWebpackServer()
           .then(app => {

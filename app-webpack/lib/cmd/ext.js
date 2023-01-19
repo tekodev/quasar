@@ -1,5 +1,5 @@
 
-const parseArgs = require('minimist')
+import parseArgs from 'minimist'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -42,7 +42,7 @@ if (argv.help) {
   process.exit(0)
 }
 
-const { warn } = require('../helpers/logger')
+import { warn } from '../helpers/logger.js'
 
 if (argv._.length !== 0 && argv._.length !== 2) {
   console.log()
@@ -52,18 +52,20 @@ if (argv._.length !== 0 && argv._.length !== 2) {
 }
 
 async function run (action, name) {
-  const Extension = require('../app-extension/Extension')
+  const { Extension } = await import('../app-extension/Extension.js')
   const extension = new Extension(name)
 
-  await extension[
-    action === 'add' || action === 'invoke'
-      ? 'install'
-      : 'uninstall'
-    ](action === 'invoke' || action === 'uninvoke')
+  const method = action === 'add' || action === 'invoke'
+    ? 'install'
+    : 'uninstall'
+
+  const skipPkgUninstall = action === 'invoke' || action === 'uninvoke'
+
+  await extension[ method ](skipPkgUninstall)
 }
 
 if (argv._.length === 0) {
-  const extensionJson = require('../app-extension/extension-json')
+  const { extensionJson } = await import('../app-extension/extension-json.js')
   extensionJson.list()
 }
 else {

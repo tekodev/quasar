@@ -1,5 +1,5 @@
 
-const { removeFileLoaders } = require('../utils')
+import { removeFileLoaders } from '../utils.js'
 
 const stackStart = `  \u001b[0m\u001b[90m-\u001b[0m \u001b[0m\u001b[93mindex.js\u001b[0m\u001b[90m:`
 
@@ -22,7 +22,7 @@ function cleanMessage (message) {
     : cleanMessage
 }
 
-module.exports = function format (error, printLog, titleFn) {
+export default function format (error, printLog, titleFn) {
   printLog(titleFn(removeFileLoaders(error.file)))
   printLog()
   printLog(cleanMessage(error.message))

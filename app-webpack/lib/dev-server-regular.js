@@ -1,11 +1,12 @@
-const webpack = require('webpack')
-const WebpackDevServer = require('webpack-dev-server')
 
-const openBrowser = require('./helpers/open-browser')
+import webpack from 'webpack'
+import WebpackDevServer from 'webpack-dev-server'
+
+import { openBrowser } from './helpers/open-browser.js'
 
 let openedBrowser = false
 
-module.exports = class DevServer {
+export class DevServer {
   constructor (quasarConfFile) {
     this.quasarConfFile = quasarConfFile
     this.server = null

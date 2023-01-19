@@ -1,7 +1,7 @@
 
-const defaultError = require('../formatters/defaultError')
+import defaultError from '../formatters/default-error.js'
 
-module.exports = function transform (error) {
+export default function transform (error) {
   return error.__formatter === void 0
     ? {
         ...error,

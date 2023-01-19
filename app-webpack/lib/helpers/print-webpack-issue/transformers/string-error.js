@@ -1,7 +1,7 @@
 
-const stringError = require('../formatters/stringError')
+import stringError from '../formatters/string-error.js'
 
-module.exports = function transform (error) {
+export default function transform (error) {
   return (
     error.__formatter === void 0
     && typeof error.webpackError === 'string'

@@ -1,6 +1,6 @@
 
-const ErrorStackParser = require('error-stack-parser')
-const RequestShortener = require('webpack/lib/RequestShortener')
+import ErrorStackParser from 'error-stack-parser'
+import RequestShortener from 'webpack/lib/RequestShortener'
 
 const requestShortener = new RequestShortener(process.cwd())
 
@@ -59,7 +59,7 @@ function getOrigin (e) {
   return origin
 }
 
-module.exports = function extractError (e) {
+export function extractWebpackError (e) {
   return {
     message: e.message,
     file: getFile(e),

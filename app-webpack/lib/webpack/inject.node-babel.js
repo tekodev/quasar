@@ -1,4 +1,4 @@
-const appPaths = require('../app-paths')
+const appPaths from '../app-paths')
 
 module.exports = function (cfg, chain) {
   if (cfg.build.transpile === true) {

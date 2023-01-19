@@ -1,13 +1,13 @@
-const { sources } = require('webpack')
+const { sources } from 'webpack')
 
-const appPaths = require('../../app-paths')
-const getFixedDeps = require('../../helpers/get-fixed-deps')
+const appPaths from '../../app-paths')
+const getFixedDeps from '../../helpers/get-fixed-deps')
 
 module.exports = class ElectronPackageJson {
   constructor (cfg = {}) {
     this.cfg = cfg
 
-    const pkg = require(appPaths.resolve.app('package.json'))
+    const pkg from appPaths.resolve.app('package.json'))
 
     if (pkg.dependencies) {
       pkg.dependencies = getFixedDeps(pkg.dependencies)

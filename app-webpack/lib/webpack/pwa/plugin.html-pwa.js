@@ -1,4 +1,4 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin from 'html-webpack-plugin')
 
 function makeTag (tagName, attributes) {
   return {

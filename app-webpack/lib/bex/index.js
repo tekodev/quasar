@@ -1,4 +1,5 @@
-const webpack = require('webpack')
+
+import webpack from 'webpack'
 
 class BexRunner {
   constructor () {
@@ -34,4 +35,4 @@ class BexRunner {
   }
 }
 
-module.exports = new BexRunner()
+export default new BexRunner()

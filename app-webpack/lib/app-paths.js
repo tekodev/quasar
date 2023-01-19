@@ -1,5 +1,7 @@
-const fs = require('fs')
-const { normalize, resolve, join, sep } = require('path')
+import { existsSync } from 'node:fs'
+import { normalize, resolve, join, sep } from 'node:path'
+
+import { fatal } from './helpers/logger.js'
 
 let quasarConfigFilename
 
@@ -7,11 +9,12 @@ function getAppDir () {
   let dir = process.cwd()
 
   while (dir.length && dir[dir.length - 1] !== sep) {
-    if (fs.existsSync(join(dir, 'quasar.config.js'))) {
+    // TODO .js | .ts | .cjs | .mjs
+    if (existsSync(join(dir, 'quasar.config.js'))) {
       quasarConfigFilename = 'quasar.config.js'
       return dir
     }
-    if (fs.existsSync(join(dir, 'quasar.conf.js'))) {
+    if (existsSync(join(dir, 'quasar.conf.js'))) {
       quasarConfigFilename = 'quasar.conf.js'
       return dir
     }
@@ -19,13 +22,11 @@ function getAppDir () {
     dir = normalize(join(dir, '..'))
   }
 
-  const { fatal } = require('./helpers/logger')
-
   fatal(`Error. This command must be executed inside a Quasar project folder.`)
 }
 
 const appDir = getAppDir()
-const cliDir = resolve(__dirname, '..')
+const cliDir = new URL('..', import.meta.url).pathname
 const srcDir = resolve(appDir, 'src')
 const pwaDir = resolve(appDir, 'src-pwa')
 const ssrDir = resolve(appDir, 'src-ssr')
@@ -34,7 +35,7 @@ const capacitorDir = resolve(appDir, 'src-capacitor')
 const electronDir = resolve(appDir, 'src-electron')
 const bexDir = resolve(appDir, 'src-bex')
 
-module.exports = {
+export default {
   cliDir,
   appDir,
   srcDir,

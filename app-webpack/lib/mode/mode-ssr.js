@@ -1,11 +1,11 @@
-const fs = require('fs')
-const fse = require('fs-extra')
+import fs from 'node:fs'
+import fse from 'fs-extra'
 
-const appPaths = require('../app-paths')
-const { log, warn } = require('../helpers/logger')
-const hasTypescript = require('../helpers/has-typescript')
+import appPaths from '../app-paths.js'
+import { log, warn } from '../helpers/logger.js'
+import { hasTypescript } from '../helpers/has-typescript.js'
 
-class Mode {
+export class Mode {
   get isInstalled () {
     return fs.existsSync(appPaths.ssrDir)
   }
@@ -43,5 +43,3 @@ class Mode {
     log(`SSR support was removed`)
   }
 }
-
-module.exports = Mode

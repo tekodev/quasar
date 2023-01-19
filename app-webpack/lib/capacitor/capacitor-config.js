@@ -1,10 +1,12 @@
-const fs = require('fs')
-const path = require('path')
 
-const appPaths = require('../app-paths')
-const { log, warn } = require('../helpers/logger')
-const ensureConsistency = require('./ensure-consistency')
-const { capVersion } = require('./cap-cli')
+import fs from 'node:fs'
+import path from 'node:path'
+import fglob from 'fast-glob'
+
+import appPaths from '../app-paths.js'
+import { log, warn } from '../helpers/logger.js'
+import ensureConsistency from './ensure-consistency.js'
+import { capVersion } from './cap-cli.js'
 
 function getAndroidMainActivity (capVersion, appId) {
   if (capVersion === 1) {
@@ -47,11 +49,14 @@ public class EnableHttpsSelfSigned {
   }
 }`
 }
-class CapacitorConfig {
+
+export class CapacitorConfig {
   prepare (cfg) {
     ensureConsistency()
 
-    this.pkg = require(appPaths.resolve.app('package.json'))
+    this.pkg = JSON.parse(
+      fs.readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
 
     this.__updateCapPkg(cfg, this.pkg)
     log(`Updated src-capacitor/package.json`)
@@ -59,7 +64,9 @@ class CapacitorConfig {
     this.tamperedFiles = []
 
     const capJsonPath = appPaths.resolve.capacitor('capacitor.config.json')
-    const capJson = require(capJsonPath)
+    const capJson = JSON.parse(
+      fs.readFileSync(capJsonPath, 'utf-8')
+    )
 
     this.tamperedFiles.push({
       path: capJsonPath,
@@ -111,7 +118,9 @@ class CapacitorConfig {
 
   __updateCapPkg (cfg, pkg) {
     const capPkgPath = appPaths.resolve.capacitor('package.json')
-    const capPkg = require(capPkgPath)
+    const capPkg = JSON.parse(
+      fs.readFileSync(capPkgPath, 'utf-8')
+    )
 
     Object.assign(capPkg, {
       name: cfg.capacitor.appName || pkg.name,
@@ -226,7 +235,6 @@ class CapacitorConfig {
   }
 
   __handleSSLonAndroid (add) {
-    const fglob = require('fast-glob')
     const capacitorSrcPath = appPaths.resolve.capacitor('android/app/src/main/java')
     let mainActivityPath = fglob.sync(`**/MainActivity.java`, { cwd: capacitorSrcPath, absolute: true })
 
@@ -289,5 +297,3 @@ ${sslString}
     }
   }
 }
-
-module.exports = CapacitorConfig

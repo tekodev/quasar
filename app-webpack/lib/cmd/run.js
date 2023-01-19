@@ -1,5 +1,5 @@
 
-const parseArgs = require('minimist')
+import parseArgs from 'minimist'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -11,7 +11,7 @@ const argv = parseArgs(process.argv.slice(2), {
 const extId = argv._[0]
 const cmd = argv._[1]
 
-if (!extId && argv.help) {
+if (!extId || argv.help) {
   console.log(`
   Description
     Run app extension provided commands
@@ -34,7 +34,8 @@ if (!extId && argv.help) {
   process.exit(0)
 }
 
-const { log, warn } = require('../helpers/logger')
+import { log, warn } from '../helpers/logger.js'
+import { Extension } from '../app-extension/Extension.js'
 
 function getArgv (argv) {
   const { _, ...params } = argv
@@ -46,7 +47,6 @@ function getArgv (argv) {
 }
 
 async function run () {
-  const Extension = require('../app-extension/Extension')
   const extension = new Extension(extId)
 
   const hooks = await extension.run({})

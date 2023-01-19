@@ -1,7 +1,8 @@
 
-const { bold } = require('chalk')
-const { removeFileLoaders } = require('../utils')
-const nodePackager = require('../../node-packager')
+import { bold } from 'kolorist'
+
+import { removeFileLoaders } from '../utils.js'
+import { nodePackager } from '../../node-packager.js'
 
 const depRE = /Can't resolve '(.*)' in/
 const relativeRE = /^(\.\/|\.\.\/)/
@@ -9,7 +10,7 @@ const cmd = nodePackager.name === 'yarn'
   ? 'yarn add'
   : 'npm install --save'
 
-module.exports = function format (error, printLog, titleFn) {
+export default function format (error, printLog, titleFn) {
   printLog(titleFn(removeFileLoaders(error.file)))
   printLog()
 

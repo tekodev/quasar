@@ -1,7 +1,7 @@
-const os = require('os')
-const net = require('net')
+import os from 'os'
+import net from 'net'
 
-module.exports.getExternalNetworkInterface = function () {
+export function getExternalNetworkInterface () {
   const networkInterfaces = os.networkInterfaces()
   const devices = []
 
@@ -18,7 +18,7 @@ module.exports.getExternalNetworkInterface = function () {
   return devices
 }
 
-module.exports.getIPs = function () {
+export function getIPs () {
   const networkInterfaces = os.networkInterfaces()
   const list = []
 
@@ -35,11 +35,11 @@ module.exports.getIPs = function () {
   return list
 }
 
-module.exports.findClosestOpenPort = async function (port, host) {
+export async function findClosestOpenPort (port, host) {
   let portProposal = port
 
   do {
-    if (await module.exports.isPortAvailable(portProposal, host)) {
+    if (await isPortAvailable(portProposal, host)) {
       return portProposal
     }
     portProposal++
@@ -49,7 +49,7 @@ module.exports.findClosestOpenPort = async function (port, host) {
   throw new Error('ERROR_NETWORK_PORT_NOT_AVAIL')
 }
 
-module.exports.isPortAvailable = async function (port, host) {
+export async function isPortAvailable (port, host) {
   return new Promise((resolve, reject) => {
     const tester = net.createServer()
       .once('error', err => {

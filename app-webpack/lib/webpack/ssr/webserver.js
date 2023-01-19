@@ -1,11 +1,11 @@
-const webpack = require('webpack')
-const WebpackChain = require('webpack-chain')
-const { existsSync } = require('fs-extra')
+const webpack from 'webpack')
+const WebpackChain from 'webpack-chain')
+const { existsSync } from 'fs-extra')
 
-const appPaths = require('../../app-paths')
-const WebserverAssetsPlugin = require('./plugin.webserver-assets')
-const injectNodeTypescript = require('../inject.node-typescript')
-const WebpackProgressPlugin = require('../plugin.progress')
+const appPaths from '../../app-paths')
+const WebserverAssetsPlugin from './plugin.webserver-assets')
+const injectNodeTypescript from '../inject.node-typescript')
+const WebpackProgressPlugin from '../plugin.progress')
 
 const nodeEnvBanner = `if(process.env.NODE_ENV===void 0){process.env.NODE_ENV='production'}`
 const prodExportFile = {
@@ -31,8 +31,8 @@ const flattenObject = (obj, prefix = 'process.env') => {
 }
 
 module.exports = function (cfg, configName) {
-  const { dependencies:appDeps = {} } = require(appPaths.resolve.app('package.json'))
-  const { dependencies:cliDeps = {} } = require(appPaths.resolve.cli('package.json'))
+  const { dependencies:appDeps = {} } from appPaths.resolve.app('package.json'))
+  const { dependencies:cliDeps = {} } from appPaths.resolve.cli('package.json'))
 
   const chain = new WebpackChain()
   const resolveModules = [
@@ -150,7 +150,7 @@ module.exports = function (cfg, configName) {
       noErrorOnMissing: true
     }))
 
-    const CopyWebpackPlugin = require('copy-webpack-plugin')
+    const CopyWebpackPlugin from 'copy-webpack-plugin')
     chain.plugin('copy-webpack')
       .use(CopyWebpackPlugin, [{ patterns }])
   }

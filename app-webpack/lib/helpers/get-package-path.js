@@ -1,9 +1,12 @@
-const appPaths = require('../app-paths')
+import { createRequire } from 'module'
+import appPaths from '../app-paths.js'
+
+const require = createRequire(import.meta.url)
 
 /**
  * Get the resolved path of a host package.
  */
-module.exports = function getPackagePath(pkgName, folder = appPaths.appDir) {
+export function getPackagePath (pkgName, folder = appPaths.appDir) {
   try {
     return require.resolve(pkgName, {
       paths: [ folder ]

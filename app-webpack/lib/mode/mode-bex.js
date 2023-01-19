@@ -1,10 +1,11 @@
-const fs = require('fs')
-const fse = require('fs-extra')
 
-const appPaths = require('../app-paths')
-const { log, warn } = require('../helpers/logger')
+import fs from 'node:fs'
+import fse from 'fs-extra'
 
-class Mode {
+import appPaths from '../app-paths.js'
+import { log, warn } from '../helpers/logger.js'
+
+export class Mode {
   get isInstalled () {
     return fs.existsSync(appPaths.bexDir)
   }
@@ -31,5 +32,3 @@ class Mode {
     log(`Browser Extension support was removed`)
   }
 }
-
-module.exports = Mode

@@ -1,4 +1,4 @@
-const { sources } = require('webpack')
+const { sources } from 'webpack')
 
 module.exports = class PwaManifest {
   constructor (cfg = {}) {

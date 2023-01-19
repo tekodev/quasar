@@ -1,9 +1,10 @@
-const fs = require('fs')
-const et = require('elementtree')
 
-const appPaths = require('../app-paths')
-const { log, warn } = require('../helpers/logger')
-const ensureConsistency = require('./ensure-consistency')
+import fs from 'node:fs'
+import et from 'elementtree'
+
+import appPaths from '../app-paths.js'
+import { log, warn } from '../helpers/logger.js'
+import ensureConsistency from './ensure-consistency.js'
 
 const filePath = appPaths.resolve.cordova('config.xml')
 
@@ -35,12 +36,14 @@ function setFields (root, cfg) {
   })
 }
 
-class CordovaConfig {
+export class CordovaConfig {
   prepare (cfg) {
     ensureConsistency()
 
     const doc = et.parse(fs.readFileSync(filePath, 'utf-8'))
-    this.pkg = require(appPaths.resolve.app('package.json'))
+    this.pkg = JSON.parse(
+      fs.readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
     this.APP_URL = cfg.build.APP_URL
     this.tamperedFiles = []
 
@@ -193,5 +196,3 @@ return YES;
     })
   }
 }
-
-module.exports = CordovaConfig

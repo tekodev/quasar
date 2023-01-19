@@ -1,8 +1,9 @@
-const appPaths = require('../../app-paths')
-const PwaManifestPlugin = require('./plugin.pwa-manifest')
-const HtmlPwaPlugin = require('./plugin.html-pwa').plugin
-const getPackage = require('../../helpers/get-package')
-const WorkboxPlugin = getPackage('workbox-webpack-plugin')
+const appPaths from '../../app-paths')
+const PwaManifestPlugin from './plugin.pwa-manifest')
+const HtmlPwaPlugin from './plugin.html-pwa').plugin
+const getPackage from '../../helpers/get-package')
+
+const WorkboxPlugin = await getPackage('workbox-webpack-plugin')
 
 module.exports = function (chain, cfg) {
   // write manifest.json file
@@ -11,10 +12,10 @@ module.exports = function (chain, cfg) {
 
   let defaultOptions
   const pluginMode = cfg.pwa.workboxPluginMode
-  const { log } = require('../../helpers/logger')
+  const { log } from '../../helpers/logger')
 
   if (pluginMode === 'GenerateSW') {
-    const pkg = require(appPaths.resolve.app('package.json'))
+    const pkg from appPaths.resolve.app('package.json'))
 
     defaultOptions = {
       cacheId: pkg.name || 'quasar-pwa-app'
@@ -44,7 +45,7 @@ module.exports = function (chain, cfg) {
   if (cfg.ctx.mode.ssr) {
     // if Object form:
     if (cfg.ssr.pwa && cfg.ssr.pwa !== true) {
-      const { merge } = require('webpack-merge')
+      const { merge } from 'webpack-merge')
       opts = merge({}, opts, cfg.ssr.pwa)
     }
 

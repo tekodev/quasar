@@ -1,5 +1,5 @@
-const appPaths = require('../../app-paths')
-const injectHtml = require('../inject.html')
+const appPaths from '../../app-paths')
+const injectHtml from '../inject.html')
 
 const capNodeModules = appPaths.resolve.capacitor('node_modules')
 

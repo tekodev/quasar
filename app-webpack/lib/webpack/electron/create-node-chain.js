@@ -1,19 +1,19 @@
-const webpack = require('webpack')
-const WebpackChain = require('webpack-chain')
+const webpack from 'webpack')
+const WebpackChain from 'webpack-chain')
 
-const ExpressionDependency = require('./plugin.expression-dependency')
-const parseBuildEnv = require('../../helpers/parse-build-env')
-const injectNodeBabel = require('../inject.node-babel')
-const injectNodeTypescript = require('../inject.node-typescript')
+const ExpressionDependency from './plugin.expression-dependency')
+const parseBuildEnv from '../../helpers/parse-build-env')
+const injectNodeBabel from '../inject.node-babel')
+const injectNodeTypescript from '../inject.node-typescript')
 
-const appPaths = require('../../app-paths')
-const WebpackProgressPlugin = require('../plugin.progress')
+const appPaths from '../../app-paths')
+const WebpackProgressPlugin from '../plugin.progress')
 
 const tempElectronDir = '.quasar/electron'
 
 module.exports = (nodeType, cfg, configName) => {
-  const { dependencies:appDeps = {} } = require(appPaths.resolve.app('package.json'))
-  const { dependencies:cliDeps = {} } = require(appPaths.resolve.cli('package.json'))
+  const { dependencies:appDeps = {} } from appPaths.resolve.app('package.json'))
+  const { dependencies:cliDeps = {} } from appPaths.resolve.cli('package.json'))
 
   const chain = new WebpackChain()
   const resolveModules = [
@@ -98,7 +98,7 @@ module.exports = (nodeType, cfg, configName) => {
     }
 
     if (cfg.build.minify) {
-      const TerserPlugin = require('terser-webpack-plugin')
+      const TerserPlugin from 'terser-webpack-plugin')
 
       chain.optimization
         .minimizer('js')

@@ -1,11 +1,12 @@
-const fs = require('fs')
-const fse = require('fs-extra')
+import fs from 'node:fs'
+import fse from 'fs-extra'
 
-const appPaths = require('../app-paths')
-const { log, warn, fatal } = require('../helpers/logger')
-const { spawnSync } = require('../helpers/spawn')
+import appPaths from '../app-paths.js'
+import { log, warn, fatal } from '../helpers/logger.js'
+import { spawnSync } from '../helpers/spawn.js'
+import { ensureWWW, ensureConsistency } from '../cordova/ensure-consistency.js'
 
-class Mode {
+export class Mode {
   get isInstalled () {
     return fs.existsSync(appPaths.cordovaDir)
   }
@@ -16,7 +17,9 @@ class Mode {
       return
     }
 
-    const pkg = require(appPaths.resolve.app('package.json'))
+    const pkg = JSON.parse(
+      fs.readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+    )
     const appName = pkg.productName || pkg.name || 'Quasar App'
 
     if (/^[0-9]/.test(appName)) {
@@ -27,7 +30,7 @@ class Mode {
       return
     }
 
-    const inquirer = require('inquirer')
+    const { default: inquirer } = await import('inquirer')
 
     console.log()
     const answer = await inquirer.prompt([{
@@ -49,7 +52,6 @@ class Mode {
       }
     )
 
-    const { ensureWWW } = require('../cordova/ensure-consistency')
     ensureWWW(true)
 
     log(`Cordova support was installed`)
@@ -79,7 +81,6 @@ class Mode {
   }
 
   addPlatform (target) {
-    const ensureConsistency = require('../cordova/ensure-consistency')
     ensureConsistency()
 
     if (this.hasPlatform(target)) {
@@ -108,5 +109,3 @@ class Mode {
     log(`Cordova support was removed`)
   }
 }
-
-module.exports = Mode

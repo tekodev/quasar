@@ -1,11 +1,14 @@
-const fs = require('fs')
-const path = require('path')
-const compileTemplate = require('lodash/template')
 
-const appPaths = require('./app-paths')
+import fs from 'node:fs'
+import path from 'node:path'
+import { removeSync } from 'fs-extra'
+import { compileTemplate } from 'lodash/template.js'
+
+import appPaths from './app-paths.js'
+
 const quasarFolder = appPaths.resolve.app('.quasar')
 
-class Generator {
+export class Generator {
   constructor (quasarConfFile) {
     const { ctx } = quasarConfFile.quasarConf
 
@@ -57,7 +60,6 @@ class Generator {
       fs.mkdirSync(quasarFolder)
     }
     else if (!fs.lstatSync(quasarFolder).isDirectory()) {
-      const { removeSync } = require('fs-extra')
       removeSync(quasarFolder)
       fs.mkdirSync(quasarFolder)
     }
@@ -77,5 +79,3 @@ class Generator {
     }
   }
 }
-
-module.exports = Generator

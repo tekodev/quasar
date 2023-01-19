@@ -1,9 +1,9 @@
-const { removeSync } = require('fs-extra')
-const semver = require('semver')
+import fse from 'fs-extra'
+import semver from 'semver'
 
-const extensionJson = require('./extension-json')
-const getPackageJson = require('../helpers/get-package-json')
-const BaseAPI = require('./BaseAPI')
+import { extensionJson } from './extension-json.js'
+import { getPackageJson } from '../helpers/get-package-json.js'
+import { BaseAPI } from './BaseAPI.js'
 
 // for backward compatibility
 function getPackageName (packageName) {
@@ -15,7 +15,7 @@ function getPackageName (packageName) {
 /**
  * API for extension's /uninstall.js script
  */
-module.exports = class UninstallAPI extends BaseAPI {
+export class UninstallAPI extends BaseAPI {
   __hooks = {
     exitLog: []
   }
@@ -92,7 +92,7 @@ module.exports = class UninstallAPI extends BaseAPI {
    * @param {string} __path
    */
   removePath (__path) {
-    removeSync(this.resolve.app(__path))
+    fse.removeSync(this.resolve.app(__path))
   }
 
   /**

@@ -1,17 +1,18 @@
-const fs = require('fs')
-const fse = require('fs-extra')
 
-const appPaths = require('../app-paths')
-const { log, warn } = require('../helpers/logger')
-const nodePackager = require('../helpers/node-packager')
-const hasTypescript = require('../helpers/has-typescript')
-const hasEslint = require('../helpers/has-eslint')
+import fs from 'node:fs'
+import fse from 'fs-extra'
+
+import appPaths from '../app-paths.js'
+import { log, warn } from '../helpers/logger.js'
+import { nodePackager } from '../helpers/node-packager.js'
+import { hasTypescript } from '../helpers/has-typescript.js'
+import { hasEslint } from '../helpers/has-eslint.js'
 
 const pwaDeps = {
   'workbox-webpack-plugin': '^6.0.0'
 }
 
-class Mode {
+export class Mode {
   get isInstalled () {
     return fs.existsSync(appPaths.pwaDir)
   }
@@ -68,5 +69,3 @@ class Mode {
     log('PWA support was removed')
   }
 }
-
-module.exports = Mode

@@ -1,9 +1,10 @@
-const ExtractLoader = require('mini-css-extract-plugin').loader
-const { merge } = require('webpack-merge')
-const path = require('path')
+const ExtractLoader from 'mini-css-extract-plugin').loader
+const { merge } from 'webpack-merge')
+const path from 'node:path'
+import cssnano from 'cssnano'
 
-const appPaths = require('../app-paths')
-const cssVariables = require('../helpers/css-variables')
+const appPaths from '../app-paths')
+const cssVariables from '../helpers/css-variables')
 const postCssConfigFile = appPaths.resolve.app('.postcssrc.js')
 const quasarCssPaths = [
   path.join('node_modules', 'quasar', 'dist'),
@@ -98,7 +99,7 @@ function injectRule (chain, pref, lang, test, loader, loaderOptions) {
           sourceMap: pref.sourceMap,
           postcssOptions: {
             plugins: [
-              require('cssnano')({
+              cssnano({
                 preset: [ 'default', {
                   mergeLonghand: false,
                   convertValues: false,
@@ -114,11 +115,11 @@ function injectRule (chain, pref, lang, test, loader, loaderOptions) {
     // need a fresh copy, otherwise plugins
     // will keep on adding making N duplicates for each one
     delete require.cache[postCssConfigFile]
-    const postCssConfig = require(postCssConfigFile)
+    const postCssConfig from postCssConfigFile)
     let postCssOpts = { sourceMap: pref.sourceMap, ...postCssConfig }
 
     if (pref.rtl) {
-      const postcssRTL = require('postcss-rtlcss')
+      const postcssRTL from 'postcss-rtlcss')
       const postcssRTLOptions = pref.rtl === true ? {} : pref.rtl
 
       if (

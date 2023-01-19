@@ -1,8 +1,12 @@
 
-const appPaths = require('../app-paths')
-const { name } = require('../../package.json')
+import { readFileSync } from 'node:fs'
+import appPaths from '../app-paths.js'
 
-module.exports = class ApiBase {
+const { name } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf-8')
+)
+
+export class BaseAPI {
   engine = name
   hasWebpack = true
   hasVite = false

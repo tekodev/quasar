@@ -1,9 +1,9 @@
-const { existsSync } = require('fs')
-const { join, sep, normalize } = require('path')
-const nodeExternals = require('webpack-node-externals')
+const { existsSync } from 'fs')
+const { join, sep, normalize } from 'path')
+const nodeExternals from 'webpack-node-externals')
 
-const appPaths = require('../../app-paths')
-const { QuasarSSRServerPlugin } = require('./plugin.server-side')
+const appPaths from '../../app-paths')
+const { QuasarSSRServerPlugin } from './plugin.server-side')
 
 function getModuleDirs () {
   const folders = []
@@ -28,7 +28,7 @@ module.exports = function (chain, cfg) {
     .clear()
     .add(appPaths.resolve.app('.quasar/server-entry.js'))
 
-  chain.resolve.alias.set('quasar$', 'quasar/dist/quasar.cjs.prod.js')
+  chain.resolve.alias.set('quasar$', 'quasar/dist/quasar.ssr-server.esm.prod.js')
 
   chain.target('node')
   chain.devtool('source-map')

@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
-require('../lib/node-version-check')
-require('../lib/helpers/cli-error-handling')
+import '../lib/node-version-check.js'
+import '../lib/helpers/cli-error-handling.js'
+
+import { version } from '../lib/version.js'
+import { log, warn } from '../lib/helpers/logger.js'
 
 const commands = [
   'dev',
@@ -42,11 +45,9 @@ if (cmd) {
   }
   else {
     if (cmd === '-v' || cmd === '--version') {
-      console.log(require('../package.json').version)
+      console.log(version)
       process.exit(0)
     }
-
-    const { log, warn } = require('../lib/helpers/logger')
 
     if (cmd === '-h' || cmd === '--help') {
       cmd = 'help'
@@ -61,7 +62,7 @@ if (cmd) {
       const exit = process.exit
       process.exit = (code, reason) => {
         if (reason === 'ext-missing') {
-          require('../lib/cmd/help')
+          import('../lib/cmd/help.js')
           exit(0)
         }
         else {
@@ -77,4 +78,4 @@ else {
   cmd = 'help'
 }
 
-require(`../lib/cmd/${cmd}`)
+import(`../lib/cmd/${cmd}.js`)

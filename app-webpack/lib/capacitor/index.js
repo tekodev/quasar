@@ -1,13 +1,15 @@
-const fse = require('fs-extra')
 
-const { log, warn, fatal } = require('../helpers/logger')
-const CapacitorConfig = require('./capacitor-config')
-const { spawn, spawnSync } = require('../helpers/spawn')
-const onShutdown = require('../helpers/on-shutdown')
-const appPaths = require('../app-paths')
-const openIde = require('../helpers/open-ide')
+import fse from 'fs-extra'
 
-const { capBin } = require('./cap-cli')
+import { log, warn, fatal } from '../helpers/logger.js'
+import CapacitorConfig from './capacitor-config.js'
+import { spawn, spawnSync } from '../helpers/spawn.js'
+import onShutdown from '../helpers/on-shutdown.js'
+import appPaths from '../app-paths.js'
+import openIde from '../helpers/open-ide.js'
+
+import { capBin } from './cap-cli.js'
+import { fixAndroidCleartext } from '../helpers/fix-android-cleartext.js'
 
 class CapacitorRunner {
   constructor () {
@@ -24,7 +26,7 @@ class CapacitorRunner {
     this.target = ctx.targetName
 
     if (this.target === 'android') {
-      require('../helpers/fix-android-cleartext')('capacitor')
+      fixAndroidCleartext('capacitor')
     }
   }
 
@@ -158,4 +160,4 @@ class CapacitorRunner {
   }
 }
 
-module.exports = new CapacitorRunner()
+export default new CapacitorRunner()

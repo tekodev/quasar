@@ -1,9 +1,9 @@
-const fs = require('fs')
-const { sources } = require('webpack')
+const fs from 'fs')
+const { sources } from 'webpack')
 
-const appPaths = require('../../app-paths')
-const getFixedDeps = require('../../helpers/get-fixed-deps')
-const { getIndexHtml } = require('../../ssr/html-template')
+const appPaths from '../../app-paths')
+const getFixedDeps from '../../helpers/get-fixed-deps')
+const { getIndexHtml } from '../../ssr/html-template')
 
 module.exports = class WebserverAssetsPlugin {
   constructor (cfg = {}) {
@@ -20,8 +20,8 @@ module.exports = class WebserverAssetsPlugin {
   }
 
   initPackageJson () {
-    const appPkg = require(appPaths.resolve.app('package.json'))
-    const cliPkg = require(appPaths.resolve.cli('package.json'))
+    const appPkg from appPaths.resolve.app('package.json'))
+    const cliPkg from appPaths.resolve.cli('package.json'))
 
     if (appPkg.dependencies !== void 0) {
       delete appPkg.dependencies['@quasar/extras']

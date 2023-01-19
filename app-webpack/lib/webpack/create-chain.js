@@ -1,17 +1,17 @@
-const path = require('path')
-const webpack = require('webpack')
-const { merge } = require('webpack-merge')
-const WebpackChain = require('webpack-chain')
-const { VueLoaderPlugin } = require('vue-loader')
+const path from 'path')
+const webpack from 'webpack')
+const { merge } from 'webpack-merge')
+const WebpackChain from 'webpack-chain')
+const { VueLoaderPlugin } from 'vue-loader')
 
-const WebpackProgressPlugin = require('./plugin.progress')
-const BootDefaultExport = require('./plugin.boot-default-export')
-const parseBuildEnv = require('../helpers/parse-build-env')
-const getPackagePath = require('../helpers/get-package-path')
+const WebpackProgressPlugin from './plugin.progress')
+const BootDefaultExport from './plugin.boot-default-export')
+const parseBuildEnv from '../helpers/parse-build-env')
+const getPackagePath from '../helpers/get-package-path')
 
-const appPaths = require('../app-paths')
-const injectStyleRules = require('./inject.style-rules')
-const { webpackNames } = require('./symbols')
+const appPaths from '../app-paths')
+const injectStyleRules from './inject.style-rules')
+const { webpackNames } from './symbols')
 
 function getDependenciesRegex (list) {
   const deps = list.map(dep => {
@@ -193,7 +193,7 @@ module.exports = function (cfg, configName) {
           transpileOnly: true
         })
 
-    const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+    const ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin')
     chain
       .plugin('ts-checker')
       // https://github.com/TypeStrong/fork-ts-checker-webpack-plugin#options
@@ -280,7 +280,7 @@ module.exports = function (cfg, configName) {
 
   if (cfg.ctx.dev && configName !== webpackNames.ssr.serverSide && cfg.ctx.mode.pwa && cfg.pwa.workboxPluginMode === 'InjectManifest') {
     // need to place it here before the status plugin
-    const CustomSwWarningPlugin = require('./pwa/plugin.custom-sw-warning')
+    const CustomSwWarningPlugin from './pwa/plugin.custom-sw-warning')
     chain.plugin('custom-sw-warning')
       .use(CustomSwWarningPlugin)
   }
@@ -329,7 +329,7 @@ module.exports = function (cfg, configName) {
 
   // extract css into its own file
   if (configName !== webpackNames.ssr.serverSide && cfg.build.extractCSS) {
-    const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+    const MiniCssExtractPlugin from 'mini-css-extract-plugin')
 
     chain.plugin('mini-css-extract')
       .use(MiniCssExtractPlugin, [{
@@ -343,7 +343,7 @@ module.exports = function (cfg, configName) {
       configName !== webpackNames.ssr.serverSide
     ) {
       // copy /public to dist folder
-      const CopyWebpackPlugin = require('copy-webpack-plugin')
+      const CopyWebpackPlugin from 'copy-webpack-plugin')
 
       const ignore = [
         '**/.DS_Store',
@@ -381,7 +381,7 @@ module.exports = function (cfg, configName) {
       chain.optimization.minimize(false)
     }
     else if (cfg.build.minify) {
-      const TerserPlugin = require('terser-webpack-plugin')
+      const TerserPlugin from 'terser-webpack-plugin')
 
       chain.optimization
         .minimizer('js')
@@ -395,10 +395,10 @@ module.exports = function (cfg, configName) {
     if (configName !== webpackNames.ssr.serverSide) {
       // dedupe & minify CSS (only if extracted)
       if (cfg.build.extractCSS && cfg.build.minify) {
-        const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+        const CssMinimizerPlugin from 'css-minimizer-webpack-plugin')
 
         // We are using this plugin so that possible
-        // duplicated CSS = require(different components) can be deduped.
+        // duplicated CSS from different components) can be deduped.
         chain.optimization
           .minimizer('css')
           .use(CssMinimizerPlugin, [{
@@ -408,13 +408,13 @@ module.exports = function (cfg, configName) {
 
       // also produce a gzipped version
       if (cfg.build.gzip) {
-        const CompressionWebpackPlugin = require('compression-webpack-plugin')
+        const CompressionWebpackPlugin from 'compression-webpack-plugin')
         chain.plugin('compress-webpack')
           .use(CompressionWebpackPlugin, [ cfg.build.gzip ])
       }
 
       if (cfg.build.analyze) {
-        const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+        const BundleAnalyzerPlugin from 'webpack-bundle-analyzer').BundleAnalyzerPlugin
         chain.plugin('bundle-analyzer')
           .use(BundleAnalyzerPlugin, [ Object.assign({}, cfg.build.analyze) ])
       }

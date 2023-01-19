@@ -1,15 +1,15 @@
-const fs = require('fs')
+import { readFileSync } from 'node:fs'
 
-const { warn } = require('./logger')
-const appPaths = require('../app-paths')
+import { warn } from './logger.js'
+import appPaths from '../app-paths.js'
 
-module.exports = function (cfg) {
+export function appFilesValidations (cfg) {
   let file
   let content
   let error = false
 
   file = appPaths.resolve.app(cfg.sourceFiles.indexHtmlTemplate)
-  content = fs.readFileSync(file, 'utf-8')
+  content = readFileSync(file, 'utf-8')
 
   if (content.indexOf('<base href') > -1) {
     warn(`Please remove the <base> tag from /src/index.template.html

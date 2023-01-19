@@ -1,13 +1,13 @@
-const { ProgressPlugin } = require('webpack')
-const throttle = require('lodash/throttle')
-const chalk = require('chalk')
+const { ProgressPlugin } from 'webpack')
+const throttle from 'lodash/throttle')
+const kolorist from 'kolorist')
 
-const appPaths = require('../app-paths')
-const { success, info, error, warning, clearConsole } = require('../helpers/logger')
-const { quasarVersion, cliAppVersion } = require('../helpers/banner')
-const isMinimalTerminal = require('../helpers/is-minimal-terminal')
-const { printWebpackWarnings, printWebpackErrors } = require('../helpers/print-webpack-issue')
-const progressLog = require('../helpers/progress-log')
+const appPaths from '../app-paths')
+const { success, info, error, warning, clearConsole } from '../helpers/logger')
+const { quasarVersion, cliAppVersion } from '../helpers/banner')
+const isMinimalTerminal from '../helpers/is-minimal-terminal')
+const { printWebpackWarnings, printWebpackErrors } from '../helpers/print-webpack-issue')
+const progressLog from '../helpers/progress-log')
 
 let maxLengthName = 0
 let isDev = false
@@ -26,7 +26,7 @@ function isExternalProgressIdle () {
 function getIPList () {
   // expensive operation, so cache the response
   if (ipList === void 0) {
-    const { getIPs } = require('../helpers/net')
+    const { getIPs } from '../helpers/net')
     ipList = getIPs().map(ip => ip === '127.0.0.1' ? 'localhost' : ip)
   }
 
@@ -66,8 +66,8 @@ const barString = Array.apply(null, { length: barLength })
   .map((_, index) => {
     const p = index / barLength
     const color = p <= 0.5
-      ? chalk.rgb(255, Math.round(p * 510), 0)
-      : chalk.rgb(255 - Math.round(p * 122), 255, 0)
+      ? kolorist.rgb(255, Math.round(p * 510), 0)
+      : kolorist.rgb(255 - Math.round(p * 122), 255, 0)
 
     return color('█')
   })
@@ -82,7 +82,7 @@ function printBars () {
   const lines = compilations.map((state, index) => {
     const prefix = index < prefixLen ? '├──' : '└──'
 
-    const name = chalk.green(state.name.padEnd(maxLengthName))
+    const name = kolorist.green(state.name.padEnd(maxLengthName))
 
     const barWidth = Math.floor(state.progress * barProgressFactor)
     const bar = barString
@@ -96,10 +96,10 @@ function printBars () {
         ].filter(m => m).join(' '))
       : 'idle'
 
-    return ` ${prefix} ${name} ${bar} ${chalk.grey(details)}\n`
+    return ` ${prefix} ${name} ${bar} ${kolorist.grey(details)}\n`
   })
 
-  progressLog(`\n • ${chalk.green.bold('Compiling')}:\n` + lines.join(''))
+  progressLog(`\n • ${kolorist.green.bold('Compiling')}:\n` + lines.join(''))
 }
 
 const renderBars = throttle(printBars, 200)
@@ -108,7 +108,7 @@ const renderBars = throttle(printBars, 200)
  * Status related
  */
 
-const greenBanner = chalk.green('»')
+const greenBanner = kolorist.green('»')
 
 let readyBanner = false
 
@@ -127,15 +127,15 @@ function printReadyBanner () {
 function getReadyBanner (cfg) {
   if (cfg.ctx.mode.bex === true) {
     return [
-      ` ${greenBanner} App dir................... ${chalk.green(appPaths.appDir)}`,
-      ` ${greenBanner} Dev mode.................. ${chalk.green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
-      ` ${greenBanner} Pkg quasar................ ${chalk.green('v' + quasarVersion)}`,
-      ` ${greenBanner} Pkg @quasar/app-webpack... ${chalk.green('v' + cliAppVersion)}`,
+      ` ${greenBanner} App dir................... ${kolorist.green(appPaths.appDir)}`,
+      ` ${greenBanner} Dev mode.................. ${kolorist.green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
+      ` ${greenBanner} Pkg quasar................ ${kolorist.green('v' + quasarVersion)}`,
+      ` ${greenBanner} Pkg @quasar/app-webpack... ${kolorist.green('v' + cliAppVersion)}`,
       ` ${greenBanner} Transpiled JS..... ${cfg.__transpileBanner}`,
       ` ----------------------------`,
       ` ${greenBanner} Load the dev extension from:`,
-      `   · Chrome(ium): ${chalk.green(appPaths.bexDir)}`,
-      `   · Firefox:     ${chalk.green(appPaths.resolve.bex('manifest.json'))}`
+      `   · Chrome(ium): ${kolorist.green(appPaths.bexDir)}`,
+      `   · Firefox:     ${kolorist.green(appPaths.resolve.bex('manifest.json'))}`
     ].join('\n') + '\n'
   }
 
@@ -144,15 +144,15 @@ function getReadyBanner (cfg) {
   }
 
   const urlList = cfg.devServer.host === '0.0.0.0'
-    ? getIPList().map(ip => chalk.green(cfg.__getUrl(ip))).join(`\n                              `)
-    : chalk.green(cfg.build.APP_URL)
+    ? getIPList().map(ip => kolorist.green(cfg.__getUrl(ip))).join(`\n                              `)
+    : kolorist.green(cfg.build.APP_URL)
 
   return [
-    ` ${greenBanner} App dir................... ${chalk.green(appPaths.appDir)}`,
+    ` ${greenBanner} App dir................... ${kolorist.green(appPaths.appDir)}`,
     ` ${greenBanner} App URL................... ${urlList}`,
-    ` ${greenBanner} Dev mode.................. ${chalk.green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
-    ` ${greenBanner} Pkg quasar................ ${chalk.green('v' + quasarVersion)}`,
-    ` ${greenBanner} Pkg @quasar/app-webpack... ${chalk.green('v' + cliAppVersion)}`,
+    ` ${greenBanner} Dev mode.................. ${kolorist.green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
+    ` ${greenBanner} Pkg quasar................ ${kolorist.green('v' + quasarVersion)}`,
+    ` ${greenBanner} Pkg @quasar/app-webpack... ${kolorist.green('v' + cliAppVersion)}`,
     ` ${greenBanner} Transpiled JS............. ${cfg.__transpileBanner}`
   ].join('\n') + '\n'
 }

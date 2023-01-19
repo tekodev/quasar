@@ -1,10 +1,10 @@
-const path = require('path')
-const webpack = require('webpack')
-const WebpackChain = require('webpack-chain')
+const path from 'path')
+const webpack from 'webpack')
+const WebpackChain from 'webpack-chain')
 
-const appPaths = require('../../app-paths')
-const parseBuildEnv = require('../../helpers/parse-build-env')
-const WebpackProgressPlugin = require('../plugin.progress')
+const appPaths from '../../app-paths')
+const parseBuildEnv from '../../helpers/parse-build-env')
+const WebpackProgressPlugin from '../plugin.progress')
 
 function getDependenciesRegex (list) {
   const deps = list.map(dep => {

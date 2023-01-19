@@ -1,10 +1,10 @@
-const babelSyntax = require('./babelSyntax')
-const moduleNotFound = require('./moduleNotFound')
-const esLintError = require('./esLintError')
-const stringError = require('./stringError')
-const defaultTransformer = require('./defaultTransformer')
+import babelSyntax from './babel-syntax.js'
+import moduleNotFound from './module-not-found.js'
+import esLintError from './eslint-error.js'
+import stringError from './string-error.js'
+import defaultTransformer from './default-transformer.js'
 
-module.exports = [
+export default [
   babelSyntax,
   moduleNotFound,
   esLintError,

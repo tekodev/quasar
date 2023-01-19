@@ -1,8 +1,10 @@
 
+import { version } from '../version.js'
+
 console.log()
 console.log(
-  require('fs').readFileSync(
-    require('path').join(__dirname, '../../assets/logo.art'),
+  readFileSync(
+    new URL('../../assets/logo.art', import.meta.url),
     'utf8'
   )
 )
@@ -10,7 +12,7 @@ console.log(
 if (process.env.QUASAR_CLI_VERSION) {
   console.log('  Running @quasar/cli v' + process.env.QUASAR_CLI_VERSION)
 }
-console.log('  Running @quasar/app-webpack v' + require('../../package.json').version)
+console.log('  Running @quasar/app-webpack v' + version)
 
 console.log(`
   Example usage

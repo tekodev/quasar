@@ -2,7 +2,7 @@
  * Forked from vue-server-renderer/server-plugin.js v2.6.12 NPM package
  */
 
-const { sources, Compilation } = require('webpack')
+const { sources, Compilation } from 'webpack')
 
 const jsRE = /\.js(\?[^.]+)?$/
 const jsMapRE = /\.js\.map$/

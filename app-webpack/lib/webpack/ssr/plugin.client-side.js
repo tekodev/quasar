@@ -2,8 +2,8 @@
  * Forked from vue-server-renderer/client-plugin.js v2.6.12 NPM package
  */
 
-const hash = require('hash-sum')
-const { sources, Compilation } = require('webpack')
+const hash from 'hash-sum')
+const { sources, Compilation } from 'webpack')
 
 const jsCssRE = /\.(js|css)(\?[^.]+)?$/
 const swRE = /\s\w+$/

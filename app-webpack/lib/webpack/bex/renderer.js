@@ -1,11 +1,11 @@
-const path = require('path')
-const fse = require('fs-extra')
+import path from 'node:path'
+import fse from 'fs-extra'
 
-const appPaths = require('../../app-paths')
-const artifacts = require('../../artifacts')
-const injectHtml = require('../inject.html')
+import appPaths from '../../app-paths.js'
+import { clean } from '../../artifacts.js'
+import { injectHtml } from '../inject.html.js'
 
-module.exports = function (chain, cfg) {
+export default function (chain, cfg) {
   const rootPath = cfg.ctx.dev ? appPaths.bexDir : cfg.build.distDir
   const outputPath = path.join(rootPath, 'www')
 
@@ -32,7 +32,7 @@ module.exports = function (chain, cfg) {
 
   if (cfg.ctx.dev) {
     // Clean old dir
-    artifacts.clean(outputPath)
+    clean(outputPath)
   }
   else {
     // We need this bundled in with the rest of the source to match the manifest instructions.
@@ -40,12 +40,12 @@ module.exports = function (chain, cfg) {
     cfg.build.htmlFilename = path.join('www', 'index.html')
 
     // Register our plugin, update the manifest and package the browser extension.
-    const BexPackager = require('./plugin.bex-packager')
+    const { BexPackager } from './plugin.bex-packager')
     chain.plugin('webpack-bex-packager')
       .use(BexPackager, [{
         src: cfg.bex.builder.directories.input,
         dest: cfg.bex.builder.directories.output,
-        name: require(appPaths.resolve.app('package.json')).name
+        name: JSON.parse(fse.readFileSync(appPaths.resolve.app('package.json'), 'utf8')).name
       }])
 
     // Copy our user edited BEX files to the dist dir (excluding the already built www folder)
@@ -67,7 +67,7 @@ module.exports = function (chain, cfg) {
   injectHtml(chain, cfg)
 
   // Copy any files we've registered during the chain.
-  const CopyWebpackPlugin = require('copy-webpack-plugin')
+  const CopyWebpackPlugin from 'copy-webpack-plugin')
   chain.plugin('copy-webpack')
     .use(CopyWebpackPlugin, [{ patterns: copyPatterns }])
 }

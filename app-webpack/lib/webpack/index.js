@@ -1,7 +1,8 @@
-const createChain = require('./create-chain')
-const { log } = require('../helpers/logger')
-const { webpackNames } = require('./symbols')
-const extensionRunner = require('../app-extension/extensions-runner')
+
+import createChain from './create-chain.js'
+import { log } from '../helpers/logger.js'
+import { webpackNames } from './symbols.js'
+import { extensionRunner } from '../app-extension/extensions-runner.js'
 
 async function getWebpackConfig (chain, cfg, {
   name,
@@ -45,8 +46,8 @@ async function getWebpackConfig (chain, cfg, {
   return webpackConfig
 }
 
-function getCSW (cfg) {
-  const createCSW = require('./pwa/create-custom-sw')
+async function getCSW (cfg) {
+  const createCSW from './pwa/create-custom-sw')
 
   // csw - custom service worker
   return getWebpackConfig(createCSW(cfg, webpackNames.pwa.csw), cfg, {
@@ -120,8 +121,8 @@ async function getCapacitor (cfg) {
 
 async function getElectron (cfg) {
   const rendererChain = createChain(cfg, webpackNames.electron.renderer)
-  const preloadChain = require('./electron/preload')(cfg, webpackNames.electron.preload)
-  const mainChain = require('./electron/main')(cfg, webpackNames.electron.main)
+  const preloadChain from './electron/preload')(cfg, webpackNames.electron.preload)
+  const mainChain from './electron/main')(cfg, webpackNames.electron.main)
 
   require('./electron/renderer')(rendererChain, cfg)
 
@@ -158,7 +159,7 @@ async function getSSR (cfg) {
   const server = createChain(cfg, webpackNames.ssr.serverSide)
   require('./ssr/server')(server, cfg)
 
-  const webserver = require('./ssr/webserver')(cfg, webpackNames.ssr.webserver)
+  const webserver from './ssr/webserver')(cfg, webpackNames.ssr.webserver)
 
   return {
     ...(cfg.pwa.workboxPluginMode === 'InjectManifest' ? { csw: await getCSW(cfg) } : {}),

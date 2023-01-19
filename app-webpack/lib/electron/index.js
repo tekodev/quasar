@@ -1,12 +1,15 @@
-const webpack = require('webpack')
-const debounce = require('lodash/debounce')
 
-const { log, warn, fatal, success } = require('../helpers/logger')
-const { spawn } = require('../helpers/spawn')
-const appPaths = require('../app-paths')
-const nodePackager = require('../helpers/node-packager')
-const getPackageJson = require('../helpers/get-package-json')
-const getPackage = require('../helpers/get-package')
+import webpack from 'webpack'
+import debounce from 'lodash/debounce'
+
+import { log, warn, fatal, success } from '../helpers/logger.js'
+import { spawn } from '../helpers/spawn.js'
+import appPaths from '../app-paths.js'
+import { nodePackager } from '../helpers/node-packager.js'
+import { getPackageJson } from '../helpers/get-package-json.js'
+import { getPackage } from '../helpers/get-package.js'
+
+const electronExecutable = await getPackage('electron')
 
 class ElectronRunner {
   constructor () {
@@ -125,11 +128,11 @@ class ElectronRunner {
         }
         resolve()
       })
-    }).then(() => {
+    }).then(async () => {
       const bundlerName = cfg.electron.bundler
       const bundlerConfig = cfg.electron[bundlerName]
-      const bundler = require('./bundler').getBundler(bundlerName)
       const pkgName = `electron-${bundlerName}`
+      const bundler = await getPackage(pkgName)
 
       return new Promise((resolve, reject) => {
         log(`Bundling app with electron-${bundlerName}...`)
@@ -188,7 +191,7 @@ class ElectronRunner {
 
   __startElectron (extraParams) {
     this.pid = spawn(
-      getPackage('electron'),
+      electronExecutable,
       [
         '--inspect=5858',
         appPaths.resolve.app('.quasar/electron/electron-main.js')
@@ -211,4 +214,4 @@ class ElectronRunner {
   }
 }
 
-module.exports = new ElectronRunner()
+export default new ElectronRunner()

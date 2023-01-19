@@ -1,9 +1,9 @@
-const fs = require('fs')
-const { join } = require('path')
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 
-const appPaths = require('../app-paths')
+import appPaths from '../app-paths.js'
 
-const cssVariables = {
+export const cssVariables = {
   quasarSrcExt: 'css',
 
   appFile: {
@@ -23,5 +23,3 @@ for (const ext of Object.keys(cssVariables.appFile)) {
     break
   }
 }
-
-module.exports = cssVariables

@@ -1,6 +1,6 @@
 
-const appPaths = require('../../app-paths')
-const createNodeChain = require('./create-node-chain')
+const appPaths from '../../app-paths')
+const createNodeChain from './create-node-chain')
 
 module.exports = function (cfg, configName) {
   const chain = createNodeChain('preload', cfg, configName)

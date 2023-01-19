@@ -1,4 +1,4 @@
-const cssVariables = require('../helpers/css-variables')
+const cssVariables from '../helpers/css-variables')
 
 const ext = cssVariables.appFile.scss
   ? 'scss'

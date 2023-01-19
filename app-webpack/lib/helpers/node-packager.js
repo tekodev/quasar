@@ -1,10 +1,10 @@
-const fs = require('fs')
-const { normalize, join, sep } = require('path')
+import fs from 'node:fs'
+import { normalize, join, sep } from 'node:path'
+import { sync as spawn } from 'cross-spawn'
 
-const appPaths = require('../app-paths')
-const spawn = require('cross-spawn').sync
-const { log, warn, fatal } = require('./logger')
-const { spawnSync } = require('./spawn')
+import appPaths from '../app-paths.js'
+import { log, warn, fatal } from './logger.js'
+import { spawnSync } from './spawn.js'
 
 class PackageManager {
   name = 'unknown'
@@ -30,7 +30,7 @@ class PackageManager {
 
   isInstalled () {
     try {
-      // spawnSync helper logs stuff and exits the app on error, so we don't use it here
+      // spawnSync helper would log stuff and exit the app on error, so we don't use it here
       return spawn(this.name, ['--version']).status === 0
     }
     catch (err) {
@@ -148,7 +148,7 @@ function getPackager () {
   if (yarn.isUsed()) {
     return yarn
   }
-    
+
   if (pnpm.isUsed()) {
     return pnpm
   }
@@ -172,4 +172,4 @@ function getPackager () {
   warn('Please install Yarn, PNPM, or NPM before running this command.\n')
 }
 
-module.exports = getPackager()
+export const nodePackager = getPackager()

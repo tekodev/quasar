@@ -1,9 +1,10 @@
-const { green, grey, underline } = require('chalk')
+import { green, gray, underline } from 'kolorist'
 
-const { getBrowsersBanner } = require('./browsers-support')
-const getPackageJson = require('./get-package-json')
+import { getBrowsersBanner } from './browsers-support.js'
+import { getPackageJson } from './get-package-json.js'
+import { version as cliAppVersion } from '../version.js'
+
 const quasarVersion = getPackageJson('quasar').version
-const cliAppVersion = require('../../package.json').version
 
 function getPackager (argv, cmd) {
   if (argv.ide || (argv.mode === 'capacitor' && cmd === 'dev')) {
@@ -19,7 +20,7 @@ function getPackager (argv, cmd) {
     : 'gradle'
 }
 
-module.exports = function (argv, cmd, details) {
+function getBanner (argv, cmd, details) {
   let banner = ''
 
   if (details) {
@@ -31,15 +32,15 @@ module.exports = function (argv, cmd, details) {
  Pkg quasar................ ${green('v' + quasarVersion)}
  Pkg @quasar/app-webpack... ${green('v' + cliAppVersion)}
  Pkg webpack............... ${green('v5')}
- Debugging................. ${cmd === 'dev' || argv.debug ? green('enabled') : grey('no')}`
+ Debugging................. ${cmd === 'dev' || argv.debug ? green('enabled') : gray('no')}`
 
   if (cmd === 'build') {
-    banner += `\n Publishing................ ${argv.publish !== void 0 ? green('yes') : grey('no')}`
+    banner += `\n Publishing................ ${argv.publish !== void 0 ? green('yes') : gray('no')}`
   }
 
   if (['cordova', 'capacitor'].includes(argv.mode)) {
     const packaging = argv['skip-pkg']
-      ? grey('skip')
+      ? gray('skip')
       : green(getPackager(argv, cmd))
 
     banner += `\n ${cmd === 'build' ? 'Packaging' : 'Running'} mode............${cmd === 'build' ? '' : '..'} ${packaging}`
@@ -110,5 +111,8 @@ module.exports = function (argv, cmd, details) {
   }
 }
 
-module.exports.quasarVersion = quasarVersion
-module.exports.cliAppVersion = cliAppVersion
+export {
+  cliAppVersion,
+  quasarVersion,
+  getBanner
+}

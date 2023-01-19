@@ -1,7 +1,7 @@
 
-const eslintError = require('../formatters/eslintError')
+import eslintError from '../formatters/eslint-error.js'
 
-module.exports = function transform (error) {
+export default function transform (error) {
   return error.__formatter === void 0 && (
     error.name === 'ESLintError'
     || error.originalStack.some(stackframe => stackframe.fileName && stackframe.fileName.indexOf('eslint-loader') > 0)

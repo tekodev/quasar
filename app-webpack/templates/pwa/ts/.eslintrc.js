@@ -1,4 +1,4 @@
-const { resolve } = require('path');
+const { resolve } from 'path');
 
 module.exports = {
   parserOptions: {

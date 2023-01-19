@@ -1,13 +1,14 @@
-const fs = require('fs')
-const fse = require('fs-extra')
-const compileTemplate = require('lodash/template')
+import fs from 'fs'
+import fse from 'fs-extra'
+import compileTemplate from 'lodash/template.js'
 
-const appPaths = require('../app-paths')
-const { log, warn } = require('../helpers/logger')
-const { spawnSync } = require('../helpers/spawn')
-const nodePackager = require('../helpers/node-packager')
+import appPaths from '../app-paths.js'
+import { log, warn } from '../helpers/logger.js'
+import { spawnSync } from '../helpers/spawn.js'
+import { nodePackager } from '../helpers/node-packager.js'
+import { ensureDeps, ensureConsistency } from '../capacitor/ensure-consistency.js'
 
-class Mode {
+export class Mode {
   get isInstalled () {
     return fs.existsSync(appPaths.capacitorDir)
   }
@@ -19,7 +20,9 @@ class Mode {
     }
 
     const pkgPath = appPaths.resolve.app('package.json')
-    const pkg = require(pkgPath)
+    const pkg = JSON.parse(
+      fs.readFileSync(pkgPath, 'utf-8')
+    )
     const appName = pkg.productName || pkg.name || 'Quasar App'
 
     if (/^[0-9]/.test(appName)) {
@@ -30,7 +33,7 @@ class Mode {
       return
     }
 
-    const inquirer = require('inquirer')
+    const { default: inquirer } = await import('inquirer')
 
     console.log()
     const answer = await inquirer.prompt([{
@@ -46,7 +49,7 @@ class Mode {
     // Create /src-capacitor from template
     fse.ensureDirSync(appPaths.capacitorDir)
 
-    const fglob = require('fast-glob')
+    const { default: fglob } = await import('fast-glob')
     const scope = {
       appName,
       appId: answer.appId,
@@ -63,10 +66,9 @@ class Mode {
       fs.writeFileSync(dest, compileTemplate(content)(scope), 'utf-8')
     })
 
-    const { ensureDeps } = require('../capacitor/ensure-consistency')
     ensureDeps()
 
-    const { capBin } = require('../capacitor/cap-cli')
+    const { capBin } = await import('../capacitor/cap-cli.js')
 
     log(`Initializing capacitor...`)
     spawnSync(
@@ -90,22 +92,21 @@ class Mode {
       return
     }
 
-    this.addPlatform(target)
+    await this.addPlatform(target)
   }
 
   hasPlatform (target) {
     return fs.existsSync(appPaths.resolve.capacitor(target))
   }
 
-  addPlatform (target) {
-    const ensureConsistency = require('../capacitor/ensure-consistency')
+  async addPlatform (target) {
     ensureConsistency()
 
     if (this.hasPlatform(target)) {
       return
     }
 
-    const { capBin, capVersion } = require('../capacitor/cap-cli')
+    const { capBin, capVersion } = await import('../capacitor/cap-cli.js')
 
     if (capVersion >= 3) {
       nodePackager.installPackage(
@@ -134,5 +135,3 @@ class Mode {
     log(`Capacitor support was removed`)
   }
 }
-
-module.exports = Mode

@@ -13,7 +13,7 @@ function extract (message) {
   }
 }
 
-module.exports = function format (error, printLog, titleFn) {
+export default function format (error, printLog, titleFn) {
   const { title, message } = extract(error.webpackError)
 
   printLog(titleFn(title))

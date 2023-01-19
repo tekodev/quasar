@@ -1,4 +1,4 @@
-module.exports = function parseBuildEnv (envDefinitions, rootDefinitions) {
+export function parseBuildEnv (envDefinitions, rootDefinitions) {
   const env = {}
 
   const flatEnv = flattenObject(envDefinitions)

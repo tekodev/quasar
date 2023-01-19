@@ -1,7 +1,7 @@
-const appPaths = require('../app-paths')
-const getPackagePath = require('../helpers/get-package-path')
-const getPackageMajorVersion = require('../helpers/get-package-major-version')
 
-module.exports.capBin = getPackagePath('@capacitor/cli/bin/capacitor', appPaths.capacitorDir)
+import appPaths from '../app-paths.js'
+import { getPackagePath } from '../helpers/get-package-path.js'
+import { getPackageMajorVersion } from '../helpers/get-package-major-version.js'
 
-module.exports.capVersion = getPackageMajorVersion('@capacitor/cli', appPaths.capacitorDir)
+export const capBin = getPackagePath('@capacitor/cli/bin/capacitor', appPaths.capacitorDir)
+export const capVersion = getPackageMajorVersion('@capacitor/cli', appPaths.capacitorDir)

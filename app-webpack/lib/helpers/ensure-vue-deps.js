@@ -1,9 +1,9 @@
-const { log } = require('../helpers/logger')
-const nodePackager = require('../helpers/node-packager')
+import { log } from '../helpers/logger.js'
 
-const getPackagePath = require('./get-package-path')
+import { nodePackager } from '../helpers/node-packager.js'
+import { getPackagePath } from './get-package-path.js'
 
-module.exports = function () {
+export function ensureVueDeps () {
   const packagesToInstall = [
     getPackagePath('vue') === void 0 ? 'vue@^3.0.0' : '',
     getPackagePath('vue-router') === void 0 ? 'vue-router@^4.0.0' : ''

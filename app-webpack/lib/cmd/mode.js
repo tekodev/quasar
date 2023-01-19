@@ -1,7 +1,7 @@
 
-const parseArgs = require('minimist')
+import parseArgs from 'minimist'
 
-const { log, warn, fatal } = require('../helpers/logger')
+import { log, warn, fatal } from '../helpers/logger.js'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -42,8 +42,8 @@ if (argv._.length !== 0 && argv._.length !== 2) {
   process.exit(1)
 }
 
-const getMode = require('../mode')
-const { green, grey } = require('chalk')
+import { getMode } from '../mode/index.js'
+import { green, gray } from 'kolorist'
 
 async function run () {
   let [ action, mode ] = argv._
@@ -59,12 +59,12 @@ async function run () {
     fatal(`Unknown mode "${ mode }" to ${action}`)
   }
 
-  const cliMode = getMode(mode)
+  const cliMode = await getMode(mode)
 
   if (action === 'remove' && argv.yes !== true && cliMode.isInstalled) {
     console.log()
 
-    const inquirer = require('inquirer')
+    const { default: inquirer } = await import('inquirer')
     const answer = await inquirer.prompt([{
       name: 'go',
       type: 'confirm',
@@ -83,16 +83,17 @@ async function run () {
   await cliMode[action]()
 }
 
-function displayModes () {
+async function displayModes () {
   log(`Detecting installed modes...`)
 
   const info = []
-  ;['pwa', 'ssr', 'cordova', 'capacitor', 'electron', 'bex'].forEach(mode => {
+  for (const mode of ['pwa', 'ssr', 'cordova', 'capacitor', 'electron', 'bex']) {
+    const cliMode = await getMode(mode)
     info.push([
       `Mode ${mode.toUpperCase()}`,
-      getMode(mode).isInstalled ? green('yes') : grey('no')
+      cliMode.isInstalled ? green('yes') : gray('no')
     ])
-  })
+  }
 
   console.log(
     '\n' +

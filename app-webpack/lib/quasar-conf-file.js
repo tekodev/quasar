@@ -1,21 +1,21 @@
-const path = require('path')
-const fs = require('fs')
-const { merge } = require('webpack-merge')
-const chokidar = require('chokidar')
-const debounce = require('lodash/debounce')
-const { green } = require('chalk')
+const path from 'path')
+const fs from 'fs')
+const { merge } from 'webpack-merge')
+const chokidar from 'chokidar')
+const debounce from 'lodash/debounce')
+const { green } from 'kolorist')
 
-const appPaths = require('./app-paths')
-const { log, warn, fatal } = require('./helpers/logger')
-const extensionRunner = require('./app-extension/extensions-runner')
-const appFilesValidations = require('./helpers/app-files-validations')
-const cssVariables = require('./helpers/css-variables')
-const getPackage = require('./helpers/get-package')
-const getPackageMajorVersion = require('./helpers/get-package-major-version')
-const storeProvider = require('./helpers/store-provider')
-const { quasarVersion } = require('./helpers/banner')
+const appPaths from './app-paths')
+const { log, warn, fatal } from './helpers/logger')
+const { extensionRunner } from './app-extension/extensions-runner')
+const appFilesValidations from './helpers/app-files-validations')
+const cssVariables from './helpers/css-variables')
+const getPackage from './helpers/get-package')
+const getPackageMajorVersion from './helpers/get-package-major-version')
+const storeProvider from './helpers/store-provider')
+const { quasarVersion } from './helpers/banner')
 
-const transformAssetUrls = getPackage('quasar/dist/transforms/loader-asset-urls.json')
+const transformAssetUrls = await getPackage('quasar/dist/transforms/loader-asset-urls.json')
 const urlRegex = /^http(s)?:\/\//
 
 function encode (obj) {
@@ -105,7 +105,7 @@ class QuasarConfFile {
     this.ctx = ctx
     this.opts = opts
     this.filename = appPaths.quasarConfigFilename
-    this.pkg = require(appPaths.resolve.app('package.json'))
+    this.pkg from appPaths.resolve.app('package.json'))
     this.watch = opts.onBuildChange || opts.onAppChange
 
     if (this.watch) {
@@ -151,7 +151,7 @@ class QuasarConfFile {
 
     if (fs.existsSync(this.filename)) {
       delete require.cache[this.filename]
-      quasarConfigFunction = require(this.filename)
+      quasarConfigFunction from this.filename)
     }
     else {
       fatal('Could not load quasar.config.js config file', 'FAIL')
@@ -222,7 +222,7 @@ class QuasarConfFile {
     }, initialConf)
 
     if (cfg.animations === 'all') {
-      cfg.animations = require('./helpers/animations')
+      cfg.animations from './helpers/animations')
     }
 
     if (!cfg.framework.plugins) {
@@ -569,7 +569,8 @@ class QuasarConfFile {
       }
 
       if (cfg.ssr.pwa) {
-        await require('./mode/install-missing')('pwa')
+        const { installMissing } = await import('./mode/install-missing.js')
+        await installMissing('pwa')
         cfg.__rootDefines.__QUASAR_SSR_PWA__ = true
       }
 
@@ -578,7 +579,7 @@ class QuasarConfFile {
 
     if (this.ctx.dev) {
       const originalSetup = cfg.devServer.setupMiddlewares
-      const openInEditor = require('launch-editor-middleware')
+      const openInEditor from 'launch-editor-middleware')
 
       if (this.ctx.mode.bex === true) {
         cfg.devServer.devMiddleware = cfg.devServer.devMiddleware || {}
@@ -624,7 +625,7 @@ class QuasarConfFile {
           const { app } = opts
 
           if (!this.ctx.mode.ssr) {
-            const express = require('express')
+            const express from 'express')
 
             if (cfg.build.ignorePublicFolder !== true) {
               app.use((cfg.build.publicPath || '/'), express.static(appPaths.resolve.app('public'), {
@@ -688,7 +689,7 @@ class QuasarConfFile {
       }
 
       if (cfg.devServer.open) {
-        const isMinimalTerminal = require('./helpers/is-minimal-terminal')
+        const isMinimalTerminal from './helpers/is-minimal-terminal')
         if (isMinimalTerminal) {
           cfg.devServer.open = false
         }
@@ -819,7 +820,7 @@ class QuasarConfFile {
       })
     }
     else if (this.ctx.mode.electron && this.ctx.prod) {
-      const bundler = require('./electron/bundler')
+      const bundler from './electron/bundler')
 
       const icon = appPaths.resolve.electron('icons/icon.png')
       const builderIcon = process.platform === 'linux'
@@ -862,7 +863,7 @@ class QuasarConfFile {
       }
 
       if (this.opts.argv !== void 0) {
-        const { ensureElectronArgv } = require('./helpers/ensure-argv')
+        const { ensureElectronArgv } from './helpers/ensure-argv')
         ensureElectronArgv(cfg.electron.bundler, this.opts.argv)
       }
 
@@ -933,7 +934,7 @@ class QuasarConfFile {
     }
 
     if (this.ctx.mode.capacitor) {
-      const { capVersion } = require('./capacitor/cap-cli')
+      const { capVersion } from './capacitor/cap-cli')
       cfg.__versions.capacitor = capVersion
 
       const getCapPluginVersion = capVersion <= 2

@@ -1,7 +1,9 @@
-const compileTemplate = require('lodash/template')
 
-const { fillBaseTag } = require('../webpack/plugin.html-addons')
-const { fillPwaTags } = require('../webpack/pwa/plugin.html-pwa')
+import { compileTemplate } from 'lodash/template.js'
+import { minify } from 'html-minifier'
+
+import { fillBaseTag } from '../webpack/plugin.html-addons.js'
+import { fillPwaTags } from '../webpack/pwa/plugin.html-pwa.js'
 
 /*
  * _meta is initialized from ssr-helpers/create-renderer
@@ -118,7 +120,7 @@ function htmlTagObjectToString (tagDefinition) {
     (tagDefinition.voidTag ? '' : '</' + tagDefinition.tagName + '>')
 }
 
-module.exports.getIndexHtml = function (template, cfg) {
+export function getIndexHtml (template, cfg) {
   const compiled = compileTemplate(template)
   let html = compiled(cfg.htmlVariables)
 
@@ -139,7 +141,6 @@ module.exports.getIndexHtml = function (template, cfg) {
   html = injectSsrInterpolation(html)
 
   if (cfg.build.minify) {
-    const { minify } = require('html-minifier')
     html = minify(html, {
       ...cfg.__html.minifyOptions,
       ignoreCustomFragments: [ /{{ [\s\S]*? }}/ ]

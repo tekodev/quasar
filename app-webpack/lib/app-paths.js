@@ -25,7 +25,7 @@ function getAppInfo () {
   fatal(`Error. This command must be executed inside a Quasar project folder.`)
 }
 
-const { appDir, quasarConfigFilename, quasarConfigFileFormat } = getAppDir()
+const { appDir, quasarConfigFilename, quasarConfigFileFormat } = getAppInfo()
 const cliDir = new URL('..', import.meta.url).pathname
 const srcDir = resolve(appDir, 'src')
 const pwaDir = resolve(appDir, 'src-pwa')

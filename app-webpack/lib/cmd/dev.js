@@ -82,6 +82,8 @@ ensureArgv(argv, 'dev')
 import { ensureVueDeps } from '../helpers/ensure-vue-deps.js'
 ensureVueDeps()
 
+import { readFileSync } from 'node:fs'
+
 console.log(
   readFileSync(
     new URL('../../assets/logo.art', import.meta.url),
@@ -89,8 +91,8 @@ console.log(
   )
 )
 
-import { banner } from '../helpers/banner.js'
-banner(argv, 'dev')
+import { displayBanner } from '../helpers/banner.js'
+displayBanner(argv, 'dev')
 
 import { findClosestOpenPort } from '../helpers/net.js'
 

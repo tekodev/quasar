@@ -46,8 +46,8 @@ if (argv.help) {
 import { ensureArgv } from '../helpers/ensure-argv.js'
 ensureArgv(argv, 'inspect')
 
-import { banner } from '../helpers/banner.js'
-banner(argv, argv.cmd)
+import { displayBanner } from '../helpers/banner.js'
+displayBanner(argv, argv.cmd)
 
 import { log, fatal } from '../helpers/logger.js'
 import { getMode } from '../mode/index.js'

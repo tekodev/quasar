@@ -20,7 +20,7 @@ function getPackager (argv, cmd) {
     : 'gradle'
 }
 
-function getBanner (argv, cmd, details) {
+function displayBanner (argv, cmd, details) {
   let banner = ''
 
   if (details) {
@@ -114,5 +114,5 @@ function getBanner (argv, cmd, details) {
 export {
   cliAppVersion,
   quasarVersion,
-  getBanner
+  displayBanner
 }

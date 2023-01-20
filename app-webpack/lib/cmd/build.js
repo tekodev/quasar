@@ -102,8 +102,8 @@ console.log(
   )
 )
 
-const banner from '../helpers/banner')
-banner(argv, 'build')
+const { displayBanner } from '../helpers/banner.js'
+displayBanner(argv, 'build')
 
 const { log, fatal } from '../helpers/logger')
 const { printWebpackErrors } from '../helpers/print-webpack-issue')

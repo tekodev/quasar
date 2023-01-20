@@ -1,6 +1,6 @@
 
 import ErrorStackParser from 'error-stack-parser'
-import RequestShortener from 'webpack/lib/RequestShortener'
+import RequestShortener from 'webpack/lib/RequestShortener.js'
 
 const requestShortener = new RequestShortener(process.cwd())
 

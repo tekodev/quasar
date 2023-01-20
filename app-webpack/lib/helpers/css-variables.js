@@ -1,11 +1,6 @@
 import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 
 import appPaths from '../app-paths.js'
-
-function getFilePath (relativePath) {
-  return new URL(relativePath, import.meta.url).pathname
-}
 
 export const cssVariables = {
   quasarSrcExt: 'css',
@@ -13,11 +8,6 @@ export const cssVariables = {
   appFile: {
     scss: existsSync(appPaths.resolve.src('css/quasar.variables.scss')),
     sass: existsSync(appPaths.resolve.src('css/quasar.variables.sass'))
-  },
-
-  loaders: {
-    scss: getFilePath('../webpack/loader.quasar-scss-variables'),
-    sass: getFilePath('../webpack/loader.quasar-sass-variables')
   }
 }
 

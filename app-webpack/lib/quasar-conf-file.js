@@ -4,6 +4,7 @@ import { merge } from 'webpack-merge'
 import chokidar from 'chokidar'
 import debounce from 'lodash/debounce.js'
 import { green } from 'kolorist'
+import esbuild from 'esbuild'
 
 import appPaths from './app-paths.js'
 import { log, warn, fatal } from './helpers/logger.js'
@@ -96,8 +97,24 @@ function uniqueRegexFilter (value, index, self) {
   return self.map(regex => regex.toString()).indexOf(value.toString()) === index
 }
 
+async function nodeCompile (file, { format = 'esm' } = {}) {
+  const ext = format === 'esm' ? 'mjs' : 'cjs'
+  const compiledFile = `${file}.${Date.now()}.${ext}`
+
+  await esbuild.build({
+    platform: 'node',
+    format,
+    bundle: true,
+    packages: 'external',
+    entryPoints: [ file ],
+    outfile: compiledFile
+  })
+
+  return compiledFile
+}
+
 /*
- * this.quasarConf          - Compiled Object from quasar.conf.js
+ * this.quasarConf          - Compiled Object from quasar.config.js
  * this.webpackConf         - Webpack config(s)
  */
 
@@ -153,11 +170,12 @@ export class QuasarConfFile {
     let quasarConfigFunction
 
     if (fs.existsSync(this.filename)) {
-      delete require.cache[this.filename]
-      quasarConfigFunction from this.filename)
+      const tempFile = await nodeCompile(this.filename)
+      const { default: fn } = await import(tempFile)
+      quasarConfigFunction = fn
     }
     else {
-      fatal('Could not load quasar.config.js config file', 'FAIL')
+      fatal('Could not load quasar.config file', 'FAIL')
     }
 
     const initialConf = await quasarConfigFunction(this.ctx)
@@ -580,8 +598,8 @@ export class QuasarConfFile {
 
     if (this.ctx.dev) {
       const originalSetup = cfg.devServer.setupMiddlewares
-      const openInEditor = await import('launch-editor-middleware')
-      const express = await import('express')
+      const { default: openInEditor } = await import('launch-editor-middleware')
+      const { default: express } = await import('express')
 
       if (this.ctx.mode.bex === true) {
         cfg.devServer.devMiddleware = cfg.devServer.devMiddleware || {}

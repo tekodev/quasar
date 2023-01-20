@@ -52,7 +52,7 @@ displayBanner(argv, argv.cmd)
 import { log, fatal } from '../helpers/logger.js'
 import { getMode } from '../mode/index.js'
 
-import QuasarConfFile from '../quasar-conf-file.js'
+import { QuasarConfFile } from '../quasar-conf-file.js'
 import { splitWebpackConfig } from '../webpack/symbols.js'
 
 import util from 'node:util'
@@ -91,7 +91,7 @@ async function inspect () {
   }
   catch (e) {
     console.log(e)
-    fatal('quasar.config.js has JS errors', 'FAIL')
+    fatal('quasar.config file has JS errors', 'FAIL')
   }
 
   await quasarConfFile.compile()

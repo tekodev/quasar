@@ -3,7 +3,7 @@
  */
 
 import { extractWebpackError } from './extract-webpack-error.js'
-import transformersList from './transformers.js'
+import transformersList from './transformers/index.js'
 
 export function transformErrors (errors) {
   const transform = (error, transformer) => transformer(error)

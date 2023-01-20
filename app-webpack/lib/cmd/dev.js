@@ -181,7 +181,7 @@ async function goLive () {
     await installMissing(argv.mode, argv.target)
   }
 
-  const DevServer = argv.mode === 'ssr'
+  const { DevServer } = argv.mode === 'ssr'
     ? await import('../dev-server-ssr.js')
     : await import('../dev-server-regular.js')
 
@@ -221,7 +221,7 @@ async function goLive () {
   }
   catch (e) {
     console.log(e)
-    fatal('quasar.config.js has JS errors', 'FAIL')
+    fatal('quasar.config file has JS errors', 'FAIL')
   }
 
   await quasarConfFile.compile()

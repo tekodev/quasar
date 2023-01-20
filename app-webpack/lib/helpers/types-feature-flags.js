@@ -1,4 +1,4 @@
-import { join } from 'node:path'
+import { join, parse } from 'node:path'
 import fs from 'node:fs'
 import fse from 'fs-extra'
 
@@ -25,7 +25,6 @@ export async function regenerateTypesFeatureFlags (quasarConf) {
     'store',
     'bex'
   ]) {
-    const cliMode = await getMode(feature)
     const [isFeatureInstalled, sourceFlagPath, destFlagPath] = feature === 'store'
       ? [
         quasarConf.store,
@@ -33,7 +32,7 @@ export async function regenerateTypesFeatureFlags (quasarConf) {
         appPaths.resolve.app(getStoreFlagPath(quasarConf.sourceFiles.store))
       ]
       : [
-        cliMode.isInstalled,
+        (await getMode(feature)).isInstalled,
         appPaths.resolve.cli(`templates/${feature}/${feature}-flag.d.ts`),
         appPaths.resolve[feature](`${feature}-flag.d.ts`)
       ]

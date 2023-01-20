@@ -2,7 +2,8 @@ import {
   bgGreen, green,
   inverse,
   bgRed, red,
-  bgYellow, yellow
+  bgYellow, yellow,
+  white, black
 } from 'kolorist'
 
 import readline from 'readline'
@@ -34,7 +35,7 @@ export function log (msg) {
 export function warn (msg, pill) {
   if (msg !== void 0) {
     const pillBanner = pill !== void 0
-      ? bgYellow.black('', pill, '') + ' '
+      ? bgYellow(black('', pill, '')) + ' '
       : ''
 
     console.warn(` ${yellowBanner} ⚠️  ${pillBanner}${msg}`)
@@ -70,10 +71,10 @@ export function fatal (msg, pill) {
  * Extended approach - Compilation status & pills
  */
 
-export const successPill = msg => bgGreen.black('', msg, '')
+export const successPill = msg => bgGreen(black('', msg, ''))
 export const infoPill = msg => inverse('', msg, '')
-export const errorPill = msg => bgRed.white('', msg, '')
-export const warningPill = msg => bgYellow.black('', msg, '')
+export const errorPill = msg => bgRed(white('', msg, ''))
+export const warningPill = msg => bgYellow(black('', msg, ''))
 
 export function success (msg, title = 'SUCCESS') {
   console.log(` ${greenBanner} ${successPill(title)} ${green(dot + ' ' + msg)}`)

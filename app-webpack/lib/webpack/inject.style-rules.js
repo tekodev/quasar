@@ -1,13 +1,14 @@
 
 import path from 'node:path'
-import { loader as ExtractLoader } from 'mini-css-extract-plugin'
+import miniCssExtractPlugin from 'mini-css-extract-plugin'
 import { merge } from 'webpack-merge'
 import { createRequire } from 'module'
 
 const require = createRequire(import.meta.url)
 
 import appPaths from '../app-paths.js'
-import { cssVariables } from '../helpers/css-variables.js'
+import LoaderQuasarSassVariables from './loader.quasar-sass-variables.js'
+import LoaderQuasarScssVariables from './loader.quasar-scss-variables.js'
 
 const postCssConfigFile = appPaths.resolve.app('.postcssrc.js') // TODO? change?
 const quasarCssPaths = [
@@ -61,7 +62,7 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
 
     if (pref.extract) {
       rule.use('mini-css-extract')
-        .loader(ExtractLoader)
+        .loader(miniCssExtractPlugin.ExtractLoader)
         .options({ publicPath: '../' })
     }
     else {
@@ -170,11 +171,11 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
       if (loader === 'sass-loader') {
         if (loaderOptions && loaderOptions.sassOptions && loaderOptions.sassOptions.indentedSyntax) {
           rule.use('quasar-sass-variables-loader')
-            .loader(cssVariables.loaders.sass)
+            .loader(LoaderQuasarSassVariables)
         }
         else {
           rule.use('quasar-scss-variables-loader')
-            .loader(cssVariables.loaders.scss)
+            .loader(LoaderQuasarScssVariables)
         }
       }
     }

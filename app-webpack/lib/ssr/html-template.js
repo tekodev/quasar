@@ -1,5 +1,5 @@
 
-import { compileTemplate } from 'lodash/template.js'
+import compileTemplate from 'lodash/template.js'
 import { minify } from 'html-minifier'
 
 import { fillBaseTag } from '../webpack/plugin.html-addons.js'

@@ -93,16 +93,19 @@ function getImportMapContent (map) {
 }
 
 function getImportTransformationsContent () {
-  return `const map = require('./import-map.json')
+  return `import { readFileSync } from 'node:fs'
 
-module.exports = function (importName) {
+const map = JSON.parse(
+  readFileSync(new URL('./import-map.json', import.meta.url).pathname, 'utf8')
+)
+
+export default function (importName) {
   const file = map[importName]
   if (file === void 0) {
     throw new Error('Unknown import from Quasar: ' + importName)
   }
   return 'quasar/' + file
-}
-`
+}`
 }
 
 function getAutoImportFile (autoImport) {

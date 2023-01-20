@@ -1,8 +1,8 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import { removeSync } from 'fs-extra'
-import { compileTemplate } from 'lodash/template.js'
+import fse from 'fs-extra'
+import compileTemplate from 'lodash/template.js'
 
 import appPaths from './app-paths.js'
 
@@ -60,7 +60,7 @@ export class Generator {
       fs.mkdirSync(quasarFolder)
     }
     else if (!fs.lstatSync(quasarFolder).isDirectory()) {
-      removeSync(quasarFolder)
+      fse.removeSync(quasarFolder)
       fs.mkdirSync(quasarFolder)
     }
 

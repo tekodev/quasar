@@ -1,6 +1,6 @@
 
 import webpack from 'webpack'
-import debounce from 'lodash/debounce'
+import debounce from 'lodash/debounce.js'
 
 import { log, warn, fatal, success } from '../helpers/logger.js'
 import { spawn } from '../helpers/spawn.js'

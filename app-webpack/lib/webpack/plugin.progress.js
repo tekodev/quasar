@@ -1,7 +1,7 @@
 
-import { ProgressPlugin } from 'webpack'
-import throttle from 'lodash/throttle'
-import kolorist from 'kolorist'
+import webpack from 'webpack'
+import throttle from 'lodash/throttle.js'
+import { green, gray, bold } from 'kolorist'
 
 import appPaths from '../app-paths.js'
 import { success, info, error, warning, clearConsole } from '../helpers/logger.js'
@@ -65,12 +65,14 @@ const barLength = 20
 const barProgressFactor = barLength / 100
 const barString = Array.apply(null, { length: barLength })
   .map((_, index) => {
-    const p = index / barLength
-    const color = p <= 0.5
-      ? kolorist.rgb(255, Math.round(p * 510), 0)
-      : kolorist.rgb(255 - Math.round(p * 122), 255, 0)
+    // const p = index / barLength
+    // const color = p <= 0.5
+    //   ? rgb(255, Math.round(p * 510), 0)
+    //   : rgb(255 - Math.round(p * 122), 255, 0)
 
-    return color('█')
+    // return color('█')
+    // TODO!!!!
+    return '█'
   })
 
 function printBars () {
@@ -83,7 +85,7 @@ function printBars () {
   const lines = compilations.map((state, index) => {
     const prefix = index < prefixLen ? '├──' : '└──'
 
-    const name = kolorist.green(state.name.padEnd(maxLengthName))
+    const name = green(state.name.padEnd(maxLengthName))
 
     const barWidth = Math.floor(state.progress * barProgressFactor)
     const bar = barString
@@ -97,10 +99,10 @@ function printBars () {
         ].filter(m => m).join(' '))
       : 'idle'
 
-    return ` ${prefix} ${name} ${bar} ${kolorist.grey(details)}\n`
+    return ` ${prefix} ${name} ${bar} ${gray(details)}\n`
   })
 
-  progressLog(`\n • ${kolorist.green.bold('Compiling')}:\n` + lines.join(''))
+  progressLog(`\n • ${green(bold('Compiling'))}:\n` + lines.join(''))
 }
 
 const renderBars = throttle(printBars, 200)
@@ -109,7 +111,7 @@ const renderBars = throttle(printBars, 200)
  * Status related
  */
 
-const greenBanner = kolorist.green('»')
+const greenBanner = green('»')
 
 let readyBanner = false
 
@@ -128,15 +130,15 @@ function printReadyBanner () {
 function getReadyBanner (cfg) {
   if (cfg.ctx.mode.bex === true) {
     return [
-      ` ${greenBanner} App dir................... ${kolorist.green(appPaths.appDir)}`,
-      ` ${greenBanner} Dev mode.................. ${kolorist.green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
-      ` ${greenBanner} Pkg quasar................ ${kolorist.green('v' + quasarVersion)}`,
-      ` ${greenBanner} Pkg @quasar/app-webpack... ${kolorist.green('v' + cliAppVersion)}`,
+      ` ${greenBanner} App dir................... ${green(appPaths.appDir)}`,
+      ` ${greenBanner} Dev mode.................. ${green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
+      ` ${greenBanner} Pkg quasar................ ${green('v' + quasarVersion)}`,
+      ` ${greenBanner} Pkg @quasar/app-webpack... ${green('v' + cliAppVersion)}`,
       ` ${greenBanner} Transpiled JS..... ${cfg.__transpileBanner}`,
       ` ----------------------------`,
       ` ${greenBanner} Load the dev extension from:`,
-      `   · Chrome(ium): ${kolorist.green(appPaths.bexDir)}`,
-      `   · Firefox:     ${kolorist.green(appPaths.resolve.bex('manifest.json'))}`
+      `   · Chrome(ium): ${green(appPaths.bexDir)}`,
+      `   · Firefox:     ${green(appPaths.resolve.bex('manifest.json'))}`
     ].join('\n') + '\n'
   }
 
@@ -145,15 +147,15 @@ function getReadyBanner (cfg) {
   }
 
   const urlList = cfg.devServer.host === '0.0.0.0'
-    ? getIPList().map(ip => kolorist.green(cfg.__getUrl(ip))).join(`\n                              `)
-    : kolorist.green(cfg.build.APP_URL)
+    ? getIPList().map(ip => green(cfg.__getUrl(ip))).join(`\n                              `)
+    : green(cfg.build.APP_URL)
 
   return [
-    ` ${greenBanner} App dir................... ${kolorist.green(appPaths.appDir)}`,
+    ` ${greenBanner} App dir................... ${green(appPaths.appDir)}`,
     ` ${greenBanner} App URL................... ${urlList}`,
-    ` ${greenBanner} Dev mode.................. ${kolorist.green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
-    ` ${greenBanner} Pkg quasar................ ${kolorist.green('v' + quasarVersion)}`,
-    ` ${greenBanner} Pkg @quasar/app-webpack... ${kolorist.green('v' + cliAppVersion)}`,
+    ` ${greenBanner} Dev mode.................. ${green(cfg.ctx.modeName + (cfg.ctx.mode.ssr && cfg.ctx.mode.pwa ? ' + pwa' : ''))}`,
+    ` ${greenBanner} Pkg quasar................ ${green('v' + quasarVersion)}`,
+    ` ${greenBanner} Pkg @quasar/app-webpack... ${green('v' + cliAppVersion)}`,
     ` ${greenBanner} Transpiled JS............. ${cfg.__transpileBanner}`
   ].join('\n') + '\n'
 }
@@ -195,7 +197,7 @@ function printStatus () {
   }
 }
 
-export class WebpackProgressPlugin extends ProgressPlugin {
+export class WebpackProgressPlugin extends webpack.ProgressPlugin {
   constructor ({ name, cfg, hasExternalWork }) {
     const useBars = isMinimalTerminal !== true && cfg.build.showProgress === true
 

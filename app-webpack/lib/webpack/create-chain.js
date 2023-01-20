@@ -10,8 +10,11 @@ import { BootDefaultExportPlugin } from './plugin.boot-default-export.js'
 import { parseBuildEnv } from '../helpers/parse-build-env.js'
 import { getPackagePath } from '../helpers/get-package-path.js'
 
+import LoaderAutoImportQuasar from './loader.vue.auto-import-quasar.js'
+import LoaderJsTransformQuasarImports from './loader.js.transform-quasar-imports.js'
+
 import appPaths from '../app-paths.js'
-import injectStyleRules from './inject.style-rules.js'
+import { injectStyleRules } from './inject.style-rules.js'
 import { webpackNames } from './symbols.js'
 
 function getDependenciesRegex (list) {
@@ -132,7 +135,7 @@ export async function createChain (cfg, configName) {
     .test(/\.vue$/)
 
   vueRule.use('vue-auto-import-quasar')
-    .loader(path.join(__dirname, 'loader.vue.auto-import-quasar.js'))
+    .loader(LoaderAutoImportQuasar)
     .options({
       autoImportComponentCase: cfg.framework.autoImportComponentCase,
       isServerBuild: configName === webpackNames.ssr.serverSide
@@ -152,7 +155,7 @@ export async function createChain (cfg, configName) {
     chain.module.rule('js-transform-quasar-imports')
       .test(/\.(t|j)sx?$/)
       .use('transform-quasar-imports')
-        .loader(path.join(__dirname, 'loader.js.transform-quasar-imports.js'))
+        .loader(LoaderJsTransformQuasarImports)
   }
 
   if (cfg.build.transpile === true) {

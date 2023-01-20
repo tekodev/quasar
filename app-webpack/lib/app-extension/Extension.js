@@ -145,8 +145,7 @@ export class Extension {
 
       return true
     }
-    catch (e) {
-      console.error(e)
+    catch (_) {
       return false
     }
   }

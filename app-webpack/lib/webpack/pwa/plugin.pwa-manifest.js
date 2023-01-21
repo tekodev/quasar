@@ -1,5 +1,5 @@
 
-import { sources } from 'webpack'
+import webpack from 'webpack'
 
 export class PwaManifestPlugin {
   constructor (cfg = {}) {
@@ -8,7 +8,7 @@ export class PwaManifestPlugin {
 
   apply (compiler) {
     compiler.hooks.thisCompilation.tap('manifest.json', compilation => {
-      compilation.emitAsset('manifest.json', new sources.RawSource(this.manifest))
+      compilation.emitAsset('manifest.json', new webpack.sources.RawSource(this.manifest))
     })
   }
 }

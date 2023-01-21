@@ -248,7 +248,7 @@ async function goLive () {
   let runMode
 
   if (['cordova', 'capacitor', 'electron', 'bex', 'pwa', 'ssr'].includes(argv.mode)) {
-    const ModeRunner = await import(`../${ argv.mode === 'ssr' ? 'pwa' : argv.mode }.js`)
+    const { default: ModeRunner } = await import(`../${ argv.mode === 'ssr' ? 'pwa' : argv.mode }/index.js`)
     ModeRunner.init(ctx)
     runMode = () => ModeRunner.run(quasarConfFile, argv)
   }

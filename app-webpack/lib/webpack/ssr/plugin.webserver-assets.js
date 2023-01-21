@@ -1,6 +1,6 @@
 
 import { readFileSync} from 'node:fs'
-import { sources } from 'webpack'
+import webpack from 'webpack'
 
 import appPaths from '../../app-paths.js'
 import { getFixedDeps } from '../../helpers/get-fixed-deps.js'
@@ -15,8 +15,8 @@ export class WebserverAssetsPlugin {
 
   apply (compiler) {
     compiler.hooks.thisCompilation.tap('package.json', compilation => {
-      compilation.emitAsset('package.json', new sources.RawSource(this.pkg))
-      compilation.emitAsset('render-template.js', new sources.RawSource(this.htmlTemplate))
+      compilation.emitAsset('package.json', new webpack.sources.RawSource(this.pkg))
+      compilation.emitAsset('render-template.js', new webpack.sources.RawSource(this.htmlTemplate))
     })
   }
 

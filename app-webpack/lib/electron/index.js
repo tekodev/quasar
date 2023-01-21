@@ -1,4 +1,6 @@
 
+import { join, dirname } from 'node:path'
+import { readFileSync } from 'node:fs'
 import webpack from 'webpack'
 import debounce from 'lodash/debounce.js'
 
@@ -6,10 +8,13 @@ import { log, warn, fatal, success } from '../helpers/logger.js'
 import { spawn } from '../helpers/spawn.js'
 import appPaths from '../app-paths.js'
 import { nodePackager } from '../helpers/node-packager.js'
-import { getPackageJson } from '../helpers/get-package-json.js'
-import { getPackage } from '../helpers/get-package.js'
+import { getPackagePath } from '../helpers/get-package-path.js'
 
-const electronExecutable = await getPackage('electron')
+const electronPkgPath = getPackagePath('electron/package.json')
+const electronPkg = JSON.parse(
+  readFileSync(electronPkgPath, 'utf-8')
+)
+const electronExecutable = join(dirname(electronPkgPath), electronPkg.bin.electron)
 
 class ElectronRunner {
   constructor () {
@@ -141,7 +146,7 @@ class ElectronRunner {
         const bundlePromise = bundlerName === 'packager'
           ? bundler({
             ...bundlerConfig,
-            electronVersion: getPackageJson('electron').version
+            electronVersion: electronPkg.version
           })
           : bundler.build(bundlerConfig)
 

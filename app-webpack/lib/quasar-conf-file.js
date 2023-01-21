@@ -808,7 +808,7 @@ export class QuasarConfFile {
       cfg.build.APP_URL = 'index.html'
     }
     else if (this.ctx.mode.electron) {
-      cfg.__rootDefines[`process.env.APP_URL`] = `"file://" + __dirname + "/index.html"`
+      cfg.__rootDefines[`process.env.APP_URL`] = `"file://" + (new URL("./index.html", import.meta.url).pathname)`
     }
 
     Object.assign(cfg.build.env, {

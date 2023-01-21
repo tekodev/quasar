@@ -31,15 +31,9 @@ export async function createNodeChain (nodeType, cfg, configName) {
 
   chain.target(`electron-${nodeType}`)
   chain.mode(cfg.ctx.dev ? 'development' : 'production')
-  chain.node
-    .merge({
-      __dirname: cfg.ctx.dev,
-      __filename: cfg.ctx.dev
-    })
 
   chain.output
     .filename(`electron-${nodeType}.js`)
-    .libraryTarget('commonjs2')
     .path(
       cfg.ctx.dev
         ? appPaths.resolve.app(tempElectronDir)

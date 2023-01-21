@@ -104,7 +104,7 @@ async function parseAddress ({ host, port }) {
     ['cordova', 'capacitor'].includes(argv.mode) &&
     (!host || ['0.0.0.0', 'localhost', '127.0.0.1', '::1'].includes(host.toLowerCase()))
   ) {
-    const { getExternalIP } = await import('../helpers/get-external-ip')
+    const { getExternalIP } = await import('../helpers/get-external-ip.js')
     host = await getExternalIP()
     this.chosenHost = host
   }

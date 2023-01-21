@@ -6,7 +6,7 @@ import { log, fatal } from '../helpers/logger.js'
 import { CordovaConfig } from './cordova-config.js'
 import { spawn } from '../helpers/spawn.js'
 import { onShutdown } from '../helpers/on-shutdown.js'
-import { openIde } from '../helpers/open-ide.js'
+import { openIDE } from '../helpers/open-ide.js'
 import { fixAndroidCleartext } from '../helpers/fix-android-cleartext.js'
 
 class CordovaRunner {
@@ -48,7 +48,7 @@ class CordovaRunner {
         ['prepare', this.target].concat(argv._)
       )
 
-      await openIde('cordova', cfg.bin, this.target, true)
+      await openIDE('cordova', cfg.bin, this.target, true)
       return
     }
 
@@ -89,7 +89,7 @@ class CordovaRunner {
     }
 
     if (argv.ide) {
-      await openIde('cordova', cfg.bin, this.target)
+      await openIDE('cordova', cfg.bin, this.target)
       process.exit(0)
     }
 

@@ -1,12 +1,12 @@
 
 import fse from 'fs-extra'
 
-import { log, warn, fatal } from '../helpers/logger.js'
-import CapacitorConfig from './capacitor-config.js'
-import { spawn, spawnSync } from '../helpers/spawn.js'
-import onShutdown from '../helpers/on-shutdown.js'
 import appPaths from '../app-paths.js'
-import openIde from '../helpers/open-ide.js'
+import { log, warn, fatal } from '../helpers/logger.js'
+import { CapacitorConfig } from './capacitor-config.js'
+import { spawn, spawnSync } from '../helpers/spawn.js'
+import { onShutdown } from '../helpers/on-shutdown.js'
+import { openIDE } from '../helpers/open-ide.js'
 
 import { capBin } from './cap-cli.js'
 import { fixAndroidCleartext } from '../helpers/fix-android-cleartext.js'
@@ -49,7 +49,7 @@ class CapacitorRunner {
 
     this.capacitorConfig.prepareSSL(cfg.devServer.server.type === 'https', this.target)
 
-    await openIde('capacitor', cfg.bin, this.target, true)
+    await openIDE('capacitor', cfg.bin, this.target, true)
   }
 
   async build (quasarConfFile, argv) {
@@ -66,7 +66,7 @@ class CapacitorRunner {
     }
 
     if (argv.ide === true) {
-      await openIde('capacitor', cfg.bin, this.target)
+      await openIDE('capacitor', cfg.bin, this.target)
       process.exit(0)
     }
 

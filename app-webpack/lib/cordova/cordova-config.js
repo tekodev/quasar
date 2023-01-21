@@ -4,7 +4,7 @@ import et from 'elementtree'
 
 import appPaths from '../app-paths.js'
 import { log, warn } from '../helpers/logger.js'
-import ensureConsistency from './ensure-consistency.js'
+import { ensureConsistency } from './ensure-consistency.js'
 
 const filePath = appPaths.resolve.cordova('config.xml')
 

@@ -5,7 +5,7 @@ import fglob from 'fast-glob'
 
 import appPaths from '../app-paths.js'
 import { log, warn } from '../helpers/logger.js'
-import ensureConsistency from './ensure-consistency.js'
+import { ensureConsistency } from './ensure-consistency.js'
 import { capVersion } from './cap-cli.js'
 
 function getAndroidMainActivity (capVersion, appId) {

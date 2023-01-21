@@ -1,7 +1,7 @@
 
 import path from 'node:path'
 import fse from 'fs-extra'
-import { CopyWebpackPlugin } from 'copy-webpack-plugin'
+import CopyWebpackPlugin from 'copy-webpack-plugin'
 
 import appPaths from '../../app-paths.js'
 import { clean } from '../../artifacts.js'

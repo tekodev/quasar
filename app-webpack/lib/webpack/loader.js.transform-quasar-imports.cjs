@@ -1,11 +1,9 @@
 
-import { getPackage } from '../helpers/get-package.js'
-
-const importTransformation = await getPackage('quasar/dist/transforms/import-transformation.js')
-
 const regex = /import\s*\{([\w,\s]+)\}\s*from\s*(['"])quasar\2;?/g
 
-export default function (content, map) {
+module.exports = function (content, map) {
+  const { importTransformation } = this.getOptions()
+
   const newContent = content.replace(
     regex,
     (_, match) => match.split(',')

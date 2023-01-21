@@ -1,29 +1,27 @@
 
-import hash from 'hash-sum'
+const { join } = require('path')
+const hash = require('hash-sum')
 
-import { getPackage } from '../helpers/get-package.js'
+const autoImportRuntimePath = join(__dirname, './runtime.auto-import.js')
+const injectModuleIdRuntimePath = join(__dirname, './runtime.inject-module-id.js')
 
-const autoImportData = await getPackage('quasar/dist/transforms/auto-import.json')
-const importTransformation = await getPackage('quasar/dist/transforms/import-transformation.js')
-const autoImportRuntimePath = new URL('./runtime.auto-import.js', import.meta.url).pathname
-const injectModuleIdRuntimePath = new URL('./runtime.inject-module-id.js', import.meta.url).pathname
-
-const compRegex = {
-  'kebab': new RegExp(autoImportData.regex.kebabComponents || autoImportData.regex.components, 'g'),
-  'pascal': new RegExp(autoImportData.regex.pascalComponents || autoImportData.regex.components, 'g'),
-  'combined': new RegExp(autoImportData.regex.components, 'g')
-}
-
-const dirRegex = new RegExp(autoImportData.regex.directives, 'g')
-
-function transform (itemArray) {
+function transform (itemArray, importTransformation) {
   return itemArray
     .map(name => `import ${name} from '${importTransformation(name)}';`)
     .join(`\n`)
 }
 
-function extract (content, ctx, autoImportCase) {
-  let comp = content.match(compRegex[autoImportCase])
+function extract (
+  content,
+  ctx,
+  {
+    autoImportData,
+    importTransformation,
+    compRegex,
+    dirRegex,
+    autoImportComponentCase
+  }) {
+  let comp = content.match(compRegex[autoImportComponentCase])
   let dir = content.match(dirRegex)
 
   if (comp === null && dir === null) {
@@ -38,17 +36,17 @@ function extract (content, ctx, autoImportCase) {
     comp = Array.from(new Set(comp))
 
     // map comp names only if not pascal-case already
-    if (autoImportCase !== 'pascal') {
+    if (autoImportComponentCase !== 'pascal') {
       comp = comp.map(name => autoImportData.importName[name])
     }
 
-    if (autoImportCase === 'combined') {
+    if (autoImportComponentCase === 'combined') {
       // could have been transformed QIcon and q-icon too,
       // so avoid duplicates
       comp = Array.from(new Set(comp))
     }
 
-    importStatements += transform(comp)
+    importStatements += transform(comp, importTransformation)
     installStatements += `qInstall(script, 'components', {${comp.join(',')}});`
   }
 
@@ -56,7 +54,7 @@ function extract (content, ctx, autoImportCase) {
     dir = Array.from(new Set(dir))
       .map(name => autoImportData.importName[name])
 
-    importStatements += transform(dir)
+    importStatements += transform(dir, importTransformation)
     installStatements += `qInstall(script, 'directives', {${dir.join(',')}});`
   }
 
@@ -81,7 +79,7 @@ qInject(script, '${id}');
 `
 }
 
-export default function (content, map) {
+module.exports = function (content, map) {
   let newContent = content
 
   if (!this.resourceQuery) {
@@ -92,7 +90,7 @@ export default function (content, map) {
     }
     else {
       const file = this.fs.readFileSync(this.resource, 'utf-8').toString()
-      const code = extract(file, this, opts.autoImportComponentCase)
+      const code = extract(file, this, opts)
 
       if (code !== void 0) {
         const index = this.mode === 'development'

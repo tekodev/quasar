@@ -1,9 +1,9 @@
 import {
-  bgGreen, green,
   inverse,
+  white, black,
+  bgGreen, green,
   bgRed, red,
-  bgYellow, yellow,
-  white, black
+  bgYellow, yellow
 } from 'kolorist'
 
 import readline from 'readline'
@@ -71,17 +71,17 @@ export function fatal (msg, pill) {
  * Extended approach - Compilation status & pills
  */
 
-export const successPill = msg => bgGreen(black('', msg, ''))
-export const infoPill = msg => inverse('', msg, '')
-export const errorPill = msg => bgRed(white('', msg, ''))
-export const warningPill = msg => bgYellow(black('', msg, ''))
+export const successPill = msg => bgGreen(black(` ${ msg } `))
+export const infoPill = msg => inverse(` ${ msg } `)
+export const errorPill = msg => bgRed(white(` ${ msg } `))
+export const warningPill = msg => bgYellow(black(` ${ msg } `))
 
 export function success (msg, title = 'SUCCESS') {
-  console.log(` ${greenBanner} ${successPill(title)} ${green(dot + ' ' + msg)}`)
+  console.log(` ${greenBanner} ${successPill(title)} ${green(`${ dot } ${ msg }`)}`)
 }
 
 export function getSuccess (msg, title) {
-  return ` ${greenBanner} ${successPill(title)} ${green(dot + ' ' + msg)}`
+  return ` ${greenBanner} ${successPill(title)} ${green(`${ dot } ${ msg }`)}`
 }
 
 export function info (msg, title = 'INFO') {
@@ -93,17 +93,17 @@ export function getInfo (msg, title) {
 }
 
 export function error (msg, title = 'ERROR') {
-  console.log(` ${redBanner} ${errorPill(title)} ${red(dot + ' ' + msg)}`)
+  console.log(` ${redBanner} ${errorPill(title)} ${red(`${ dot } ${ msg }`)}`)
 }
 
 export function getError (msg, title = 'ERROR') {
-  return ` ${redBanner} ${errorPill(title)} ${red(dot + ' ' + msg)}`
+  return ` ${redBanner} ${errorPill(title)} ${red(`${ dot } ${ msg }`)}`
 }
 
 export function warning (msg, title = 'WARNING') {
-  console.log(` ${yellowBanner} ${warningPill(title)} ${yellow(dot + ' ' + msg)}`)
+  console.log(` ${yellowBanner} ${warningPill(title)} ${yellow(`${ dot } ${ msg }`)}`)
 }
 
 export function getWarning (msg, title = 'WARNING') {
-  return ` ${yellowBanner} ${warningPill(title)} ${yellow(dot + ' ' + msg)}`
+  return ` ${yellowBanner} ${warningPill(title)} ${yellow(`${ dot } ${ msg }`)}`
 }

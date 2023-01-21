@@ -6,7 +6,7 @@ import appPaths from '../app-paths.js'
 import { log, warn } from '../helpers/logger.js'
 import { nodePackager } from '../helpers/node-packager.js'
 import { hasTypescript } from '../helpers/has-typescript.js'
-import { hasEslint } from '../helpers/has-eslint.js'
+import { hasEslint, eslintConfigFile } from '../helpers/has-eslint.js'
 
 const pwaDeps = {
   'workbox-webpack-plugin': '^6.0.0'
@@ -35,7 +35,7 @@ export class Mode {
       appPaths.resolve.cli(`templates/pwa/${format}`),
       appPaths.pwaDir,
       // Copy .eslintrc.js only if the app has ESLint
-      { filter: src => hasEslint || !src.endsWith('/.eslintrc.js') }
+      { filter: src => hasEslint || !src.endsWith(eslintConfigFile) }
     )
 
     fse.copySync(

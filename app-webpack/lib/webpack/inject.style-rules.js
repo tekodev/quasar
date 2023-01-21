@@ -2,15 +2,11 @@
 import path from 'node:path'
 import miniCssExtractPlugin from 'mini-css-extract-plugin'
 import { merge } from 'webpack-merge'
-import { createRequire } from 'module'
-
-const require = createRequire(import.meta.url)
 
 import appPaths from '../app-paths.js'
-import LoaderQuasarSassVariables from './loader.quasar-sass-variables.js'
-import LoaderQuasarScssVariables from './loader.quasar-scss-variables.js'
+import { cssVariables } from '../helpers/css-variables.js'
 
-const postCssConfigFile = appPaths.resolve.app('.postcssrc.js') // TODO? change?
+const postCssConfigFile = appPaths.resolve.app('postcss.config.cjs')
 const quasarCssPaths = [
   path.join('node_modules', 'quasar', 'dist'),
   path.join('node_modules', 'quasar', 'src'),
@@ -121,8 +117,7 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
 
     // need a fresh copy, otherwise plugins
     // will keep on adding making N duplicates for each one
-    delete require.cache[postCssConfigFile]
-    const postCssConfig = require(postCssConfigFile)
+    const { default: postCssConfig } = await import(postCssConfigFile)
     let postCssOpts = { sourceMap: pref.sourceMap, ...postCssConfig }
 
     if (pref.rtl) {
@@ -171,11 +166,13 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
       if (loader === 'sass-loader') {
         if (loaderOptions && loaderOptions.sassOptions && loaderOptions.sassOptions.indentedSyntax) {
           rule.use('quasar-sass-variables-loader')
-            .loader(LoaderQuasarSassVariables)
+            .loader(new URL('./loader.quasar-sass-variables.cjs', import.meta.url).pathname)
+            .options({ prefix: cssVariables.codePrefixes.sass })
         }
         else {
           rule.use('quasar-scss-variables-loader')
-            .loader(LoaderQuasarScssVariables)
+            .loader(new URL('./loader.quasar-scss-variables.cjs', import.meta.url).pathname)
+            .options({ prefix: cssVariables.codePrefixes.scss })
         }
       }
     }

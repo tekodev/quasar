@@ -1,16 +1,9 @@
 
-import { cssVariables } from '../helpers/css-variables.js'
 
-const ext = cssVariables.appFile.sass
-  ? 'sass'
-  : (cssVariables.appFile.scss ? 'scss' : false)
-
-const prefix = ext !== false
-  ? `@import '~src/css/quasar.variables.${ext}', 'quasar/src/css/variables.sass'\n`
-  : `@import 'quasar/src/css/variables.sass'\n`
-
-export default function (content) {
+module.exports = function (content) {
   if (content.indexOf('$') !== -1) {
+    const { prefix } = this.getOptions()
+
     let useIndex = Math.max(
       content.lastIndexOf('@use '),
       content.lastIndexOf('@forward ')

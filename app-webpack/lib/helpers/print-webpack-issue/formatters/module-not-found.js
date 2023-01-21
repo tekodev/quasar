@@ -1,5 +1,5 @@
 
-import { bold } from 'kolorist'
+import { bold, underline, yellow } from 'kolorist'
 
 import { removeFileLoaders } from '../utils.js'
 import { nodePackager } from '../../node-packager.js'
@@ -23,7 +23,7 @@ export default function format (error, printLog, titleFn) {
 
   const dependency = depMatch[1]
 
-  printLog(`Module not found: Can't resolve imported dependency "${bold.underline.yellow(dependency)}"`)
+  printLog(`Module not found: Can't resolve imported dependency "${bold(underline(yellow(dependency)))}"`)
 
   if (relativeRE.test(dependency) === false) {
     printLog(`Did you forget to install it? You can run: ${bold(`${cmd} ${dependency}`)}`)

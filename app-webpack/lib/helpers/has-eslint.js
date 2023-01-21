@@ -8,20 +8,13 @@ const appPkg = JSON.parse(
   )
 )
 
-function appHasEslint () {
-  // See: https://eslint.org/docs/user-guide/configuring/configuration-files
-  const configPaths = [
-    '.eslintrc.js',
-    '.eslintrc.cjs',
-    '.eslintrc.yaml',
-    '.eslintrc.yml',
-    '.eslintrc.json',
-  ]
+// See: https://eslint.org/docs/user-guide/configuring/configuration-files
+export const eslintConfigFile = [
+  '.eslintrc.cjs',
+  '.eslintrc.js',
+  '.eslintrc.yaml',
+  '.eslintrc.yml',
+  '.eslintrc.json',
+].find(path => existsSync(appPaths.resolve.app(path)))
 
-  return (
-    configPaths.some(path => existsSync(appPaths.resolve.app(path))) ||
-    appPkg.eslintConfig !== undefined
-  )
-}
-
-export const hasEslint = appHasEslint()
+export const hasEslint = appPkg.eslintConfig || eslintConfigFile

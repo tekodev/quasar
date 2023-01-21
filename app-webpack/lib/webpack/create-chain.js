@@ -9,13 +9,22 @@ import { WebpackProgressPlugin } from './plugin.progress.js'
 import { BootDefaultExportPlugin } from './plugin.boot-default-export.js'
 import { parseBuildEnv } from '../helpers/parse-build-env.js'
 import { getPackagePath } from '../helpers/get-package-path.js'
-
-import LoaderAutoImportQuasar from './loader.vue.auto-import-quasar.js'
-import LoaderJsTransformQuasarImports from './loader.js.transform-quasar-imports.js'
+import { getPackage } from '../helpers/get-package.js'
 
 import appPaths from '../app-paths.js'
 import { injectStyleRules } from './inject.style-rules.js'
 import { webpackNames } from './symbols.js'
+
+const autoImportData = await getPackage('quasar/dist/transforms/auto-import.json')
+const { default: importTransformation } = await getPackage('quasar/dist/transforms/import-transformation.js')
+
+const compRegex = {
+  'kebab': new RegExp(autoImportData.regex.kebabComponents || autoImportData.regex.components, 'g'),
+  'pascal': new RegExp(autoImportData.regex.pascalComponents || autoImportData.regex.components, 'g'),
+  'combined': new RegExp(autoImportData.regex.components, 'g')
+}
+
+const dirRegex = new RegExp(autoImportData.regex.directives, 'g')
 
 function getDependenciesRegex (list) {
   const deps = list.map(dep => {
@@ -135,8 +144,12 @@ export async function createChain (cfg, configName) {
     .test(/\.vue$/)
 
   vueRule.use('vue-auto-import-quasar')
-    .loader(LoaderAutoImportQuasar)
+    .loader(new URL('./loader.vue.auto-import-quasar.cjs', import.meta.url).pathname)
     .options({
+      autoImportData,
+      importTransformation,
+      compRegex,
+      dirRegex,
       autoImportComponentCase: cfg.framework.autoImportComponentCase,
       isServerBuild: configName === webpackNames.ssr.serverSide
     })
@@ -155,7 +168,8 @@ export async function createChain (cfg, configName) {
     chain.module.rule('js-transform-quasar-imports')
       .test(/\.(t|j)sx?$/)
       .use('transform-quasar-imports')
-        .loader(LoaderJsTransformQuasarImports)
+        .loader(new URL('./loader.js.transform-quasar-imports.cjs', import.meta.url).pathname)
+        .options({ importTransformation })
   }
 
   if (cfg.build.transpile === true) {
@@ -252,7 +266,7 @@ export async function createChain (cfg, configName) {
         name: `media/[name]${assetHash}.[ext]`
       })
 
-  injectStyleRules(chain, {
+  await injectStyleRules(chain, {
     isServerBuild: configName === webpackNames.ssr.serverSide,
     rtl: cfg.build.rtl,
     sourceMap: cfg.build.sourceMap,

@@ -1,3 +1,4 @@
+
 /**
  * Initially forked from friendly-errors-webpack-plugin 2.0.0-beta.2
  */

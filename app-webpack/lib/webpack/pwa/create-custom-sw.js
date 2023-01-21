@@ -6,8 +6,9 @@ import WebpackChain from 'webpack-chain'
 import appPaths from '../../app-paths.js'
 import { parseBuildEnv } from '../../helpers/parse-build-env.js'
 import { WebpackProgressPlugin } from '../plugin.progress.js'
+import { getPackage } from '../helpers/get-package.js'
 
-import LoaderJsTransformQuasarImports from '../loader.js.transform-quasar-imports.js'
+const { default: importTransformation } = await getPackage('quasar/dist/transforms/import-transformation.js')
 
 function getDependenciesRegex (list) {
   const deps = list.map(dep => {
@@ -71,7 +72,8 @@ export function createCustomSw (cfg, configName) {
   chain.module.rule('js-transform-quasar-imports')
     .test(/\.(t|j)sx?$/)
     .use('transform-quasar-imports')
-      .loader(LoaderJsTransformQuasarImports)
+      .loader(new URL('../loader.js.transform-quasar-imports.cjs', import.meta.url).pathname)
+      .options({ importTransformation })
 
   if (cfg.build.transpile === true) {
     const nodeModulesRegex = /[\\/]node_modules[\\/]/

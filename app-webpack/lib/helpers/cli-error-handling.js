@@ -15,7 +15,7 @@ export async function getOuchInstance () {
 
   pe.stop()
 
-  const Ouch = await import('ouch')
+  const { default: Ouch } = await import('ouch')
   ouchInstance = (new Ouch()).pushHandler(
     new Ouch.handlers.PrettyPageHandler('orange', null, 'sublime')
   )

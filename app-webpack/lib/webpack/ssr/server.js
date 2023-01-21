@@ -37,7 +37,6 @@ export function injectSSRServer (chain, cfg) {
   chain.output
     .filename('render-app.js')
     .chunkFilename(`chunk-[name].js`)
-    .libraryTarget('commonjs2')
 
   chain.externals(nodeExternals({
     // do not externalize:
@@ -48,7 +47,7 @@ export function injectSSRServer (chain, cfg) {
     //  5. Quasar icon sets files
     //  6. Quasar extras
     allowlist: [
-      /(\.(vue|css|styl|scss|sass|less)$|\?vue&type=style|^quasar[\\/]lang[\\/]|^quasar[\\/]icon-set[\\/]|^@quasar[\\/]extras[\\/])/,
+      /(\.(vue|css|styl|scss|sass|less)$|\?vue&type=style)/,
       ...cfg.build.transpileDependencies
     ],
     additionalModuleDirs

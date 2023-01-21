@@ -174,19 +174,25 @@ async function getSSR (cfg) {
   const server = await createChain(cfg, webpackNames.ssr.serverSide)
   injectSSRServer(server, cfg)
 
-  const { injectSSRWebserver } = await import('./ssr/webserver.js')
-  injectSSRWebserver(cfg, webpackNames.ssr.webserver)
+  const { createSSRWebserverChain } = await import('./ssr/webserver.js')
+  const webserver = createSSRWebserverChain(cfg, webpackNames.ssr.webserver)
+  const webserverCfg = await getWebpackConfig(webserver, cfg, {
+    name: webpackNames.ssr.webserver,
+    cfgExtendBase: cfg.ssr,
+    hookSuffix: 'Webserver',
+    cmdSuffix: 'Webserver',
+    invokeParams: { isClient: false, isServer: true }
+  })
+
+  webserverCfg.experiments = {
+    outputModule: true
+  }
+  webserverCfg.output.chunkFormat = 'module'
 
   return {
     ...(cfg.pwa.workboxPluginMode === 'InjectManifest' ? { csw: await getCSW(cfg) } : {}),
 
-    webserver: await getWebpackConfig(webserver, cfg, {
-      name: webpackNames.ssr.webserver,
-      cfgExtendBase: cfg.ssr,
-      hookSuffix: 'Webserver',
-      cmdSuffix: 'Webserver',
-      invokeParams: { isClient: false, isServer: true }
-    }),
+    webserver: webserverCfg,
 
     clientSide: await getWebpackConfig(client, cfg, {
       name: webpackNames.ssr.clientSide,

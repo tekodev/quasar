@@ -3,7 +3,7 @@
  */
 
 import hash from 'hash-sum'
-import { sources, Compilation } from 'webpack'
+import webpack from 'webpack'
 
 const jsCssRE = /\.(js|css)(\?[^.]+)?$/
 const swRE = /\s\w+$/
@@ -73,11 +73,11 @@ export class QuasarSSRClientPlugin {
   apply (compiler) {
     compiler.hooks.thisCompilation.tap('quasar-ssr-client-plugin', compilation => {
       compilation.hooks.processAssets.tapAsync(
-        { name: 'quasar-ssr-client-plugin', state: Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
+        { name: 'quasar-ssr-client-plugin', state: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
         (_, callback) => {
           const manifest = getClientManifest(compilation)
           const json = JSON.stringify(manifest, null, 2)
-          const content = new sources.RawSource(json)
+          const content = new webpack.sources.RawSource(json)
 
           if (compilation.getAsset(this.cfg.filename) !== void 0) {
             compilation.updateAsset(this.cfg.filename, content)

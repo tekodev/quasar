@@ -40,7 +40,6 @@ export function createCustomSw (cfg, configName) {
 
   chain.output
     .filename('service-worker.js')
-    .libraryTarget('commonjs2') // need it to correctly reference externalized libs
     .path(
       appPaths.resolve.app('.quasar/pwa')
     )

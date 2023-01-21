@@ -2,7 +2,7 @@
  * Forked from vue-server-renderer/server-plugin.js v2.6.12 NPM package
  */
 
-import { sources, Compilation } from 'webpack'
+import webpack from 'webpack'
 
 const jsRE = /\.js(\?[^.]+)?$/
 const jsMapRE = /\.js\.map$/
@@ -71,10 +71,6 @@ export class QuasarSSRServerPlugin {
       error('webpack config `target` should be "node".')
     }
 
-    if (compiler.options.output && compiler.options.output.library && compiler.options.output.library.type !== 'commonjs2') {
-      error('webpack config `output.libraryTarget` should be "commonjs2".')
-    }
-
     if (!compiler.options.externals) {
       warn(
         'It is recommended to externalize dependencies in the server build for ' +
@@ -84,11 +80,11 @@ export class QuasarSSRServerPlugin {
 
     compiler.hooks.thisCompilation.tap('quasar-ssr-server-plugin', compilation => {
       compilation.hooks.processAssets.tapAsync(
-        { name: 'quasar-ssr-server-plugin', state: Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
+        { name: 'quasar-ssr-server-plugin', state: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
         (_, callback) => {
           const serverManifest = getServerManifest(compilation)
           const json = JSON.stringify(serverManifest, null, 2)
-          const content = new sources.RawSource(json)
+          const content = new webpack.sources.RawSource(json)
 
           if (compilation.getAsset(this.cfg.filename) !== void 0) {
             compilation.updateAsset(this.cfg.filename, content)

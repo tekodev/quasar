@@ -24,7 +24,7 @@ const ouchInstance = await getOuchInstance()
 const { renderToString } = await getPackage('@vue/server-renderer')
 
 const banner = '[Quasar Dev Webserver]'
-const compiledMiddlewareFile = appPaths.resolve.app('.quasar/ssr/compiled-middlewares.js')
+const compiledMiddlewareFile = appPaths.resolve.app('.quasar/ssr/compiled-middlewares.mjs')
 const renderError = ({ err, req, res }) => {
   ouchInstance.handleException(err, req, res, () => {
     console.error(`${banner} ${req.url} -> error during render`)
@@ -161,40 +161,43 @@ export class DevServer {
 
     webserverCompiler.hooks.done.tap('done-compiling', stats => {
       if (stats.hasErrors() === false) {
-        delete require.cache[compiledMiddlewareFile]
-        // TODO
-        const injectMiddleware from compiledMiddlewareFile
+        if (this.destroyed === true) { return }
 
-        startWebpackServer()
-          .then(app => {
-            if (this.destroyed === true) { return }
+        const middlewareFile = compiledMiddlewareFile // TODO: + '?t=' + Date.now()
 
-            return injectMiddleware({
-              app,
-              resolve: {
-                urlPath: resolveUrlPath,
-                root () { return join(rootFolder, ...arguments) },
-                public: resolvePublicFolder
-              },
-              publicPath,
-              folders: {
-                root: rootFolder,
-                public: publicFolder
-              },
-              render: ssrContext => renderWithVue(ssrContext),
-              serve: {
-                static: serveStatic,
-                error: renderError
-              }
+        // TODO:
+        import(compiledMiddlewareFile).then(({ default: injectMiddleware }) => {
+          startWebpackServer()
+            .then(app => {
+              if (this.destroyed === true) { return }
+
+              return injectMiddleware({
+                app,
+                resolve: {
+                  urlPath: resolveUrlPath,
+                  root () { return join(rootFolder, ...arguments) },
+                  public: resolvePublicFolder
+                },
+                publicPath,
+                folders: {
+                  root: rootFolder,
+                  public: publicFolder
+                },
+                render: ssrContext => renderWithVue(ssrContext),
+                serve: {
+                  static: serveStatic,
+                  error: renderError
+                }
+              })
             })
-          })
-          .then(() => {
-            if (this.destroyed === true) { return }
+            .then(() => {
+              if (this.destroyed === true) { return }
 
-            webpackServerListening = true
-            tryToFinalize()
-            doneExternalWork(webpackNames.ssr.webserver)
-          })
+              webpackServerListening = true
+              tryToFinalize()
+              doneExternalWork(webpackNames.ssr.webserver)
+            })
+        })
       }
     })
 

@@ -32,7 +32,7 @@ const flattenObject = (obj, prefix = 'process.env') => {
     }, {})
 }
 
-export function injectSSRWebserver (cfg, configName) {
+export function createSSRWebserverChain (cfg, configName) {
   const { dependencies:appDeps = {} } = JSON.parse(
     readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
   )
@@ -65,7 +65,7 @@ export function injectSSRWebserver (cfg, configName) {
       .add(appPaths.resolve.app('.quasar/ssr-middlewares.js'))
 
     chain.output
-      .filename('compiled-middlewares.js')
+      .filename('compiled-middlewares.mjs')
       .path(appPaths.resolve.app('.quasar/ssr'))
   }
   else {
@@ -78,12 +78,8 @@ export function injectSSRWebserver (cfg, configName) {
   }
 
   chain.output
-    .libraryTarget('commonjs2')
-
-  chain.output
     .library({
-      type: 'commonjs2',
-      export: 'default'
+      type: 'module'
     })
 
   chain.externals([
@@ -98,12 +94,6 @@ export function injectSSRWebserver (cfg, configName) {
     ...Object.keys(cliDeps),
     ...Object.keys(appDeps)
   ])
-
-  chain.node
-    .merge({
-      __dirname: false,
-      __filename: false
-    })
 
   chain.module.rule('node')
     .test(/\.node$/)

@@ -278,6 +278,7 @@ export async function createChain (cfg, configName) {
     lessLoaderOptions: cfg.build.lessLoaderOptions
   })
 
+  // TODO: still needed?
   chain.module // fixes https://github.com/graphql/graphql-js/issues/1272
     .rule('mjs')
     .test(/\.mjs$/)

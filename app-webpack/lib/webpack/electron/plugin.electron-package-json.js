@@ -24,7 +24,7 @@ export class ElectronPackageJsonPlugin {
     delete pkg.scripts
 
     pkg.type = 'commonjs'
-    pkg.main = './electron-main.js'
+    pkg.main = './electron-main.cjs'
 
     if (this.cfg.electron.extendPackageJson) {
       this.cfg.electron.extendPackageJson(pkg)

@@ -200,7 +200,7 @@ class ElectronRunner {
       electronExecutable,
       [
         '--inspect=5858',
-        appPaths.resolve.app('.quasar/electron/electron-main.js')
+        appPaths.resolve.app('.quasar/electron/electron-main.cjs')
       ].concat(extraParams),
       { cwd: appPaths.appDir },
       code => {

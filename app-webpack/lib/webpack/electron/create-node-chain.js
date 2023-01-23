@@ -38,7 +38,7 @@ export async function createNodeChain (nodeType, cfg, configName) {
     })
 
   chain.output
-    .filename(`electron-${nodeType}.js`)
+    .filename(`electron-${nodeType}.cjs`)
     .libraryTarget('commonjs2')
     .path(
       cfg.ctx.dev
@@ -77,8 +77,8 @@ export async function createNodeChain (nodeType, cfg, configName) {
   const env = {
     ...cfg.build.env,
     QUASAR_ELECTRON_PRELOAD: cfg.ctx.dev
-      ? appPaths.resolve.app(`${tempElectronDir}/electron-preload.js`)
-      : 'electron-preload.js',
+      ? appPaths.resolve.app(`${tempElectronDir}/electron-preload.cjs`)
+      : 'electron-preload.cjs',
     QUASAR_PUBLIC_FOLDER: cfg.ctx.dev
       ? appPaths.resolve.app('public')
       : '.'

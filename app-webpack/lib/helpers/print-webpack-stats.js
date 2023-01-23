@@ -97,7 +97,7 @@ function getTableIndexDelimiters (assets) {
   return delimiters
 }
 
-export default (stats, outputFolder, name) => {
+export function printWebpackStats (stats, outputFolder, name) {
   const assets = getAssets(stats)
   const tableLines = getTableLines(assets, outputFolder)
   const tableIndexDelimiters = getTableIndexDelimiters(assets)

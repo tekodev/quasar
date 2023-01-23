@@ -112,8 +112,9 @@ export async function createChain (cfg, configName) {
       'src-bex': appPaths.bexDir // needed for app/templates
     })
 
+  // TODO: still needed?
   if (extrasPath) {
-    // required so quasar/icon-sets/* with imports to work correctly
+    // required so quasar/icon-set/* with imports to work correctly
     chain.resolve.alias.merge({ '@quasar/extras': extrasPath })
   }
 
@@ -193,7 +194,7 @@ export async function createChain (cfg, configName) {
         .loader('babel-loader')
           .options({
             compact: false,
-            extends: appPaths.resolve.app('babel.config.js')
+            extends: appPaths.resolve.app('babel.config.cjs')
           })
   }
 

@@ -9,6 +9,7 @@ import { spawn } from '../helpers/spawn.js'
 import appPaths from '../app-paths.js'
 import { nodePackager } from '../helpers/node-packager.js'
 import { getPackagePath } from '../helpers/get-package-path.js'
+import { getPackage } from '../helpers/get-package.js'
 
 const electronPkgPath = getPackagePath('electron/package.json')
 const electronPkg = JSON.parse(
@@ -137,7 +138,7 @@ class ElectronRunner {
       const bundlerName = cfg.electron.bundler
       const bundlerConfig = cfg.electron[bundlerName]
       const pkgName = `electron-${bundlerName}`
-      const bundler = await getPackage(pkgName)
+      const { default: bundler } = await getPackage(pkgName)
 
       return new Promise((resolve, reject) => {
         log(`Bundling app with electron-${bundlerName}...`)

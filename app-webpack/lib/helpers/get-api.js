@@ -1,7 +1,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import { createRequire } from 'module'
+import { createRequire } from 'node:module'
 
 import { fatal } from './logger.js'
 import { getPackage } from './get-package.js'

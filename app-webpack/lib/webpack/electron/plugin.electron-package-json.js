@@ -23,6 +23,7 @@ export class ElectronPackageJsonPlugin {
     delete pkg.browserslist
     delete pkg.scripts
 
+    pkg.type = 'commonjs'
     pkg.main = './electron-main.js'
 
     if (this.cfg.electron.extendPackageJson) {

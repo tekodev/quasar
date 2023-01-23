@@ -58,7 +58,7 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
 
     if (pref.extract) {
       rule.use('mini-css-extract')
-        .loader(miniCssExtractPlugin.ExtractLoader)
+        .loader(miniCssExtractPlugin.loader)
         .options({ publicPath: '../' })
     }
     else {
@@ -118,7 +118,7 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
     // need a fresh copy, otherwise plugins
     // will keep on adding making N duplicates for each one
     const { default: postCssConfig } = await import(postCssConfigFile)
-    let postCssOpts = { sourceMap: pref.sourceMap, ...postCssConfig }
+    let postcssOptions = { sourceMap: pref.sourceMap, ...postCssConfig }
 
     if (pref.rtl) {
       const { default: postcssRTL } = await import('postcss-rtlcss')
@@ -128,9 +128,9 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
         typeof postCssConfig.plugins !== 'function' &&
         (postcssRTLOptions.source === 'ltr' || typeof postcssRTLOptions === 'function')
       ) {
-        const originalPlugins = postCssOpts.plugins ? [ ...postCssOpts.plugins ] : []
+        const originalPlugins = postcssOptions.plugins ? [ ...postcssOptions.plugins ] : []
 
-        postCssOpts = ctx => {
+        postcssOptions = ctx => {
           const plugins = [ ...originalPlugins ]
           const isClientCSS = quasarCssPaths.every(item => ctx.resourcePath.indexOf(item) === -1)
 
@@ -147,13 +147,13 @@ async function injectRule (chain, pref, lang, test, loader, loaderOptions) {
         }
       }
       else {
-        postCssOpts.plugins.push(postcssRTL(postcssRTLOptions))
+        postcssOptions.plugins.push(postcssRTL(postcssRTLOptions))
       }
     }
 
     rule.use('postcss-loader')
       .loader('postcss-loader')
-      .options({ postcssOptions: postCssOpts })
+      .options({ postcssOptions })
 
     if (loader) {
       rule.use(loader)

@@ -11,7 +11,7 @@ export function injectNodeBabel (cfg, chain) {
       .use('babel-loader')
         .loader('babel-loader')
           .options({
-            extends: appPaths.resolve.app('babel.config.js')
+            extends: appPaths.resolve.app('babel.config.cjs')
           })
   }
 }

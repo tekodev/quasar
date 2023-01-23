@@ -1,10 +1,10 @@
 
 import path from 'node:path'
 import fse from 'fs-extra'
+import { createRequire } from 'node:module'
 import inquirer from 'inquirer'
 import { isBinaryFileSync as isBinary } from 'isbinaryfile'
 import compileTemplate from 'lodash/template.js'
-import { createRequire } from 'module'
 
 import appPaths from '../app-paths.js'
 import { log, warn, fatal } from '../helpers/logger.js'

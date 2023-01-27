@@ -1,4 +1,4 @@
-import { createRequire } from 'module'
+import { createRequire } from 'node:module'
 import appPaths from '../app-paths.js'
 
 const require = createRequire(import.meta.url)

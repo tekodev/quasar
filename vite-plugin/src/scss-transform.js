@@ -1,3 +1,4 @@
+
 export function createScssTransform (fileExtension, sassVariables) {
   const sassImportCode = [ `@import 'quasar/src/css/variables.sass'`, '' ]
 
@@ -20,7 +21,7 @@ export function createScssTransform (fileExtension, sassVariables) {
     }
 
     const newLineIndex = content.indexOf('\n', useIndex)
-    
+
     if (newLineIndex !== -1) {
       const index = newLineIndex + 1
       return content.substring(0, index) + prefix + content.substring(index)

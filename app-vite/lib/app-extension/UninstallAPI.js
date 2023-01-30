@@ -9,7 +9,7 @@ import { BaseAPI } from './BaseAPI.js'
 /**
  * API for extension's /uninstall.js script
  */
-module.exports = class UninstallAPI extends BaseAPI {
+export class UninstallAPI extends BaseAPI {
   __hooks = {
     exitLog: []
   }

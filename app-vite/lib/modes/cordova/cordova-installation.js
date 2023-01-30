@@ -89,7 +89,7 @@ export function remove () {
   log(`Cordova support was removed`)
 }
 
-function addPlatform (target) {
+async function addPlatform (target) {
   const { ensureConsistency } = await import('./ensure-consistency.js')
   ensureConsistency()
 

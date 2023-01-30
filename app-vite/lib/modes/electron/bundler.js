@@ -1,9 +1,6 @@
 
-import { readFileSync } from 'node:fs'
-
-import appPaths from '../app-paths.js'
-import { fatal } from '../helpers/logger.js'
-import { nodePackager } from '../helpers/node-packager.js'
+import { fatal } from '../../helpers/logger.js'
+import { nodePackager } from '../../helpers/node-packager.js'
 import { appPackageJson } from '../../helpers/app-package-json.js'
 
 const versions = {

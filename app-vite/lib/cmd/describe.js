@@ -2,7 +2,7 @@
 import parseArgs from 'minimist'
 import { green, red, italic, underline } from 'kolorist'
 
-import getApi from '../helpers/get-api.js'
+import { getApi } from '../helpers/get-api.js'
 import { fatal, dot } from '../helpers/logger.js'
 
 const partArgs = {

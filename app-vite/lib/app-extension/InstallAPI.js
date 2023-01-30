@@ -1,5 +1,6 @@
 
 import path from 'node:path'
+import fs from 'node:fs'
 import fse from 'fs-extra'
 import { merge } from 'webpack-merge'
 import semver from 'semver'
@@ -156,7 +157,9 @@ export class InstallAPI extends BaseAPI {
       }
 
       try {
-        extPkg = require(source)
+        extPkg = JSON.parse(
+          fs.readFileSync(source, 'utf-8')
+        )
       }
       catch (e) {
         warn(`Extension(${this.extId}): extendPackageJson() - "${extPkg}" is malformed`)

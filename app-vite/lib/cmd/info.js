@@ -2,7 +2,7 @@
 import parseArgs from 'minimist'
 import { green, gray } from 'kolorist'
 
-import getPackageJson from '../helpers/get-package-json.js'
+import { getPackageJson } from '../helpers/get-package-json.js'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {

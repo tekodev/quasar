@@ -1,5 +1,6 @@
 
 import path from 'node:path'
+import fs from 'node:fs'
 import fse from 'fs-extra'
 import { merge } from 'webpack-merge'
 import semver from 'semver'

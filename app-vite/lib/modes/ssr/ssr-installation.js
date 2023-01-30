@@ -1,6 +1,6 @@
 
 import fs from 'node:fs'
-import fse from 'fs-extra')
+import fse from 'fs-extra'
 
 import appPaths from '../../app-paths.js'
 import { log, warn } from '../../helpers/logger.js'

@@ -1,6 +1,8 @@
 
 import { readFileSync } from 'node:fs'
 
+import { version } from '../version.js'
+
 console.log(
   readFileSync(
     new URL('../../assets/logo.art', import.meta.url).pathname,
@@ -11,7 +13,7 @@ console.log(
 if (process.env.QUASAR_CLI_VERSION) {
   console.log('  Running @quasar/cli v' + process.env.QUASAR_CLI_VERSION)
 }
-console.log('  Running @quasar/app-vite v' + require('../../package.json').version)
+console.log('  Running @quasar/app-vite v' + version)
 
 console.log(`
   Example usage

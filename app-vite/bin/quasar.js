@@ -77,4 +77,4 @@ else {
   cmd = 'help'
 }
 
-import(`../lib/cmd/${cmd}`)
+import(`../lib/cmd/${cmd}.js`)

@@ -55,7 +55,7 @@ export async function add (silent, target) {
   const scope = {
     appName,
     appId: answer.appId,
-    pkg,
+    pkg: appPackageJson,
     nodePackager: nodePackager.name
   }
 

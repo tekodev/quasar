@@ -82,17 +82,17 @@ async function run () {
   await installation[action]()
 }
 
-function displayModes () {
+async function displayModes () {
   log(`Detecting installed modes...`)
 
   const info = []
-  ;['pwa', 'ssr', 'cordova', 'capacitor', 'electron', 'bex'].forEach(mode => {
+  for (const mode of ['pwa', 'ssr', 'cordova', 'capacitor', 'electron', 'bex']) {
     const { isInstalled } = await import(`../modes/${mode}/${mode}-installation.js`)
     info.push([
       `Mode ${mode.toUpperCase()}`,
       isInstalled() ? green('yes') : gray('no')
     ])
-  })
+  }
 
   console.log(
     '\n' +

@@ -134,7 +134,7 @@ export class QuasarConfFile {
       .watch(this.filename, { ignoreInitial: true })
       .on('change', debounce(async () => {
         console.log()
-        log(`quasar.config.js changed`)
+        log(`Reading quasar.config file as it changed`)
 
         const result = await this.reboot()
 
@@ -157,7 +157,7 @@ export class QuasarConfFile {
     catch (e) {
       if (e.message !== 'NETWORK_ERROR') {
         console.error(e)
-        warn(`quasar.config file has JS errors. Please fix them then save file again.\n`)
+        warn(`quasar.config file has errors. Please fix them then save file again.\n`)
       }
 
       return false

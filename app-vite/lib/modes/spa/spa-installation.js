@@ -1,8 +1,10 @@
 
 // Nothing to do... installed by default
 
-module.exports = {
-  isInstalled: () => true,
-  add: () => {},
-  remove: () => {}
+export function isInstalled () {
+  return true
 }
+
+export function add () {}
+
+export function remove () {}

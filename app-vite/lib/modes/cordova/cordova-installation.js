@@ -1,16 +1,17 @@
 
-const fs = require('fs')
-const fse = require('fs-extra')
+import fs from 'node:fs'
+import fse from 'fs-extra'
 
-const appPaths = require('../../app-paths')
-const { log, warn, fatal } = require('../../helpers/logger')
-const { spawnSync } = require('../../helpers/spawn')
+import appPaths from '../../app-paths.js'
+import { log, warn, fatal } from '../../helpers/logger.js'
+import { spawnSync } from '../../helpers/spawn.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
-function isInstalled () {
+export function isInstalled () {
   return fs.existsSync(appPaths.cordovaDir)
 }
 
-async function add (silent, target) {
+export async function add (silent, target) {
   if (isInstalled()) {
     if (target) {
       addPlatform(target)
@@ -22,8 +23,7 @@ async function add (silent, target) {
     return
   }
 
-  const pkg = require(appPaths.resolve.app('package.json'))
-  const appName = pkg.productName || pkg.name || 'Quasar App'
+  const appName = appPackageJson.productName || appPackageJson.name || 'Quasar App'
 
   if (/^[0-9]/.test(appName)) {
     warn(
@@ -33,9 +33,8 @@ async function add (silent, target) {
     return
   }
 
-  const inquirer = require('inquirer')
-
   console.log()
+  const { default: inquirer } = await import('inquirer')
   const answer = await inquirer.prompt([{
     name: 'appId',
     type: 'input',
@@ -55,7 +54,7 @@ async function add (silent, target) {
     }
   )
 
-  const { ensureWWW } = require('./ensure-consistency')
+  const { ensureWWW } = await import('./ensure-consistency.js')
   ensureWWW(true)
 
   log(`Cordova support was installed`)
@@ -77,10 +76,10 @@ async function add (silent, target) {
     return
   }
 
-  addPlatform(target)
+  await addPlatform(target)
 }
 
-function remove () {
+export function remove () {
   if (!isInstalled()) {
     warn(`No Cordova support detected. Aborting.`)
     return
@@ -91,7 +90,7 @@ function remove () {
 }
 
 function addPlatform (target) {
-  const ensureConsistency = require('./ensure-consistency')
+  const { ensureConsistency } = await import('./ensure-consistency.js')
   ensureConsistency()
 
   // if it has the platform
@@ -109,10 +108,4 @@ function addPlatform (target) {
       process.exit(1)
     }
   )
-}
-
-module.exports = {
-  isInstalled,
-  add,
-  remove
 }

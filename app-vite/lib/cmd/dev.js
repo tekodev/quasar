@@ -1,10 +1,11 @@
+
 if (process.env.NODE_ENV === void 0) {
   process.env.NODE_ENV = 'development'
 }
 
-const parseArgs = require('minimist')
+import parseArgs from 'minimist'
 
-const { log, fatal } = require('../helpers/logger')
+import { log, fatal } from '../helpers/logger.js'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -75,19 +76,20 @@ if (argv.help) {
   process.exit(0)
 }
 
-const ensureArgv = require('../helpers/ensure-argv')
+import { ensureArgv } from '../helpers/ensure-argv.js'
 ensureArgv(argv, 'dev')
 
+import { readFileSync } from 'node:fs'
 console.log(
-  require('fs').readFileSync(
-    require('path').join(__dirname, '../../assets/logo.art'),
+  readFileSync(
+    new URL('../../assets/logo.art', import.meta.url).pathname,
     'utf8'
   )
 )
 
-function startVueDevtools () {
-  const { spawn } = require('../helpers/spawn')
-  const getPackagePath = require('../helpers/get-package-path')
+async function startVueDevtools () {
+  const { spawn } = await import('../helpers/spawn.js')
+  const { getPackagePath } = await import('../helpers/get-package-path.js')
 
   let vueDevtoolsBin = getPackagePath('@vue/devtools/bin.js')
 
@@ -101,7 +103,7 @@ function startVueDevtools () {
     return
   }
 
-  const nodePackager = require('../helpers/node-packager')
+  const { nodePackager } = await import('../helpers/node-packager.js')
 
   nodePackager.installPackage('@vue/devtools', { isDev: true })
 
@@ -116,10 +118,10 @@ function startVueDevtools () {
 
 async function goLive () {
   // install mode if it's missing
-  const { add } = require(`../modes/${argv.mode}/${argv.mode}-installation`)
+  const { add } = await import(`../modes/${argv.mode}/${argv.mode}-installation.js`)
   await add(true, argv.target)
 
-  const getQuasarCtx = require('../helpers/get-quasar-ctx')
+  const { getQuasarCtx } = await import('../helpers/get-quasar-ctx.js')
   const ctx = getQuasarCtx({
     mode: argv.mode,
     target: argv.target,
@@ -129,10 +131,10 @@ async function goLive () {
   })
 
   // register app extensions
-  const extensionRunner = require('../app-extension/extensions-runner')
+  const { extensionRunner } = await import('../app-extension/extensions-runner.js')
   await extensionRunner.registerExtensions(ctx)
 
-  const QuasarConfFile = require('../quasar-config-file')
+  const { QuasarConfFile } = await import('../quasar-config-file.js')
   const quasarConfFile = new QuasarConfFile({
     ctx,
     port: argv.port,
@@ -144,14 +146,14 @@ async function goLive () {
     fatal(quasarConf.error, 'FAIL')
   }
 
-  const regenerateTypesFeatureFlags = require('../helpers/types-feature-flags')
+  const { regenerateTypesFeatureFlags } = await import('../helpers/types-feature-flags.js')
   regenerateTypesFeatureFlags(quasarConf)
 
   if (quasarConf.metaConf.vueDevtools !== false) {
     await startVueDevtools()
   }
 
-  const AppDevServer = require(`../modes/${argv.mode}/${argv.mode}-devserver`)
+  const { AppDevServer } = await import(`../modes/${argv.mode}/${argv.mode}-devserver.js`)
   const devServer = new AppDevServer({ argv, ctx, quasarConf })
 
   if (typeof quasarConf.build.beforeDev === 'function') {

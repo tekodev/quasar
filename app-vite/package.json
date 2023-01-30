@@ -5,6 +5,7 @@
   "bin": {
     "quasar": "./bin/quasar.js"
   },
+  "type": "module",
   "typings": "types/index.d.ts",
   "files": [
     "assets",

@@ -1,12 +1,12 @@
 
-const { build: viteBuild } = require('vite')
-const { build: esBuild } = require('esbuild')
-const debounce = require('lodash/debounce')
-const artifacts = require('./artifacts')
+import { build: viteBuild } from 'vite'
+import { build: esBuild } from 'esbuild'
+import debounce from 'lodash/debounce.js'
 
-const { progress } = require('./helpers/logger')
+import { clean } from './artifacts.js'
+import { progress } from './helpers/logger.js'
 
-class AppTool {
+export class AppTool {
   argv
 
   constructor (argv) {
@@ -15,7 +15,7 @@ class AppTool {
 
   async buildWithVite (threadName, viteConfig) {
     // ensure clean build
-    artifacts.clean(viteConfig.build.outDir)
+    clean(viteConfig.build.outDir)
 
     const done = progress(
       'Compiling of ___ with Vite in progress...',
@@ -51,5 +51,3 @@ class AppTool {
     return result
   }
 }
-
-module.exports = AppTool

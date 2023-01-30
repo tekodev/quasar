@@ -1,21 +1,23 @@
 
-const { writeFileSync, copySync, existsSync } = require('fs-extra')
-const { join } = require('path')
+import { join } from 'node:path'
+import { writeFileSync, copySync, existsSync } from 'fs-extra'
 
-const appPaths = require('../../app-paths')
-const { warn } = require('../../helpers/logger')
+import appPaths from '../../app-paths.js'
+import { warn } from '../../helpers/logger.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
-const { name, productName, description, version } = require(appPaths.resolve.app('package.json'))
 const assetsFolder = appPaths.resolve.bex('assets')
 const iconsFolder = appPaths.resolve.bex('icons')
 const localesFolder = appPaths.resolve.bex('_locales')
 
-module.exports.createManifest = function createManifest (quasarConf) {
+const { name, productName, description, version } = appPackageJson
+
+export function createManifest (quasarConf) {
   let json
   const filename = appPaths.resolve.bex('manifest.json')
 
   try {
-    json = require(filename)
+    json = JSON.parse(readFileSync(filename, 'utf-8'))
   }
   catch (err) {
     warn('Could not compile BEX manifest.json. Please check its syntax.')
@@ -59,7 +61,7 @@ module.exports.createManifest = function createManifest (quasarConf) {
   return { filename }
 }
 
-module.exports.copyBexAssets = function copyBexAssets (quasarConf) {
+export function copyBexAssets (quasarConf) {
   const folders = [ assetsFolder, iconsFolder ]
 
   copySync(assetsFolder, join(quasarConf.build.distDir, 'assets'))

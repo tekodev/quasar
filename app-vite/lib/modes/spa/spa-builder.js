@@ -1,14 +1,12 @@
 
-const AppBuilder = require('../../app-builder')
-const config = require('./spa-config')
+import { AppBuilder } from '../../app-builder.js'
+import { spaConfig } from './spa-config.js'
 
-class SpaBuilder extends AppBuilder {
+export class SpaBuilder extends AppBuilder {
   async build () {
-    const viteConfig = await config.vite(this.quasarConf)
+    const viteConfig = await spaConfig.vite(this.quasarConf)
     await this.buildWithVite('SPA UI', viteConfig)
 
     this.printSummary(this.quasarConf.build.distDir, true)
   }
 }
-
-module.exports = SpaBuilder

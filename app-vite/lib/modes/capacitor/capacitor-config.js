@@ -1,18 +1,23 @@
-const path = require('path')
 
-const appPaths = require('../../app-paths')
-const { createViteConfig, extendViteConfig } = require('../../config-tools')
-const escapeRegexString = require('../../helpers/escape-regex-string')
+import path from 'node:path'
+import { readFileSync } from 'node:fs'
 
-const { dependencies } = require(appPaths.resolve.capacitor('package.json'))
+import appPaths from '../../app-paths.js'
+import { createViteConfig, extendViteConfig } from '../../config-tools.js'
+import { escapeRegexString } from '../../helpers/escape-regex-string.js'
+
+const { dependencies } = JSON.parse(
+  readFileSync(appPaths.resolve.capacitor('package.json'), 'utf-8')
+)
+
 const target = appPaths.resolve.capacitor('node_modules')
 
 const depsList = Object.keys(dependencies)
 const capacitorRE = new RegExp('^(' + depsList.map(escapeRegexString).join('|') + ')')
 
-module.exports = {
-  vite: quasarConf => {
-    const cfg = createViteConfig(quasarConf)
+export const capacitorConfig = {
+  vite: async quasarConf => {
+    const cfg = await createViteConfig(quasarConf)
 
     // we need to set alias as capacitor deps
     // are installed in /src-capacitor and not in root

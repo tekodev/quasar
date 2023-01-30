@@ -1,12 +1,13 @@
-const fs = require('fs')
-const path = require('path')
 
-const appPaths = require('../../app-paths')
-const { log, warn } = require('../../helpers/logger')
-const ensureConsistency = require('./ensure-consistency')
-const { capVersion } = require('./cap-cli')
+import fs from 'node:fs'
+import path from 'node:path'
+import fglob from 'fast-glob'
 
-const pkg = require(appPaths.resolve.app('package.json'))
+import appPaths from '../../app-paths.js'
+import { log, warn } from '../../helpers/logger.js'
+import { ensureConsistency } from './ensure-consistency.js'
+import { capVersion } from './cap-cli.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
 function getAndroidMainActivity (capVersion, appId) {
   if (capVersion === 1) {
@@ -49,19 +50,22 @@ public class EnableHttpsSelfSigned {
   }
 }`
 }
-class CapacitorConfigFile {
+
+export class CapacitorConfigFile {
   #tamperedFiles = []
 
   prepare (quasarConf) {
     ensureConsistency()
 
-    this.#updateCapPkg(quasarConf, pkg)
+    this.#updateCapPkg(quasarConf, appPackageJson)
     log(`Updated src-capacitor/package.json`)
 
     this.#tamperedFiles = []
 
     const capJsonPath = appPaths.resolve.capacitor('capacitor.config.json')
-    const capJson = require(capJsonPath)
+    const capJson = JSON.parse(
+      fs.readFileSync(capJsonPath, 'utf8')
+    )
 
     this.#tamperedFiles.push({
       path: capJsonPath,
@@ -96,7 +100,7 @@ class CapacitorConfigFile {
   #updateCapJson (quasarConf, originalCapCfg) {
     const capJson = { ...originalCapCfg }
 
-    capJson.appName = quasarConf.capacitor.appName || pkg.productName || 'Quasar App'
+    capJson.appName = quasarConf.capacitor.appName || appPackageJson.productName || 'Quasar App'
     capJson.bundledWebRuntime = false
 
     if (quasarConf.ctx.dev) {
@@ -117,13 +121,15 @@ class CapacitorConfigFile {
 
   #updateCapPkg (cfg, pkg) {
     const capPkgPath = appPaths.resolve.capacitor('package.json')
-    const capPkg = require(capPkgPath)
+    const capPkg = JSON.parse(
+      fs.readFileSync(capPkgPath, 'utf-8')
+    )
 
     Object.assign(capPkg, {
-      name: cfg.capacitor.appName || pkg.name,
-      version: cfg.capacitor.version || pkg.version,
-      description: cfg.capacitor.description || pkg.description,
-      author: pkg.author
+      name: cfg.capacitor.appName || appPackageJson.name,
+      version: cfg.capacitor.version || appPackageJson.version,
+      description: cfg.capacitor.description || appPackageJson.description,
+      author: appPackageJson.author
     })
 
     fs.writeFileSync(capPkgPath, JSON.stringify(capPkg, null, 2), 'utf-8')
@@ -232,7 +238,6 @@ class CapacitorConfigFile {
   }
 
   #handleSSLonAndroid (add) {
-    const fglob = require('fast-glob')
     const capacitorSrcPath = appPaths.resolve.capacitor('android/app/src/main/java')
     let mainActivityPath = fglob.sync(`**/MainActivity.java`, { cwd: capacitorSrcPath, absolute: true })
 
@@ -295,5 +300,3 @@ ${sslString}
     }
   }
 }
-
-module.exports = CapacitorConfigFile

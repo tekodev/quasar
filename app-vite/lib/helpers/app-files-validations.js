@@ -1,8 +1,9 @@
-const fs = require('fs')
 
-const { warn } = require('./logger')
-const appPaths = require('../app-paths')
-const { entryPointMarkup, attachMarkup } = require('../helpers/html-template')
+import { existsSync, readFileSync } from 'node:fs'
+
+import { warn } from './logger.js'
+import appPaths from '../app-paths.js'
+import { entryPointMarkup, attachMarkup } from '../helpers/html-template.js'
 
 const file = appPaths.resolve.app('index.html')
 
@@ -10,12 +11,12 @@ module.exports = function (_cfg) {
   let content
   let valid = true
 
-  if (fs.existsSync(file) === false) {
+  if (existsSync(file) === false) {
     warn(`The file /index.html is missing. Please add it back.\n`)
     return false
   }
 
-  content = fs.readFileSync(file, 'utf-8')
+  content = readFileSync(file, 'utf-8')
 
   if (content.indexOf(attachMarkup) !== -1) {
     warn(`Please remove ${ attachMarkup } from

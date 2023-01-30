@@ -1,16 +1,17 @@
 
-const { join } = require('path')
-const { writeFileSync } = require('fs')
+import { join } from 'node:path'
+import { readFileSync, writeFileSync } from 'node:fs'
 
-const AppBuilder = require('../../app-builder')
-const config = require('./ssr-config')
-const appPaths = require('../../app-paths')
-const getFixedDeps = require('../../helpers/get-fixed-deps')
-const { getProdSsrTemplateFn, transformProdSsrPwaOfflineHtml } = require('../../helpers/html-template')
+import appPaths from '../../app-paths.js'
+import { AppBuilder } from '../../app-builder.js'
+import { ssrConfig } from './ssr-config.js'
+import { getFixedDeps } from '../../helpers/get-fixed-deps.js'
+import { getProdSsrTemplateFn, transformProdSsrPwaOfflineHtml } from '../../helpers/html-template.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
-const { injectPwaManifest, buildPwaServiceWorker } = require('../pwa/utils')
+import { injectPwaManifest, buildPwaServiceWorker } from '../pwa/utils.js'
 
-class SsrBuilder extends AppBuilder {
+export class SsrBuilder extends AppBuilder {
   async build () {
     await this.#buildWebserver()
     await this.#copyWebserverFiles()
@@ -21,7 +22,7 @@ class SsrBuilder extends AppBuilder {
       injectPwaManifest(this.quasarConf)
     }
 
-    const viteClientConfig = await config.viteClient(this.quasarConf)
+    const viteClientConfig = await ssrConfig.viteClient(this.quasarConf)
     await this.buildWithVite('SSR Client', viteClientConfig)
 
     this.moveFile(
@@ -49,26 +50,26 @@ class SsrBuilder extends AppBuilder {
 
       // also update pwa-builder.js when changing here
       if (this.quasarConf.pwa.workboxMode === 'injectManifest') {
-        const esbuildConfig = await config.customSw(this.quasarConf)
+        const esbuildConfig = await ssrConfig.customSw(this.quasarConf)
         await this.buildWithEsbuild('injectManifest Custom SW', esbuildConfig)
       }
 
       // also update pwa-builder.js when changing here
-      const workboxConfig = await config.workbox(this.quasarConf)
+      const workboxConfig = await ssrConfig.workbox(this.quasarConf)
       await buildPwaServiceWorker(this.quasarConf.pwa.workboxMode, workboxConfig)
 
       // restore distDir
       this.quasarConf.build.distDir = originalDistDir
     }
 
-    const viteServerConfig = await config.viteServer(this.quasarConf)
+    const viteServerConfig = await ssrConfig.viteServer(this.quasarConf)
     await this.buildWithVite('SSR Server', viteServerConfig)
 
     this.printSummary(this.quasarConf.build.distDir, true)
   }
 
   async #buildWebserver () {
-    const esbuildConfig = await config.webserver(this.quasarConf)
+    const esbuildConfig = await ssrConfig.webserver(this.quasarConf)
     await this.buildWithEsbuild('SSR Webserver', esbuildConfig)
   }
 
@@ -85,16 +86,17 @@ class SsrBuilder extends AppBuilder {
   }
 
   async #writePackageJson () {
-    const appPkg = require(appPaths.resolve.app('package.json'))
-    const { dependencies: cliDeps } = require(appPaths.resolve.cli('package.json'))
+    const { dependencies: cliDeps } = JSON.parse(
+      readFileSync(appPaths.resolve.cli('package.json'), 'utf-8')
+    )
 
-    const appDeps = getFixedDeps(appPkg.dependencies || {})
+    const appDeps = getFixedDeps(appPackageJson.dependencies || {})
 
     const pkg = {
-      name: appPkg.name,
-      version: appPkg.version,
-      description: appPkg.description,
-      author: appPkg.author,
+      name: appPackageJson.name,
+      version: appPackageJson.version,
+      description: appPackageJson.description,
+      author: appPackageJson.author,
       private: true,
       scripts: {
         start: 'node index.js'
@@ -103,8 +105,8 @@ class SsrBuilder extends AppBuilder {
         'compression': cliDeps.compression,
         'express': cliDeps.express
       }),
-      engines: appPkg.engines,
-      browserslist: appPkg.browserslist,
+      engines: appPackageJson.engines,
+      browserslist: appPackageJson.browserslist,
       quasar: { ssr: true }
     }
 
@@ -137,5 +139,3 @@ class SsrBuilder extends AppBuilder {
     this.removeFile(htmlFile)
   }
 }
-
-module.exports = SsrBuilder

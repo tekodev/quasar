@@ -1,11 +1,12 @@
-const { createServer } = require('vite')
 
-const AppDevserver = require('../../app-devserver')
-const appPaths = require('../../app-paths')
-const { log, warn, fatal } = require('../../helpers/logger')
-const { spawn } = require('../../helpers/spawn')
-const getPackage = require('../../helpers/get-package')
-const config = require('./electron-config')
+import { createServer } from 'vite'
+
+import appPaths from '../../app-paths.js'
+import { AppDevserver } from '../../app-devserver.js'
+import { log, warn, fatal } from '../../helpers/logger.js'
+import { spawn } from '../../helpers/spawn.js'
+import { getPackage } from '../../helpers/get-package.js'
+import { electronConfig } from './electron-config.js'
 
 function wait (time) {
   return new Promise(resolve => {
@@ -13,7 +14,7 @@ function wait (time) {
   })
 }
 
-class ElectronDevServer extends AppDevserver {
+export class ElectronDevServer extends AppDevserver {
   #pid = 0
   #server
   #stopMain
@@ -55,7 +56,7 @@ class ElectronDevServer extends AppDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await config.vite(quasarConf)
+    const viteConfig = await electronConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()
@@ -75,8 +76,8 @@ class ElectronDevServer extends AppDevserver {
     let mainReady = false
     let preloadReady = false
 
-    const cfgMain = await config.main(quasarConf)
-    const cfgPreload = await config.preload(quasarConf)
+    const cfgMain = await electronConfig.main(quasarConf)
+    const cfgPreload = await electronConfig.preload(quasarConf)
 
     return Promise.all([
       this.buildWithEsbuild('Electron Main', cfgMain, () => {
@@ -115,7 +116,7 @@ class ElectronDevServer extends AppDevserver {
     }
 
     this.#pid = spawn(
-      getPackage('electron'),
+      await getPackage('electron'),
       [
         '--inspect=' + quasarConf.electron.inspectPort,
         appPaths.resolve.app(`.quasar/electron/electron-main.js`)
@@ -137,5 +138,3 @@ class ElectronDevServer extends AppDevserver {
     )
   }
 }
-
-module.exports = ElectronDevServer

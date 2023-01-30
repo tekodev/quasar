@@ -1,32 +1,33 @@
-const fs = require('fs')
-const { normalize, resolve, join, sep } = require('path')
 
-let quasarConfigFilename
+import { existsSync } from 'node:fs'
+import { normalize, resolve, join, sep } from 'node:path'
 
-function getAppDir () {
-  let dir = process.cwd()
+import { fatal } from './helpers/logger.js'
 
-  while (dir.length && dir[dir.length - 1] !== sep) {
-    if (fs.existsSync(join(dir, 'quasar.config.js'))) {
-      quasarConfigFilename = 'quasar.config.js'
-      return dir
-    }
-    if (fs.existsSync(join(dir, 'quasar.conf.js'))) {
-      quasarConfigFilename = 'quasar.conf.js'
-      return dir
+function getAppInfo () {
+  let appDir = process.cwd()
+
+  while (appDir.length && appDir[appDir.length - 1] !== sep) {
+    if (existsSync(join(appDir, 'quasar.config.js'))) {
+      return { appDir, quasarConfigFilename: 'quasar.config.js', quasarConfigFileFormat: 'module' }
     }
 
-    dir = normalize(join(dir, '..'))
+    if (existsSync(join(appDir, 'quasar.config.ts'))) {
+      return { appDir, quasarConfigFilename: 'quasar.config.ts', quasarConfigFileFormat: 'ts' }
+    }
+
+    if (existsSync(join(appDir, 'quasar.config.cjs'))) {
+      return { appDir, quasarConfigFilename: 'quasar.config.cjs', quasarConfigFileFormat: 'commonjs' }
+    }
+
+    appDir = normalize(join(appDir, '..'))
   }
-
-  const { fatal } = require('./helpers/logger')
 
   fatal(`Error. This command must be executed inside a Quasar project folder.`)
 }
 
-const appDir = getAppDir()
-const cliDir = resolve(__dirname, '..')
-const publicDir = resolve(appDir, 'public')
+const { appDir, quasarConfigFilename, quasarConfigFileFormat } = getAppInfo()
+const cliDir = new URL('..', import.meta.url).pathname
 const srcDir = resolve(appDir, 'src')
 const pwaDir = resolve(appDir, 'src-pwa')
 const ssrDir = resolve(appDir, 'src-ssr')
@@ -35,11 +36,10 @@ const capacitorDir = resolve(appDir, 'src-capacitor')
 const electronDir = resolve(appDir, 'src-electron')
 const bexDir = resolve(appDir, 'src-bex')
 
-module.exports = {
+export default {
   cliDir,
   appDir,
   srcDir,
-  publicDir,
   pwaDir,
   ssrDir,
   cordovaDir,
@@ -47,12 +47,12 @@ module.exports = {
   electronDir,
   bexDir,
   quasarConfigFilename: resolve(appDir, quasarConfigFilename),
+  quasarConfigFileFormat,
 
   resolve: {
     cli: dir => join(cliDir, dir),
     app: dir => join(appDir, dir),
     src: dir => join(srcDir, dir),
-    public: dir => join(publicDir, dir),
     pwa: dir => join(pwaDir, dir),
     ssr: dir => join(ssrDir, dir),
     cordova: dir => join(cordovaDir, dir),

@@ -1,4 +1,5 @@
-const fs = require('fs')
-const appPaths = require('../app-paths')
 
-module.exports = fs.existsSync(appPaths.resolve.app('tsconfig.json'))
+import { existsSync} from 'node:fs'
+import appPaths from '../app-paths.js'
+
+export const hasTypescript = existsSync(appPaths.resolve.app('tsconfig.json'))

@@ -1,21 +1,15 @@
-const fs = require('fs')
-const appPaths = require('../app-paths')
-const appPkg = require(appPaths.resolve.app('package.json'))
 
-function hasEslint() {
-  // See: https://eslint.org/docs/user-guide/configuring/configuration-files
-  const configPaths = [
-    '.eslintrc.js',
-    '.eslintrc.cjs',
-    '.eslintrc.yaml',
-    '.eslintrc.yml',
-    '.eslintrc.json',
-  ]
+import { existsSync } from 'node:fs'
 
-  return (
-    configPaths.some(path => fs.existsSync(appPaths.resolve.app(path))) ||
-    appPkg.eslintConfig !== undefined
-  )
-}
+import { appPackageJson } from './app-package-json.js'
 
-module.exports = hasEslint()
+// See: https://eslint.org/docs/user-guide/configuring/configuration-files
+export const eslintConfigFile = [
+  '.eslintrc.cjs',
+  '.eslintrc.js',
+  '.eslintrc.yaml',
+  '.eslintrc.yml',
+  '.eslintrc.json',
+].find(path => existsSync(appPaths.resolve.app(path)))
+
+export const hasEslint = appPackageJson.eslintConfig || eslintConfigFile

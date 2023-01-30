@@ -1,10 +1,11 @@
-const fs = require('fs')
-const { normalize, join, sep } = require('path')
 
-const appPaths = require('../app-paths')
-const spawn = require('cross-spawn').sync
-const { log, warn, fatal } = require('./logger')
-const { spawnSync } = require('./spawn')
+import fs from 'node:fs'
+import { normalize, join, sep } from 'node:path'
+import { sync as spawn } from 'cross-spawn'
+
+import appPaths from '../app-paths.js'
+import { log, warn, fatal } from './logger.js'
+import { spawnSync } from './spawn.js'
 
 class PackageManager {
   name = 'unknown'
@@ -30,7 +31,7 @@ class PackageManager {
 
   isInstalled () {
     try {
-      // spawnSync helper logs stuff and exits the app on error, so we don't use it here
+      // spawnSync helper would log stuff and exit the app on error, so we don't use it here
       return spawn(this.name, ['--version']).status === 0
     }
     catch (err) {
@@ -62,7 +63,7 @@ class PackageManager {
     })
   }
 
-  getUninstallPackageParams (_names) {
+  getUninstallPackageParams(_names) {
     return []
   }
 
@@ -90,7 +91,7 @@ class Npm extends PackageManager {
   name = 'npm'
   lockFile = 'package-lock.json'
 
-  getInstallPackageParams (names, isDev) {
+  getInstallPackageParams(names, isDev) {
     return [
       'install',
       isDev ? '--save-dev' : '',
@@ -98,7 +99,7 @@ class Npm extends PackageManager {
     ]
   }
 
-  getUninstallPackageParams (names) {
+  getUninstallPackageParams(names) {
     return ['uninstall', ...names]
   }
 }
@@ -107,7 +108,7 @@ class Yarn extends PackageManager {
   name = 'yarn'
   lockFile = 'yarn.lock'
 
-  getInstallPackageParams (names, isDev) {
+  getInstallPackageParams(names, isDev) {
     return [
       'add',
       isDev ? '--dev' : '',
@@ -115,7 +116,7 @@ class Yarn extends PackageManager {
     ]
   }
 
-  getUninstallPackageParams (names) {
+  getUninstallPackageParams(names) {
     return ['remove', ...names]
   }
 }
@@ -148,7 +149,7 @@ function getPackager () {
   if (yarn.isUsed()) {
     return yarn
   }
-  
+
   if (pnpm.isUsed()) {
     return pnpm
   }
@@ -169,8 +170,7 @@ function getPackager () {
     return npm
   }
 
-
   warn('Please install Yarn, PNPM, or NPM before running this command.\n')
 }
 
-module.exports = getPackager()
+export const nodePackager = getPackager()

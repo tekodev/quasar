@@ -1,10 +1,11 @@
 
-const { existsSync, mkdirSync, readFileSync, writeFileSync, lstatSync } = require('fs')
-const { removeSync, copySync } = require('fs-extra')
-const path = require('path')
-const compileTemplate = require('lodash/template')
+import { existsSync, mkdirSync, readFileSync, writeFileSync, lstatSync } from 'node:fs'
+import { removeSync, copySync } from 'fs-extra'
+import path from 'node:path'
+import compileTemplate from 'lodash/template.js'
 
-const appPaths = require('./app-paths')
+import appPaths from './app-paths.js'
+
 const quasarFolder = appPaths.resolve.app('.quasar')
 
 class EntryFilesGenerator {
@@ -73,4 +74,4 @@ class EntryFilesGenerator {
   }
 }
 
-module.exports = ctx => new EntryFilesGenerator(ctx)
+export default ctx => new EntryFilesGenerator(ctx)

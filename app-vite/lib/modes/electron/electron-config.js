@@ -1,12 +1,14 @@
-const { join } = require('path')
-const appPaths = require('../../app-paths')
 
-const { createViteConfig, extendViteConfig, extendEsbuildConfig, createNodeEsbuildConfig } = require('../../config-tools')
-const parseEnv = require('../../parse-env')
+import { join } from 'node:path'
 
-module.exports = {
-  vite: quasarConf => {
-    const cfg = createViteConfig(quasarConf)
+import appPaths from '../../app-paths.js'
+
+import { createViteConfig, extendViteConfig, extendEsbuildConfig, createNodeEsbuildConfig } from '../../config-tools.js'
+import { parseEnv } from '../../parse-env.js'
+
+export const electronConfig = {
+  vite: async quasarConf => {
+    const cfg = await createViteConfig(quasarConf)
 
     if (quasarConf.ctx.prod === true) {
       cfg.build.outDir = join(quasarConf.build.distDir, 'UnPackaged')

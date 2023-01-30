@@ -1,16 +1,16 @@
 
-const { writeFileSync } = require('fs')
-const { join } = require('path')
+import { writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 
-const AppBuilder = require('../../app-builder')
-const config = require('./pwa-config')
-const { injectPwaManifest, buildPwaServiceWorker } = require('./utils')
+import { AppBuilder } from '../../app-builder.js'
+import { pwaConfig } from './pwa-config.js'
+import { injectPwaManifest, buildPwaServiceWorker } from './utils.js'
 
-class PwaBuilder extends AppBuilder {
+export class PwaBuilder extends AppBuilder {
   async build () {
     injectPwaManifest(this.quasarConf)
 
-    const viteConfig = await config.vite(this.quasarConf)
+    const viteConfig = await pwaConfig.vite(this.quasarConf)
     await this.buildWithVite('PWA UI', viteConfig)
 
     // also update ssr-builder.js when changing here
@@ -26,16 +26,14 @@ class PwaBuilder extends AppBuilder {
 
     // also update ssr-builder.js when changing here
     if (this.quasarConf.pwa.workboxMode === 'injectManifest') {
-      const esbuildConfig = await config.customSw(this.quasarConf)
+      const esbuildConfig = await pwaConfig.customSw(this.quasarConf)
       await this.buildWithEsbuild('injectManifest Custom SW', esbuildConfig)
     }
 
     // also update ssr-builder.js when changing here
-    const workboxConfig = await config.workbox(this.quasarConf)
+    const workboxConfig = await pwaConfig.workbox(this.quasarConf)
     await buildPwaServiceWorker(this.quasarConf.pwa.workboxMode, workboxConfig)
 
     this.printSummary(this.quasarConf.build.distDir, true)
   }
 }
-
-module.exports = PwaBuilder

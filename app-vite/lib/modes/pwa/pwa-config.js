@@ -1,19 +1,20 @@
 
-const { join } = require('path')
+import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 
-const appPaths = require('../../app-paths')
-const escapeRegexString = require('../../helpers/escape-regex-string')
-const {
+import appPaths from '../../app-paths.js'
+import escapeRegexString from '../../helpers/escape-regex-string.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
+import {
   createViteConfig, extendViteConfig,
   createBrowserEsbuildConfig, extendEsbuildConfig
-} = require('../../config-tools')
+} from '../../config-tools.js'
 
-const quasarVitePluginPwaResources = require('./vite-plugin.pwa-resources')
-const appPkg = require(appPaths.resolve.app('package.json'))
+import quasarVitePluginPwaResources from './vite-plugin.pwa-resources.js'
 
-module.exports = {
-  vite: quasarConf => {
-    const cfg = createViteConfig(quasarConf)
+export const pwaConfig = {
+  vite: async quasarConf => {
+    const cfg = await createViteConfig(quasarConf)
 
     // also update ssr-config.js when changing here
     cfg.plugins.push(
@@ -40,7 +41,7 @@ module.exports = {
       Object.assign(opts, {
         sourcemap: quasarConf.build.sourcemap !== false,
         mode: quasarConf.metaConf.debugging === true || quasarConf.build.minify === false ? 'development' : 'production',
-        cacheId: appPkg.name || 'quasar-pwa-app',
+        cacheId: appPackageJson.name || 'quasar-pwa-app',
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true

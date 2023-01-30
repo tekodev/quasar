@@ -1,3 +1,4 @@
+
 import ci from 'ci-info'
 
 export const isMinimalTerminal = (

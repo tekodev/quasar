@@ -1,33 +1,34 @@
 
-const { join } = require('path')
-const { createWriteStream } = require('fs-extra')
-const archiver = require('archiver')
+import { join } from 'node:path'
+import { createWriteStream } from 'fs-extra'
+import archiver from 'archiver'
 
-const AppBuilder = require('../../app-builder')
-const appPaths = require('../../app-paths')
-const { progress } = require('../../helpers/logger')
-const config = require('./bex-config')
-const { createManifest, copyBexAssets } = require('./utils')
+import appPaths from '../../app-paths.js'
+import { AppBuilder } from '../../app-builder.js'
+import { progress } from '../../helpers/logger.js'
+import { bexConfig} from './bex-config.js'
+import { createManifest, copyBexAssets } from './utils.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
-const { name } = require(appPaths.resolve.app('package.json'))
+const { name } = appPackageJson
 
 class BexBuilder extends AppBuilder {
   async build () {
-    const viteConfig = await config.vite(this.quasarConf)
+    const viteConfig = await bexConfig.vite(this.quasarConf)
     await this.buildWithVite('BEX UI', viteConfig)
 
     const { err } = createManifest(this.quasarConf)
     if (err !== void 0) { process.exit(1) }
 
-    const backgroundConfig = await config.backgroundScript(this.quasarConf)
+    const backgroundConfig = await bexConfig.backgroundScript(this.quasarConf)
     await this.buildWithEsbuild('Background Script', backgroundConfig)
 
     for (const name of this.quasarConf.bex.contentScripts) {
-      const contentConfig = await config.contentScript(this.quasarConf, name)
+      const contentConfig = await bexConfig.contentScript(this.quasarConf, name)
       await this.buildWithEsbuild('Content Script', contentConfig)
     }
 
-    const domConfig = await config.domScript(this.quasarConf)
+    const domConfig = await bexConfig.domScript(this.quasarConf)
     await this.buildWithEsbuild('Dom Script', domConfig)
 
     copyBexAssets(this.quasarConf)

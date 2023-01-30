@@ -1,9 +1,11 @@
-const { green, gray, underline } = require('kolorist')
 
-const getPackageJson = require('./get-package-json')
+import { green, gray, underline } from 'kolorist'
+
+import { getPackageJson } from './get-package-json.js'
+import { version as cliAppVersion } from '../version.js'
+
+const viteVersion = getPackageJson('vite').version
 const quasarVersion = getPackageJson('quasar').version
-const cliAppVersion = require('../../package.json').version
-const viteVersion = require('vite/package.json').version
 
 function getPackager (argv, cmd) {
   if (argv.ide || (argv.mode === 'capacitor' && cmd === 'dev')) {
@@ -27,7 +29,7 @@ function getCompilationTarget (target) {
   )
 }
 
-module.exports = function (argv, cmd, details = {}) {
+function displayBanner (argv, cmd, details = {}) {
   let banner = ''
 
   if (details.buildOutputFolder) {
@@ -122,6 +124,9 @@ module.exports = function (argv, cmd, details = {}) {
   console.log(banner + '\n')
 }
 
-module.exports.quasarVersion = quasarVersion
-module.exports.cliAppVersion = cliAppVersion
-module.exports.getCompilationTarget = getCompilationTarget
+export {
+  cliAppVersion,
+  quasarVersion,
+  getCompilationTarget,
+  displayBanner
+}

@@ -1,4 +1,5 @@
-module.exports = function parseEnv (env, rawDefine) {
+
+export function parseEnv (env, rawDefine) {
   const acc = {}
 
   const flatEnv = flattenObject(env)

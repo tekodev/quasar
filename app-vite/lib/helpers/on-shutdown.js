@@ -1,6 +1,7 @@
-const { log } = require('./logger')
 
-module.exports = function (fn, msg) {
+import { log } from './logger.js'
+
+export function onShutdown (fn, msg) {
   const cleanup = () => {
     try {
       msg && log(msg)

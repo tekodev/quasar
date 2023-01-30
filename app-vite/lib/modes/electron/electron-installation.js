@@ -1,21 +1,22 @@
-const fs = require('fs')
-const fse = require('fs-extra')
 
-const appPaths = require('../../app-paths')
-const { log, warn } = require('../../helpers/logger')
-const nodePackager = require('../../helpers/node-packager')
-const hasTypescript = require('../../helpers/has-typescript')
-const { bundlerIsInstalled } = require('./bundler')
+import fs from 'node:fs'
+import fse from 'fs-extra'
+
+import appPaths from '../../app-paths.js'
+import { log, warn } from '../../helpers/logger.js'
+import { nodePackager } from '../../helpers/node-packager.js'
+import { hasTypescript } from '../../helpers/has-typescript.js'
+import { bundlerIsInstalled } from './bundler.js'
 
 const electronDeps = {
   'electron': 'latest'
 }
 
-function isInstalled () {
+export function isInstalled () {
   return fs.existsSync(appPaths.electronDir)
 }
 
-function add (silent) {
+export function add (silent) {
   if (isInstalled()) {
     if (silent !== true) {
       warn('Electron support detected already. Aborting.')
@@ -49,7 +50,7 @@ function add (silent) {
   log('Electron support was added')
 }
 
-function remove () {
+export function remove () {
   if (!isInstalled()) {
     warn('No Electron support detected. Aborting.')
     return
@@ -69,10 +70,4 @@ function remove () {
   nodePackager.uninstallPackage(deps, { displayName: 'Electron dependencies' })
 
   log('Electron support was removed')
-}
-
-module.exports = {
-  isInstalled,
-  add,
-  remove
 }

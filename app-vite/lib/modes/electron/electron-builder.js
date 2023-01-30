@@ -1,17 +1,18 @@
 
-const { join } = require('path')
+import { join } from 'node:path'
 
-const AppBuilder = require('../../app-builder')
-const config = require('./electron-config')
+import { AppBuilder } from '../../app-builder.js'
+import { electronConfig } from './electron-config.js'
 
-const { log, warn, fatal, progress } = require('../../helpers/logger')
-const { spawn } = require('../../helpers/spawn')
-const appPaths = require('../../app-paths')
-const nodePackager = require('../../helpers/node-packager')
-const getPackageJson = require('../../helpers/get-package-json')
-const getFixedDeps = require('../../helpers/get-fixed-deps')
+import appPaths from '../../app-paths.js'
+import { log, warn, fatal, progress } from '../../helpers/logger.js'
+import { spawn } from '../../helpers/spawn.js'
+import { nodePackager } from '../../helpers/node-packager.js'
+import { getPackageJson } from '../../helpers/get-package-json.js'
+import { getFixedDeps } from '../../helpers/get-fixed-deps.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
-class ElectronBuilder extends AppBuilder {
+export class ElectronBuilder extends AppBuilder {
   async build () {
     await this.#buildFiles()
     await this.#writePackageJson()
@@ -25,14 +26,14 @@ class ElectronBuilder extends AppBuilder {
   }
 
   async #buildFiles () {
-    const viteConfig = await config.vite(this.quasarConf)
+    const viteConfig = await electronConfig.vite(this.quasarConf)
     await this.buildWithVite('Electron UI', viteConfig)
 
-    const mainConfig = await config.main(this.quasarConf)
+    const mainConfig = await electronConfig.main(this.quasarConf)
     await this.buildWithEsbuild('Electron Main', mainConfig)
     this.#replaceAppUrl(mainConfig.outfile)
 
-    const preloadConfig = await config.preload(this.quasarConf)
+    const preloadConfig = await electronConfig.preload(this.quasarConf)
     await this.buildWithEsbuild('Electron Preload', preloadConfig)
     this.#replaceAppUrl(preloadConfig.outfile)
   }
@@ -45,7 +46,7 @@ class ElectronBuilder extends AppBuilder {
   }
 
   async #writePackageJson () {
-    const pkg = require(appPaths.resolve.app('package.json'))
+    const pkg = JSON.parse(JSON.stringify(appPackageJson))
 
     if (pkg.dependencies) {
       pkg.dependencies = getFixedDeps(pkg.dependencies)
@@ -118,7 +119,7 @@ class ElectronBuilder extends AppBuilder {
     }).then(() => {
       const bundlerName = this.quasarConf.electron.bundler
       const bundlerConfig = this.quasarConf.electron[bundlerName]
-      const bundler = require('./bundler').getBundler(bundlerName)
+      const bundler from './bundler').getBundler(bundlerName)
       const pkgName = `electron-${bundlerName}`
 
       return new Promise((resolve, reject) => {

@@ -1,6 +1,7 @@
-const parseArgs = require('minimist')
 
-const { log, warn, fatal } = require('../helpers/logger')
+import parseArgs from 'minimist'
+
+import { log, warn, fatal } from '../helpers/logger.js'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -41,7 +42,7 @@ if (argv._.length !== 0 && argv._.length !== 2) {
   process.exit(1)
 }
 
-const { green, gray } = require('kolorist')
+import { green, gray } from 'kolorist'
 
 async function run () {
   let [ action, mode ] = argv._
@@ -57,12 +58,12 @@ async function run () {
     fatal(`Unknown mode "${ mode }" to ${action}`)
   }
 
-  const installation = require(`../modes/${mode}/${mode}-installation`)
+  const installation = await import(`../modes/${mode}/${mode}-installation.js`)
 
   if (action === 'remove' && argv.yes !== true && installation.isInstalled()) {
     console.log()
 
-    const inquirer = require('inquirer')
+    const { default: inquirer } = await import('inquirer')
     const answer = await inquirer.prompt([{
       name: 'go',
       type: 'confirm',
@@ -86,7 +87,7 @@ function displayModes () {
 
   const info = []
   ;['pwa', 'ssr', 'cordova', 'capacitor', 'electron', 'bex'].forEach(mode => {
-    const { isInstalled } = require(`../modes/${mode}/${mode}-installation`)
+    const { isInstalled } = await import(`../modes/${mode}/${mode}-installation.js`)
     info.push([
       `Mode ${mode.toUpperCase()}`,
       isInstalled() ? green('yes') : gray('no')

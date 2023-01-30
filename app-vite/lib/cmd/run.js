@@ -1,4 +1,5 @@
-const parseArgs = require('minimist')
+
+import parseArgs from 'minimist'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -33,7 +34,7 @@ if (!extId && argv.help) {
   process.exit(0)
 }
 
-const { log, warn } = require('../helpers/logger')
+import { log, warn } from '../helpers/logger.js'
 
 function getArgv (argv) {
   const { _, ...params } = argv
@@ -45,7 +46,7 @@ function getArgv (argv) {
 }
 
 async function run () {
-  const Extension = require('../app-extension/Extension')
+  const { Extension } = await import('../app-extension/Extension.js')
   const extension = new Extension(extId)
 
   const hooks = await extension.run({})

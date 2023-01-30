@@ -1,8 +1,9 @@
+
 if (process.env.NODE_ENV === void 0) {
   process.env.NODE_ENV = 'production'
 }
 
-const parseArgs = require('minimist')
+import parseArgs from 'minimist'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -88,28 +89,29 @@ if (argv.help) {
   process.exit(0)
 }
 
-const ensureArgv = require('../helpers/ensure-argv')
+import { ensureArgv } from '../helpers/ensure-argv.js'
 ensureArgv(argv, 'build')
 
+import { readFileSync } from 'node:fs'
 console.log(
-  require('fs').readFileSync(
-    require('path').join(__dirname, '../../assets/logo.art'),
+  readFileSync(
+    new URL('../../assets/logo.art', import.meta.url).pathname,
     'utf8'
   )
 )
 
-const banner = require('../helpers/banner-global')
-banner(argv, 'build')
+import { displayBanner } from '../helpers/banner-global.js'
+displayBanner(argv, 'build')
 
-const { log, fatal } = require('../helpers/logger')
-const path = require('path')
+import { log, fatal } from '../helpers/logger.js'
+import path from 'node:path'
 
 async function build () {
   // install mode if it's missing
-  const { add } = require(`../modes/${argv.mode}/${argv.mode}-installation`)
+  const { add } = await import(`../modes/${argv.mode}/${argv.mode}-installation.js`)
   await add(true, argv.target)
 
-  const getQuasarCtx = require('../helpers/get-quasar-ctx')
+  const { getQuasarCtx } = await import('../helpers/get-quasar-ctx.js')
   const ctx = getQuasarCtx({
     mode: argv.mode,
     target: argv.target,
@@ -121,10 +123,10 @@ async function build () {
   })
 
   // register app extensions
-  const extensionRunner = require('../app-extension/extensions-runner')
+  const { extensionRunner } = await import('../app-extension/extensions-runner.js')
   await extensionRunner.registerExtensions(ctx)
 
-  const QuasarConfFile = require('../quasar-config-file')
+  const { QuasarConfFile } = await import('../quasar-config-file.js')
   const quasarConfFile = new QuasarConfFile({
     ctx,
     port: argv.port,
@@ -136,17 +138,18 @@ async function build () {
     fatal(quasarConf.error, 'FAIL')
   }
 
-  const regenerateTypesFeatureFlags = require('../helpers/types-feature-flags')
+  const { regenerateTypesFeatureFlags } = await import('../helpers/types-feature-flags.js')
   regenerateTypesFeatureFlags(quasarConf)
 
-  const AppProdBuilder = require(`../modes/${argv.mode}/${argv.mode}-builder`)
+  const { AppProdBuilder } = await import(`../modes/${argv.mode}/${argv.mode}-builder.js`)
   const appBuilder = new AppProdBuilder({ argv, quasarConf })
 
-  const artifacts = require('../artifacts')
+  const { clean, add } = await import('../artifacts.js')
   let outputFolder = quasarConf.build.distDir
-  artifacts.clean(outputFolder)
+  clean(outputFolder)
 
-  const entryFiles = require('../entry-files-generator')(ctx)
+  const { default: getEntryFiles } = await import('../entry-files-generator.js')
+  const entryFiles = getEntryFiles(ctx)
   entryFiles.generate(quasarConf)
 
   if (typeof quasarConf.build.beforeBuild === 'function') {
@@ -160,7 +163,7 @@ async function build () {
   })
 
   appBuilder.build().then(async () => {
-    artifacts.add(outputFolder)
+    add(outputFolder)
 
     outputFolder = argv.mode === 'cordova'
       ? path.join(outputFolder, '..')

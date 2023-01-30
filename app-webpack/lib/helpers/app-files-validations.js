@@ -1,3 +1,4 @@
+
 import { readFileSync } from 'node:fs'
 
 import { warn } from './logger.js'

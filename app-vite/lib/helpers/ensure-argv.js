@@ -1,6 +1,7 @@
-const { fatal } = require('./logger')
 
-module.exports = function (argv, cmd) {
+import { fatal } from './logger.js'
+
+export function ensureArgv (argv, cmd) {
   if (argv.mode) {
     if (argv.mode === 'ios') {
       argv.m = argv.mode = 'cordova'
@@ -53,7 +54,7 @@ module.exports = function (argv, cmd) {
   }
 }
 
-module.exports.ensureElectronArgv = function (bundlerName, argv) {
+export function ensureElectronArgv (bundlerName, argv) {
   if (!['packager', 'builder'].includes(bundlerName)) {
     fatal(`Unknown bundler "${ bundlerName }" for Electron`)
   }

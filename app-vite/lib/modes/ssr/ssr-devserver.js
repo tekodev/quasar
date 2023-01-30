@@ -1,28 +1,28 @@
-const { readFileSync } = require('fs')
-const { join } = require('path')
-const { createServer } = require('vite')
-const chokidar = require('chokidar')
-const debounce = require('lodash/debounce')
-const Ouch = require('ouch')
-const serialize = require('serialize-javascript')
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { createServer } from 'vite'
+import chokidar from 'chokidar'
+import debounce from 'lodash/debounce'
+import Ouch from 'ouch'
+import serialize from 'serialize-javascript'
 
-const AppDevserver = require('../../app-devserver')
-const appPaths = require('../../app-paths')
-const getPackage = require('../../helpers/get-package')
-const openBrowser = require('../../helpers/open-browser')
-const config = require('./ssr-config')
-const { log, warn, info, dot, progress } = require('../../helpers/logger')
-const { entryPointMarkup, getDevSsrTemplateFn } = require('../../helpers/html-template')
+import appPaths from '../../app-paths.js'
+import { AppDevserver } from '../../app-devserver.js'
+import { getPackage } from '../../helpers/get-package.js'
+import { openBrowser } from '../../helpers/open-browser.js'
+import { ssrConfig } from './ssr-config.js'
+import { log, warn, info, dot, progress } from '../../helpers/logger.js'
+import { entryPointMarkup, getDevSsrTemplateFn } from '../../helpers/html-template.js'
 
-const { renderToString } = getPackage('vue/server-renderer')
+import { injectPwaManifest, buildPwaServiceWorker } from '../pwa/utils.js'
+
+const { renderToString } = await getPackage('vue/server-renderer')
 
 const rootFolder = appPaths.appDir
 const publicFolder = appPaths.resolve.app('public')
 const templatePath = appPaths.resolve.app('index.html')
 const serverFile = appPaths.resolve.app('.quasar/ssr/compiled-dev-webserver.js')
 const serverEntryFile = appPaths.resolve.app('.quasar/server-entry.js')
-
-const { injectPwaManifest, buildPwaServiceWorker } = require('../pwa/utils')
 
 function resolvePublicFolder () {
   return join(publicFolder, ...arguments)
@@ -72,7 +72,7 @@ function renderStoreState (ssrContext) {
   return `<script${nonce}>window.__INITIAL_STATE__=${state};${autoRemove}</script>`
 }
 
-class SsrDevServer extends AppDevserver {
+export class SsrDevServer extends AppDevserver {
   #closeWebserver
   #viteClient
   #viteServer
@@ -162,7 +162,7 @@ class SsrDevServer extends AppDevserver {
       await this.#webserverWatcher.close()
     }
 
-    const esbuildConfig = await config.webserver(quasarConf)
+    const esbuildConfig = await ssrConfig.webserver(quasarConf)
     await this.buildWithEsbuild('SSR Webserver', esbuildConfig, () => {
       if (this.#closeWebserver !== void 0) {
         queue(async () => {
@@ -190,8 +190,8 @@ class SsrDevServer extends AppDevserver {
       ? url => url || '/'
       : url => url ? (publicPath + url).replace(doubleSlashRE, '/') : publicPath
 
-    const viteClient = this.#viteClient = await createServer(await config.viteClient(quasarConf))
-    const viteServer = this.#viteServer = await createServer(await config.viteServer(quasarConf))
+    const viteClient = this.#viteClient = await createServer(await ssrConfig.viteClient(quasarConf))
+    const viteServer = this.#viteServer = await createServer(await ssrConfig.viteServer(quasarConf))
 
     if (quasarConf.ssr.pwa === true) {
       injectPwaManifest(quasarConf, true)
@@ -269,7 +269,7 @@ class SsrDevServer extends AppDevserver {
     const done = progress(`${ this.#closeWebserver !== void 0 ? 'Restarting' : 'Starting' } webserver...`)
 
     delete require.cache[serverFile]
-    const { create, listen, close, injectMiddlewares, serveStaticContent } = require(serverFile)
+    const { create, listen, close, injectMiddlewares, serveStaticContent } from serverFile)
 
     const { publicPath } = this.#appOptions
 
@@ -401,7 +401,7 @@ class SsrDevServer extends AppDevserver {
       await this.#pwaServiceWorkerWatcher.close()
     }
 
-    const workboxConfig = await config.workbox(quasarConf)
+    const workboxConfig = await ssrConfig.workbox(quasarConf)
 
     if (quasarConf.pwa.workboxMode === 'injectManifest') {
       const esbuildConfig = await config.customSw(quasarConf)
@@ -415,5 +415,3 @@ class SsrDevServer extends AppDevserver {
     await buildPwaServiceWorker(quasarConf.pwa.workboxMode, workboxConfig)
   }
 }
-
-module.exports = SsrDevServer

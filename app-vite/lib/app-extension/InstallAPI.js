@@ -1,18 +1,19 @@
-const fs = require('fs-extra')
-const path = require('path')
-const { merge } = require('webpack-merge')
-const semver = require('semver')
 
-const { warn, fatal } = require('../helpers/logger')
-const getPackageJson = require('../helpers/get-package-json')
-const getCallerPath = require('../helpers/get-caller-path')
-const extensionJson = require('./extension-json')
-const BaseAPI = require('./BaseAPI')
+import path from 'node:path'
+import fse from 'fs-extra'
+import { merge } from 'webpack-merge'
+import semver from 'semver'
+
+import { warn, fatal } from '../helpers/logger.js'
+import { getPackageJson } from '../helpers/get-package-json.js'
+import { getCallerPath } from '../helpers/get-caller-path.js'
+import { extensionJson } from './extension-json.js'
+import { BaseAPI } from './BaseAPI.js'
 
 /**
  * API for extension's /install.js script
  */
-module.exports = class InstallAPI extends BaseAPI {
+export class InstallAPI extends BaseAPI {
   __hooks = {
     renderFolders: [],
     renderFiles: [],
@@ -169,9 +170,9 @@ module.exports = class InstallAPI extends BaseAPI {
     }
 
     const filePath = this.resolve.app('package.json')
-    const pkg = merge({}, require(filePath), extPkg)
+    const pkg = merge({}, JSON.parse(fs.readFileSync(filePath, 'utf-8')), extPkg)
 
-    fs.writeFileSync(
+    fse.writeFileSync(
       filePath,
       JSON.stringify(pkg, null, 2),
       'utf-8'
@@ -205,9 +206,9 @@ module.exports = class InstallAPI extends BaseAPI {
       //  for example JSON with comments or JSON5.
       // Notable examples are TS 'tsconfig.json' or VSCode 'settings.json'
       try {
-        const data = merge({}, fs.existsSync(filePath) ? require(filePath) : {}, newData)
+        const data = merge({}, fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : {}, newData)
 
-        fs.writeFileSync(
+        fse.writeFileSync(
           this.resolve.app(file),
           JSON.stringify(data, null, 2),
           'utf-8'

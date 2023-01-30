@@ -1,4 +1,5 @@
-const parseArgs = require('minimist')
+
+import parseArgs from 'minimist'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -48,8 +49,8 @@ if (argv.help) {
 require('../helpers/ensure-argv')(argv, 'inspect')
 require('../helpers/banner-global')(argv, argv.cmd)
 
-const { log, fatal } = require('../helpers/logger')
-const { isInstalled } = require(`../modes/${argv.mode}/${argv.mode}-installation`)
+import { log, fatal } from '../helpers/logger.js'
+import { isInstalled } from `../modes/${argv.mode}/${argv.mode}-installation.js`
 
 if (isInstalled() !== true) {
   fatal('Requested mode for inspection is NOT installed.')
@@ -58,7 +59,7 @@ if (isInstalled() !== true) {
 const depth = parseInt(argv.depth, 10) || Infinity
 
 async function inspect () {
-  const getQuasarCtx = require('../helpers/get-quasar-ctx')
+  const { getQuasarCtx } = await import('../helpers/get-quasar-ctx.js')
   const ctx = getQuasarCtx({
     mode: argv.mode,
     target: argv.mode === 'cordova' || argv.mode === 'capacitor'
@@ -69,10 +70,10 @@ async function inspect () {
     prod: argv.cmd === 'build'
   })
 
-  const extensionRunner = require('../app-extension/extensions-runner')
+  const { extensionRunner } = await import('../app-extension/extensions-runner.js')
   await extensionRunner.registerExtensions(ctx)
 
-  const QuasarConfFile = require('../quasar-config-file')
+  const { QuasarConfFile } = await import('../quasar-config-file.js')
   const quasarConfFile = new QuasarConfFile({
     ctx,
     port: argv.port,
@@ -84,7 +85,7 @@ async function inspect () {
     fatal(quasarConf.error, 'FAIL')
   }
 
-  const generateConfig = require(`../modes/${argv.mode}/${argv.mode}-config`)
+  const { generateConfig } = await import(`../modes/${argv.mode}/${argv.mode}-config.js`)
 
   const cfgEntries = []
   let threadList = Object.keys(generateConfig)
@@ -111,7 +112,7 @@ async function inspect () {
     })
   }
 
-  const util = require('util')
+  const util = await import('node:util')
 
   cfgEntries.forEach(cfgEntry => {
     const tool = cfgEntry.object.configFile !== void 0

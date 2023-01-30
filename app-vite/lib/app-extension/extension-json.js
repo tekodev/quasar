@@ -1,22 +1,26 @@
-const fs = require('fs')
-const { log, fatal } = require('../helpers/logger')
-const { green } = require('kolorist')
-const appPaths = require('../app-paths')
+
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { green } from 'kolorist'
+
+import { log, fatal } from '../helpers/logger.js'
+import appPaths from '../app-paths.js'
 
 const extensionPath = appPaths.resolve.app('quasar.extensions.json')
 
 class ExtensionJson {
   constructor () {
-    if (!fs.existsSync(extensionPath)) {
+    if (!existsSync(extensionPath)) {
       this.extensions = {}
       return
     }
 
     try {
-      this.extensions = require(extensionPath)
+      this.extensions = JSON.parse(
+        readFileSync(extensionPath, 'utf-8')
+      )
     }
     catch (e) {
-      console.log(e)
+      console.error(e)
       fatal('quasar.extensions.json is malformed', 'FAIL')
     }
   }
@@ -81,7 +85,7 @@ class ExtensionJson {
   }
 
   __save () {
-    fs.writeFileSync(
+    writeFileSync(
       extensionPath,
       JSON.stringify(this.extensions, null, 2),
       'utf-8'
@@ -89,4 +93,4 @@ class ExtensionJson {
   }
 }
 
-module.exports = new ExtensionJson()
+export const extensionJson = new ExtensionJson()

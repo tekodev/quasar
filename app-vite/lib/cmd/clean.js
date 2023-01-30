@@ -1,6 +1,7 @@
-const parseArgs = require('minimist')
 
-const { log } = require('../helpers/logger')
+import parseArgs from 'minimist'
+
+import { log } from '../helpers/logger.js'
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -21,8 +22,8 @@ if (argv.help) {
   process.exit(0)
 }
 
-const Artifacts = require('../artifacts')
-Artifacts.cleanAll()
+import { cleanAll } from '../artifacts.js'
+cleanAll()
 
 console.log()
 log(`Done cleaning build artifacts\n`)

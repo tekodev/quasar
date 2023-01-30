@@ -1,3 +1,4 @@
+
 import appPaths from '../app-paths.js'
 import { getPackageJson } from './get-package-json.js'
 

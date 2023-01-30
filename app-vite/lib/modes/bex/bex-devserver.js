@@ -1,15 +1,15 @@
 
-const debounce = require('lodash/debounce')
-const chokidar = require('chokidar')
-const { copySync } = require('fs-extra')
+import debounce from 'lodash/debounce.js'
+import chokidar from 'chokidar'
+import { copySync } from 'fs-extra'
 
-const AppDevserver = require('../../app-devserver')
-const appPaths = require('../../app-paths')
-const config = require('./bex-config')
-const { createManifest, copyBexAssets } = require('./utils')
-const artifacts = require('../../artifacts')
+import appPaths from '../../app-paths.js'
+import { AppDevserver } from '../../app-devserver.js'
+import { bexConfig } from './bex-config.js'
+import { createManifest, copyBexAssets } from './utils.js'
+import { clean, add } from '../../artifacts.js'
 
-class BexDevServer extends AppDevserver {
+export class BexDevServer extends AppDevserver {
   #uiWatchers = []
   #scriptWatchers = []
 
@@ -40,8 +40,8 @@ class BexDevServer extends AppDevserver {
       this.#scriptWatchers.forEach(watcher => { watcher.close() })
       this.#scriptWatchers = []
 
-      artifacts.clean(quasarConf.build.distDir)
-      artifacts.add(quasarConf.build.distDir)
+      clean(quasarConf.build.distDir)
+      add(quasarConf.build.distDir)
 
       // execute diffs so we don't duplicate compilations
       diff('bexScripts', quasarConf)
@@ -70,18 +70,18 @@ class BexDevServer extends AppDevserver {
       this.printBanner(quasarConf)
     }
 
-    const backgroundConfig = await config.backgroundScript(quasarConf)
+    const backgroundConfig = await bexConfig.backgroundScript(quasarConf)
     await this.buildWithEsbuild('Background Script', backgroundConfig, rebuilt)
       .then(result => { this.#scriptWatchers.push({ close: result.stop }) })
 
     for (const name of quasarConf.bex.contentScripts) {
-      const contentConfig = await config.contentScript(quasarConf, name)
+      const contentConfig = await bexConfig.contentScript(quasarConf, name)
 
       await this.buildWithEsbuild(`Content Script (${name})`, contentConfig, rebuilt)
         .then(result => { this.#scriptWatchers.push({ close: result.stop }) })
     }
 
-    const domConfig = await config.domScript(quasarConf)
+    const domConfig = await bexConfig.domScript(quasarConf)
     await this.buildWithEsbuild('Dom Script', domConfig, rebuilt)
       .then(result => { this.#scriptWatchers.push({ close: result.stop }) })
   }
@@ -90,7 +90,7 @@ class BexDevServer extends AppDevserver {
     this.#uiWatchers.forEach(watcher => { watcher.close() })
     this.#uiWatchers = []
 
-    const viteConfig = await config.vite(quasarConf)
+    const viteConfig = await bexConfig.vite(quasarConf)
     await this.buildWithVite('BEX UI', viteConfig)
 
     this.#runWatchers(quasarConf, viteConfig, queue)
@@ -177,5 +177,3 @@ class BexDevServer extends AppDevserver {
     return watcher
   }
 }
-
-module.exports = BexDevServer

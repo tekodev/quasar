@@ -1,3 +1,4 @@
+
 import path from 'node:path'
 import fse from 'fs-extra'
 import { merge } from 'webpack-merge'
@@ -152,13 +153,13 @@ export class InstallAPI extends BaseAPI {
       const dir = getCallerPath()
       const source = path.resolve(dir, extPkg)
 
-      if (!fse.existsSync(source)) {
+      if (!fs.existsSync(source)) {
         warn()
         warn(`Extension(${this.extId}): extendPackageJson() - cannot locate ${extPkg}. Skipping...`)
         warn()
         return
       }
-      if (fse.lstatSync(source).isDirectory()) {
+      if (fs.lstatSync(source).isDirectory()) {
         warn()
         warn(`Extension(${this.extId}): extendPackageJson() - "${extPkg}" is a folder instead of file. Skipping...`)
         warn()
@@ -167,7 +168,7 @@ export class InstallAPI extends BaseAPI {
 
       try {
         extPkg = JSON.parse(
-          fse.readFileSync(source, 'utf-8')
+          fs.readFileSync(source, 'utf-8')
         )
       }
       catch (e) {
@@ -182,7 +183,7 @@ export class InstallAPI extends BaseAPI {
     }
 
     const filePath = this.resolve.app('package.json')
-    const pkg = merge({}, JSON.parse(fse.readFileSync(filePath, 'utf-8')), extPkg)
+    const pkg = merge({}, JSON.parse(fs.readFileSync(filePath, 'utf-8')), extPkg)
 
     fse.writeFileSync(
       filePath,
@@ -218,7 +219,7 @@ export class InstallAPI extends BaseAPI {
       //  for example JSON with comments or JSON5.
       // Notable examples are TS 'tsconfig.json' or VSCode 'settings.json'
       try {
-        const data = merge({}, fse.existsSync(filePath) ? JSON.parse(fse.readFileSync(filePath, 'utf-8')) : {}, newData)
+        const data = merge({}, fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : {}, newData)
 
         fse.writeFileSync(
           this.resolve.app(file),
@@ -247,12 +248,12 @@ export class InstallAPI extends BaseAPI {
     const source = path.resolve(dir, templatePath)
     const rawCopy = !scope || Object.keys(scope).length === 0
 
-    if (!fse.existsSync(source)) {
+    if (!fs.existsSync(source)) {
       warn()
       warn(`Extension(${this.extId}): render() - cannot locate ${templatePath}. Skipping...\n`)
       return
     }
-    if (!fse.lstatSync(source).isDirectory()) {
+    if (!fs.lstatSync(source).isDirectory()) {
       warn()
       warn(`Extension(${this.extId}): render() - "${templatePath}" is a file instead of folder. Skipping...\n`)
       return
@@ -281,12 +282,12 @@ export class InstallAPI extends BaseAPI {
     const rawCopy = !scope || Object.keys(scope).length === 0
 
     console.log('sourcePath', sourcePath)
-    if (!fse.existsSync(sourcePath)) {
+    if (!fs.existsSync(sourcePath)) {
       warn()
       warn(`Extension(${this.extId}): renderFile() - cannot locate ${relativeSourcePath}. Skipping...\n`)
       return
     }
-    if (fse.lstatSync(sourcePath).isDirectory()) {
+    if (fs.lstatSync(sourcePath).isDirectory()) {
       warn()
       warn(`Extension(${this.extId}): renderFile() - "${relativeSourcePath}" is a folder instead of a file. Skipping...\n`)
       return

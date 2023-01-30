@@ -1,13 +1,13 @@
 
-const { lstatSync } = require('fs')
-const { readFileSync, writeFileSync, copySync, existsSync, ensureDirSync, moveSync, removeSync } = require('fs-extra')
-const { join, isAbsolute, basename, dirname } = require('path')
+import { lstatSync } from 'node:fs'
+import { readFileSync, writeFileSync, copySync, existsSync, ensureDirSync, moveSync, removeSync } from 'fs-extra'
+import { join, isAbsolute, basename, dirname } from 'node:path'
 
-const AppTool = require('./app-tool')
-const appPaths = require('./app-paths')
-const printBuildSummary = require('../lib/helpers/print-build-summary')
+import { AppTool } from './app-tool.js'
+import appPaths from './app-paths.js'
+import { printBuildSummary } from '../lib/helpers/print-build-summary.js'
 
-class AppBuilder extends AppTool {
+export class AppBuilder extends AppTool {
   quasarConf
   ctx
 
@@ -80,5 +80,3 @@ class AppBuilder extends AppTool {
     printBuildSummary(folder, showGzipped)
   }
 }
-
-module.exports = AppBuilder

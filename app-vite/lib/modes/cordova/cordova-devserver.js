@@ -1,15 +1,17 @@
-const { createServer } = require('vite')
 
-const AppDevserver = require('../../app-devserver')
-const appPaths = require('../../app-paths')
-const CordovaConfigFile = require('./config-file')
-const { log, fatal } = require('../../helpers/logger')
-const { spawn } = require('../../helpers/spawn')
-const onShutdown = require('../../helpers/on-shutdown')
-const openIde = require('../../helpers/open-ide')
-const config = require('./cordova-config')
+import { createServer } from 'vite'
 
-class CordovaDevServer extends AppDevserver {
+import appPaths from '../../app-paths.js'
+import { AppDevserver } from '../../app-devserver.js'
+import { CordovaConfigFile } from './config-file.js'
+import { log, fatal } from '../../helpers/logger.js'
+import { spawn } from '../../helpers/spawn.js'
+import { onShutdown } from '../../helpers/on-shutdown.js'
+import { openIDE } from '../../helpers/open-ide.js'
+import { cordovaConfig } from './cordova-config.js'
+import { fixAndroidCleartext } from '../../helpers/fix-android-cleartext.js'
+
+export class CordovaDevServer extends AppDevserver {
   #pid = 0
   #server
   #ctx
@@ -28,7 +30,7 @@ class CordovaDevServer extends AppDevserver {
     this.#target = opts.quasarConf.ctx.targetName
 
     if (this.#target === 'android') {
-      require('../../helpers/fix-android-cleartext')('cordova')
+      fixAndroidCleartext('cordova')
     }
 
     onShutdown(() => {
@@ -53,7 +55,7 @@ class CordovaDevServer extends AppDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await config.vite(quasarConf)
+    const viteConfig = await cordovaConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()
@@ -120,5 +122,3 @@ class CordovaDevServer extends AppDevserver {
     this.#cordovaConfigFile.reset()
   }
 }
-
-module.exports = CordovaDevServer

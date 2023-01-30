@@ -1,19 +1,19 @@
 
-const { join } = require('path')
+import { join } from 'node:path'
 
-const {
+import {
   createViteConfig, extendViteConfig, mergeViteConfig,
   createNodeEsbuildConfig, extendEsbuildConfig
-} = require('../../config-tools')
+} from '../../config-tools'
 
-const appPaths = require('../../app-paths')
+import appPaths from '../../app-paths.js'
 
-const pwaConfig = require('../pwa/pwa-config')
-const quasarVitePluginPwaResources = require('../pwa/vite-plugin.pwa-resources')
+import { pwaConfig } from '../pwa/pwa-config.js'
+import { quasarVitePluginPwaResources } from '../pwa/vite-plugin.pwa-resources.js'
 
-module.exports = {
-  viteClient: quasarConf => {
-    let cfg = createViteConfig(quasarConf, 'ssr-client')
+export const ssrConfig = {
+  viteClient: async quasarConf => {
+    let cfg = await createViteConfig(quasarConf, 'ssr-client')
 
     cfg = mergeViteConfig(cfg, {
       define: {
@@ -46,8 +46,8 @@ module.exports = {
     return extendViteConfig(cfg, quasarConf, { isClient: true })
   },
 
-  viteServer: quasarConf => {
-    let cfg = createViteConfig(quasarConf, 'ssr-server')
+  viteServer: async quasarConf => {
+    let cfg = await createViteConfig(quasarConf, 'ssr-server')
 
     cfg = mergeViteConfig(cfg, {
       target: quasarConf.build.target.node,

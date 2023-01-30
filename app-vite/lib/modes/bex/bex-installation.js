@@ -1,21 +1,21 @@
 
-const fs = require('fs')
-const fse = require('fs-extra')
+import fs from 'node:fs'
+import fse from 'fs-extra'
 
-const appPaths = require('../../app-paths')
-const { log, warn } = require('../../helpers/logger')
-const nodePackager = require('../../helpers/node-packager')
-const hasTypescript = require('../../helpers/has-typescript')
+import appPaths from '../../app-paths.js'
+import { log, warn } from '../../helpers/logger.js'
+import { nodePackager } from '../../helpers/node-packager.js'
+import { hasTypescript } from '../../helpers/has-typescript.js'
 
 const bexDeps = {
   'events': '^3.3.0'
 }
 
-function isInstalled () {
+export function isInstalled () {
   return fs.existsSync(appPaths.bexDir)
 }
 
-async function add (silent) {
+export async function add (silent) {
   if (isInstalled()) {
     if (silent !== true) {
       warn(`Browser Extension support detected already. Aborting.`)
@@ -28,9 +28,8 @@ async function add (silent) {
     { displayName: 'BEX dependencies' }
   )
 
-  const inquirer = require('inquirer')
-
   console.log()
+  const { default: inquirer } = await import('inquirer')
   const answer = await inquirer.prompt([{
     name: 'manifestVersion',
     type: 'list',
@@ -52,7 +51,7 @@ async function add (silent) {
   log(`Browser Extension support was added`)
 }
 
-function remove () {
+export function remove () {
   if (!isInstalled()) {
     warn('No Browser Extension support detected. Aborting.')
     return
@@ -67,10 +66,4 @@ function remove () {
   )
 
   log('Browser Extension support was removed')
-}
-
-module.exports = {
-  isInstalled,
-  add,
-  remove
 }

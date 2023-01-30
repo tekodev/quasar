@@ -1,6 +1,7 @@
-const fs = require('fs')
 
-const appPaths = require('../app-paths')
+import { existsSync } from 'node:fs'
+
+import appPaths from '../app-paths.js'
 
 const cssVariables = {
   quasarSrcExt: 'css',
@@ -9,11 +10,11 @@ const cssVariables = {
 
 for (const ext of [ 'scss', 'sass' ]) {
   const file = `src/css/quasar.variables.${ext}`
-  if (fs.existsSync(appPaths.resolve.app(file))) {
+  if (existsSync(appPaths.resolve.app(file))) {
     cssVariables.quasarSrcExt = 'sass'
     cssVariables.variablesFile = file
     break
   }
 }
 
-module.exports = cssVariables
+export { cssVariables }

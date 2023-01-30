@@ -3,7 +3,7 @@ const appPaths = require('../../app-paths')
 const { createHeadTags } = require('./utils')
 const { static: serveStatic } = require('express')
 
-module.exports = quasarConf => {
+export function quasarVitePluginPwaResources (quasarConf) {
   let pwaManifest = null
   let headTags
   let manifestContent

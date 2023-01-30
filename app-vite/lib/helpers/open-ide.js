@@ -1,10 +1,10 @@
-const fs = require('fs')
-const path = require('path')
-const open = require('open')
-const { execSync } = require('child_process')
+import fs from 'node:fs'
+import path from 'node:path'
+import { execSync } from 'node:child_process'
+import open from 'open'
 
-const appPaths = require('../app-paths')
-const { warn, fatal } = require('./logger')
+import appPaths from '../app-paths.js'
+import { warn, fatal } from './logger.js'
 
 function findXcodeWorkspace (folder) {
   const root = fs.readdirSync(folder)
@@ -142,7 +142,7 @@ function runWindows (mode, bin, target) {
   process.exit(1)
 }
 
-module.exports = function (mode, bin, target, dev) {
+export function openIDE (mode, bin, target, dev) {
   console.log()
   console.log(` ⚠️  `)
   console.log(` ⚠️  Opening ${target === 'ios' ? 'XCode' : 'Android Studio'} IDE...`)

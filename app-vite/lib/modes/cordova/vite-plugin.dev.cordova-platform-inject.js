@@ -1,13 +1,13 @@
 
-const { static: serveStatic } = require('express')
-const appPaths = require('../../app-paths')
+import { static: serveStatic } from 'express'
 
-const { entryPointMarkup } = require('../../helpers/html-template')
+import appPaths from '../../app-paths.js'
+import { entryPointMarkup } from '../../helpers/html-template.js'
 
 /**
  * It is applied for dev only!
  */
-module.exports = quasarConf => {
+export function cordovaPlatformInject (quasarConf) {
   return {
     name: 'quasar:cordova-platform-inject',
     enforce: 'pre',

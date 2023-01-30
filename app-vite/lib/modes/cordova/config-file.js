@@ -1,11 +1,12 @@
-const fs = require('fs')
-const et = require('elementtree')
 
-const appPaths = require('../../app-paths')
-const { log, warn } = require('../../helpers/logger')
-const ensureConsistency = require('./ensure-consistency')
+import fs from 'node:fs'
+import et from 'elementtree'
 
-const pkg = require(appPaths.resolve.app('package.json'))
+import appPaths from '../../app-paths.js'
+import { log, warn } from '../../helpers/logger.js'
+import { ensureConsistency } from './ensure-consistency.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
+
 const filePath = appPaths.resolve.cordova('config.xml')
 
 function setFields (root, cfg) {
@@ -36,7 +37,7 @@ function setFields (root, cfg) {
   })
 }
 
-class CordovaConfigFile {
+export class CordovaConfigFile {
   #appURL
   #tamperedFiles
 
@@ -49,7 +50,7 @@ class CordovaConfigFile {
 
     const root = doc.getroot()
 
-    root.set('version', quasarConf.cordova.version || pkg.version)
+    root.set('version', quasarConf.cordova.version || appPackageJson.version)
 
     if (quasarConf.cordova.androidVersionCode) {
       root.set('android-versionCode', quasarConf.cordova.androidVersionCode)
@@ -57,7 +58,7 @@ class CordovaConfigFile {
 
     setFields(root, {
       content: { src: this.#appURL },
-      description: quasarConf.cordova.description || pkg.description
+      description: quasarConf.cordova.description || appPackageJson.description
     })
 
     if (this.#appURL !== 'index.html' && !root.find(`allow-navigation[@href='${this.#appURL}']`)) {
@@ -196,5 +197,3 @@ return YES;
     })
   }
 }
-
-module.exports = CordovaConfigFile

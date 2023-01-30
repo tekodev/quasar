@@ -1,17 +1,18 @@
-const { createServer } = require('vite')
 
-const AppDevserver = require('../../app-devserver')
-const appPaths = require('../../app-paths')
-const CapacitorConfigFile = require('./config-file')
-const { log, fatal } = require('../../helpers/logger')
-const { spawn } = require('../../helpers/spawn')
-const onShutdown = require('../../helpers/on-shutdown')
-const openIde = require('../../helpers/open-ide')
-const config = require('./capacitor-config')
+import { createServer } from 'vite'
 
-const { capBin } = require('./cap-cli')
+import appPaths from '../../app-paths.js'
+import { AppDevserver } from '../../app-devserver.js'
+import { CapacitorConfigFile } from './config-file.js'
+import { log, fatal } from '../../helpers/logger.js'
+import { spawn } from '../../helpers/spawn.js'
+import { onShutdown } from '../../helpers/on-shutdown.js'
+import { openIDE } from '../../helpers/open-ide.js'
+import { capacitorConfig } from './capacitor-config.js'
 
-class CapacitorDevServer extends AppDevserver {
+import { capBin } from './cap-cli.js'
+
+export class CapacitorDevServer extends AppDevserver {
   #pid = 0
   #server
   #target
@@ -53,7 +54,7 @@ class CapacitorDevServer extends AppDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await config.vite(quasarConf)
+    const viteConfig = await capacitorConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()
@@ -67,7 +68,7 @@ class CapacitorDevServer extends AppDevserver {
 
     this.#capacitorConfig.prepareSSL(quasarConf.devServer.https !== false, this.#target)
 
-    await openIde('capacitor', quasarConf.bin, this.#target, true)
+    await openIDE('capacitor', quasarConf.bin, this.#target, true)
   }
 
   #stopCapacitor () {
@@ -102,5 +103,3 @@ class CapacitorDevServer extends AppDevserver {
     this.#capacitorConfig.reset()
   }
 }
-
-module.exports = CapacitorDevServer

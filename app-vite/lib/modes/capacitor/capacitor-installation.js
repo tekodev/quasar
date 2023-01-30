@@ -1,21 +1,22 @@
 
-const fs = require('fs')
-const fse = require('fs-extra')
-const compileTemplate = require('lodash/template')
+import fs from 'node:fs'
+import fse from 'fs-extra'
+import compileTemplate from 'lodash/template.js'
 
-const appPaths = require('../../app-paths')
-const { log, warn } = require('../../helpers/logger')
-const { spawnSync } = require('../../helpers/spawn')
-const nodePackager = require('../../helpers/node-packager')
+import appPaths from '../../app-paths.js'
+import { log, warn } from '../../helpers/logger.js'
+import { spawnSync } from '../../helpers/spawn.js'
+import { nodePackager } from '../../helpers/node-packager.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
-function isInstalled () {
+export function isInstalled () {
   return fs.existsSync(appPaths.capacitorDir)
 }
 
-async function add (silent, target) {
+export async function add (silent, target) {
   if (isInstalled()) {
     if (target) {
-      addPlatform(target)
+      await addPlatform(target)
     }
     else if (silent !== true) {
       warn(`Capacitor support detected already. Aborting.`)
@@ -24,9 +25,7 @@ async function add (silent, target) {
     return
   }
 
-  const pkgPath = appPaths.resolve.app('package.json')
-  const pkg = require(pkgPath)
-  const appName = pkg.productName || pkg.name || 'Quasar App'
+  const appName = appPackageJson.productName || appPackageJson.name || 'Quasar App'
 
   if (/^[0-9]/.test(appName)) {
     warn(
@@ -36,7 +35,7 @@ async function add (silent, target) {
     return
   }
 
-  const inquirer = require('inquirer')
+  const { default: inquirer } = await import('inquirer')
 
   console.log()
   const answer = await inquirer.prompt([{
@@ -52,7 +51,7 @@ async function add (silent, target) {
   // Create /src-capacitor from template
   fse.ensureDirSync(appPaths.capacitorDir)
 
-  const fglob = require('fast-glob')
+  const { default: fglob } = await import('fast-glob')
   const scope = {
     appName,
     appId: answer.appId,
@@ -69,10 +68,10 @@ async function add (silent, target) {
     fs.writeFileSync(dest, compileTemplate(content)(scope), 'utf-8')
   })
 
-  const { ensureDeps } = require('./ensure-consistency')
+  const { ensureDeps } = await import('./ensure-consistency.js')
   ensureDeps()
 
-  const { capBin } = require('./cap-cli')
+  const { capBin } = await import('./cap-cli.js')
 
   log(`Initializing capacitor...`)
   spawnSync(
@@ -96,10 +95,10 @@ async function add (silent, target) {
     return
   }
 
-  addPlatform(target)
+  await addPlatform(target)
 }
 
-function remove () {
+export function remove () {
   if (!isInstalled()) {
     warn(`No Capacitor support detected. Aborting.`)
     return
@@ -111,8 +110,8 @@ function remove () {
   log(`Capacitor support was removed`)
 }
 
-function addPlatform (target) {
-  const ensureConsistency = require('./ensure-consistency')
+async function addPlatform (target) {
+  const { ensureConsistency } = await import('./ensure-consistency.js')
   ensureConsistency()
 
   // if it has the platform
@@ -120,7 +119,7 @@ function addPlatform (target) {
     return
   }
 
-  const { capBin, capVersion } = require('./cap-cli')
+  const { capBin, capVersion } = await import('./cap-cli.js')
 
   if (capVersion >= 3) {
     nodePackager.installPackage(
@@ -135,10 +134,4 @@ function addPlatform (target) {
     ['add', target],
     { cwd: appPaths.capacitorDir }
   )
-}
-
-module.exports = {
-  isInstalled,
-  add,
-  remove
 }

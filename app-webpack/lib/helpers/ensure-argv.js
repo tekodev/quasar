@@ -1,3 +1,4 @@
+
 import { fatal } from './logger.js'
 
 export function ensureArgv (argv, cmd) {

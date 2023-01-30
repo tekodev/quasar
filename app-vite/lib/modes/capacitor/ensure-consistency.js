@@ -1,10 +1,11 @@
-const fs = require('fs')
-const fse = require('fs-extra')
 
-const appPaths = require('../../app-paths')
-const nodePackager = require('../../helpers/node-packager')
+import fs from 'node:fs'
+import fse from 'fs-extra'
 
-function ensureWWW (forced) {
+import appPaths from '../../app-paths.js'
+import { nodePackager } from '../../helpers/node-packager.js'
+
+export function ensureWWW (forced) {
   const www = appPaths.resolve.capacitor('www')
 
   forced === true && fse.removeSync(www)
@@ -17,7 +18,7 @@ function ensureWWW (forced) {
   }
 }
 
-function ensureDeps () {
+export function ensureDeps () {
   if (fs.existsSync(appPaths.resolve.capacitor('node_modules'))) {
     return
   }
@@ -28,10 +29,7 @@ function ensureDeps () {
   })
 }
 
-module.exports = function () {
+export function ensureConsistency () {
   ensureWWW()
   ensureDeps()
 }
-
-module.exports.ensureWWW = ensureWWW
-module.exports.ensureDeps = ensureDeps

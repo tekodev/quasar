@@ -1,6 +1,10 @@
-const appPaths = require('../../app-paths')
-const getPackage = require('../../helpers/get-package')
-const { fatal } = require('../../helpers/logger')
+
+import { readFileSync } from 'node:fs'
+
+import appPaths from '../app-paths.js'
+import { fatal } from '../helpers/logger.js'
+import { nodePackager } from '../helpers/node-packager.js'
+import { appPackageJson } from '../../helpers/app-package-json.js'
 
 const versions = {
   packager: '15.2.0',
@@ -12,26 +16,21 @@ function isValidName (bundlerName) {
 }
 
 function installBundler (bundlerName) {
-  const nodePackager = require('../../helpers/node-packager')
-
   nodePackager.installPackage(
     `electron-${bundlerName}@^${versions[bundlerName]}`,
     { isDev: true, displayName: `electron-${bundlerName}` }
   )
 }
 
-function bundlerIsInstalled (bundlerName) {
-  const appPkg = require(appPaths.resolve.app('package.json'))
+export function bundlerIsInstalled (bundlerName) {
   const pgkName = `electron-${bundlerName}`
   return (
-    (appPkg.devDependencies && appPkg.devDependencies[pgkName])
-    || (appPkg.dependencies && appPkg.dependencies[pgkName])
+    (appPackageJson.devDependencies && appPackageJson.devDependencies[pgkName])
+    || (appPackageJson.dependencies && appPackageJson.dependencies[pgkName])
   ) !== void 0
 }
 
-module.exports.bundlerIsInstalled = bundlerIsInstalled
-
-module.exports.ensureInstall = function (bundlerName) {
+export function ensureInstall (bundlerName) {
   if (!isValidName(bundlerName)) {
     fatal(`Unknown bundler "${ bundlerName }" for Electron`)
   }
@@ -41,7 +40,7 @@ module.exports.ensureInstall = function (bundlerName) {
   }
 }
 
-module.exports.getDefaultName = function () {
+export function getDefaultName () {
   if (bundlerIsInstalled('packager')) {
     return 'packager'
   }
@@ -51,8 +50,4 @@ module.exports.getDefaultName = function () {
   }
 
   return 'packager'
-}
-
-module.exports.getBundler = function (bundlerName) {
-  return getPackage(`electron-${bundlerName}`)
 }

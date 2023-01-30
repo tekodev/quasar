@@ -1,6 +1,9 @@
+
+import { readFileSync } from 'node:fs'
+
 console.log(
-  require('fs').readFileSync(
-    require('path').join(__dirname, '../../assets/logo.art'),
+  readFileSync(
+    new URL('../../assets/logo.art', import.meta.url).pathname,
     'utf8'
   )
 )

@@ -1,13 +1,14 @@
 
-const { join } = require('path')
-const { readFileSync, writeFileSync } = require('fs')
+import { join } from 'node:path'
+import { readFileSync, writeFileSync } from 'node:fs'
 
-const {
+import {
   createViteConfig, extendViteConfig,
   createBrowserEsbuildConfig, extendEsbuildConfig
-} = require('../../config-tools')
+} from '../../config-tools.js'
 
-const appPaths = require('../../app-paths')
+import appPaths from '../../app-paths.js'
+
 const contentScriptTemplate = readFileSync(
   appPaths.resolve.cli('templates/bex/entry-content-script.js'),
   'utf-8'
@@ -25,9 +26,9 @@ function createScript (quasarConf, scriptName, entry) {
   return extendEsbuildConfig(cfg, quasarConf.bex, 'BexScripts')
 }
 
-module.exports = {
-  vite: quasarConf => {
-    const cfg = createViteConfig(quasarConf)
+export const bexConfig = {
+  vite: async quasarConf => {
+    const cfg = await createViteConfig(quasarConf)
 
     cfg.build.outDir = join(quasarConf.build.distDir, 'www')
 

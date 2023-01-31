@@ -461,14 +461,14 @@ export class QuasarConfFile {
 
       rawDefine: {
         // vue
-        __VUE_OPTIONS_API__: cfg.build.vueOptionsAPI !== false,
-        __VUE_PROD_DEVTOOLS__: cfg.metaConf.debugging,
+        __VUE_OPTIONS_API__: '' + (cfg.build.vueOptionsAPI !== false),
+        __VUE_PROD_DEVTOOLS__: '' + cfg.metaConf.debugging,
 
         // vue-i18n
-        __VUE_I18N_FULL_INSTALL__: true,
-        __VUE_I18N_LEGACY_API__: true,
-        __VUE_I18N_PROD_DEVTOOLS__: cfg.metaConf.debugging,
-        __INTLIFY_PROD_DEVTOOLS__: cfg.metaConf.debugging
+        __VUE_I18N_FULL_INSTALL__: 'true',
+        __VUE_I18N_LEGACY_API__: 'true',
+        __VUE_I18N_PROD_DEVTOOLS__: '' + cfg.metaConf.debugging,
+        __INTLIFY_PROD_DEVTOOLS__: '' + cfg.metaConf.debugging
       },
 
       alias: {

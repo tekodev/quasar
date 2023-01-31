@@ -11,7 +11,7 @@ import {
 
 import { quasarVitePluginPwaResources } from './vite-plugin.pwa-resources.js'
 
-export const pwaConfig = {
+export const modeConfig = {
   vite: async quasarConf => {
     const cfg = await createViteConfig(quasarConf)
 

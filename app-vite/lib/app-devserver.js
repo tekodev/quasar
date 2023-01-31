@@ -8,7 +8,7 @@ function getConfSnapshot (extractFn, quasarConf) {
   return extractFn(quasarConf).map(item => item ? encodeForDiff(item) : '')
 }
 
-export class AppDevserver extends AppTool {
+export class AppDevServer extends AppTool {
   #diffList = {}
   #entryFiles
   #runQueue = Promise.resolve()

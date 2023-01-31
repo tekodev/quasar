@@ -3,7 +3,7 @@ import fse from 'fs-extra'
 import { join } from 'node:path'
 
 import AppBuilder from '../../app-builder.js'
-import { cordovaConfig } from './cordova-config.js'
+import { modeConfig } from './cordova-config.js'
 
 import { fatal } from '../../helpers/logger.js'
 import appPaths from '../../app-paths.js'
@@ -11,6 +11,7 @@ import { CordovaConfigFile } from './config-file.js'
 import { spawn } from '../../helpers/spawn.js'
 import { openIDE } from '../../helpers/open-ide.js'
 import { onShutdown } from '../../helpers/on-shutdown.js'
+import { fixAndroidCleartext } from '../../helpers/fix-android-cleartext.js'
 
 export class AppProdBuilder extends AppBuilder {
   #cordovaConfigFile = new CordovaConfigFile()
@@ -21,7 +22,7 @@ export class AppProdBuilder extends AppBuilder {
   }
 
   async #buildFiles () {
-    const viteConfig = await cordovaConfig.vite(this.quasarConf)
+    const viteConfig = await modeConfig.vite(this.quasarConf)
     await this.buildWithVite('Cordova UI', viteConfig)
 
     /**
@@ -49,7 +50,7 @@ export class AppProdBuilder extends AppBuilder {
     const target = this.ctx.targetName
 
     if (target === 'android') {
-      require('../../helpers/fix-android-cleartext')('cordova')
+      fixAndroidCleartext('cordova')
     }
 
     const buildPath = appPaths.resolve.cordova(

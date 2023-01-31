@@ -3,13 +3,13 @@ import { createServer } from 'vite'
 import chokidar from 'chokidar'
 import debounce from 'lodash/debounce.js'
 
-import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
+import { AppDevServer as QuasarDevServer } from '../../app-devserver.js'
 import { openBrowser } from '../../helpers/open-browser.js'
-import { pwaConfig } from './pwa-config.js'
+import { modeConfig } from './pwa-config.js'
 import { injectPwaManifest, buildPwaServiceWorker } from './utils.js'
 import { log } from '../../helpers/logger.js'
 
-export class AppDevServer extends QuasarDevserver {
+export class AppDevServer extends QuasarDevServer {
   #server
 
   // also update ssr-devserver.js when changing here
@@ -72,7 +72,7 @@ export class AppDevServer extends QuasarDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await pwaConfig.vite(quasarConf)
+    const viteConfig = await modeConfig.vite(quasarConf)
 
     injectPwaManifest(quasarConf, true)
 
@@ -124,14 +124,14 @@ export class AppDevServer extends QuasarDevserver {
       await this.#pwaServiceWorkerWatcher.close()
     }
 
-    const workboxConfig = await pwaConfig.workbox(quasarConf)
+    const workboxConfig = await modeConfig.workbox(quasarConf)
 
     if (quasarConf.pwa.workboxMode === 'injectManifest') {
-      const esbuildConfig = await pwaConfig.customSw(quasarConf)
-      await this.buildWithEsbuild('injectManifest Custom SW', esbuildConfig, () => {
+      const esbuildConfig = await modeConfig.customSw(quasarConf)
+      await this.watchWithEsbuild('injectManifest Custom SW', esbuildConfig, () => {
         queue(() => buildPwaServiceWorker(quasarConf.pwa.workboxMode, workboxConfig))
-      }).then(result => {
-        this.#pwaServiceWorkerWatcher = { close: result.stop }
+      }).then(esbuildCtx => {
+        this.#pwaServiceWorkerWatcher = { close: esbuildCtx.dispose }
       })
     }
 

@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import fse from 'fs-extra'
 
 import AppBuilder from '../../app-builder'
-import { capacitorConfig } from './capacitor-config.js'
+import { modeConfig } from './capacitor-config.js'
 
 import appPaths from '../../app-paths.js'
 import { log, warn, fatal } from '../../helpers/logger.js'
@@ -27,7 +27,7 @@ export class AppProdBuilder extends AppBuilder {
   }
 
   async #buildFiles () {
-    const viteConfig = await capacitorConfig.vite(this.quasarConf)
+    const viteConfig = await modeConfig.vite(this.quasarConf)
     await this.buildWithVite('Capacitor UI', viteConfig)
     this.printSummary(viteConfig.build.outDir)
   }

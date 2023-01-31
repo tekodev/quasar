@@ -2,7 +2,7 @@
 import { join } from 'node:path'
 
 import { AppBuilder } from '../../app-builder.js'
-import { electronConfig } from './electron-config.js'
+import { modeConfig } from './electron-config.js'
 
 import appPaths from '../../app-paths.js'
 import { log, warn, fatal, progress } from '../../helpers/logger.js'
@@ -26,14 +26,14 @@ export class AppProdBuilder extends AppBuilder {
   }
 
   async #buildFiles () {
-    const viteConfig = await electronConfig.vite(this.quasarConf)
+    const viteConfig = await modeConfig.vite(this.quasarConf)
     await this.buildWithVite('Electron UI', viteConfig)
 
-    const mainConfig = await electronConfig.main(this.quasarConf)
+    const mainConfig = await modeConfig.main(this.quasarConf)
     await this.buildWithEsbuild('Electron Main', mainConfig)
     this.#replaceAppUrl(mainConfig.outfile)
 
-    const preloadConfig = await electronConfig.preload(this.quasarConf)
+    const preloadConfig = await modeConfig.preload(this.quasarConf)
     await this.buildWithEsbuild('Electron Preload', preloadConfig)
     this.#replaceAppUrl(preloadConfig.outfile)
   }

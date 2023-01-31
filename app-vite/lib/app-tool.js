@@ -1,7 +1,6 @@
 
 import { build as viteBuild } from 'vite'
-import { build as esBuild } from 'esbuild'
-import debounce from 'lodash/debounce.js'
+import esbuild from 'esbuild'
 
 import { clean } from './artifacts.js'
 import { progress } from './helpers/logger.js'
@@ -26,26 +25,61 @@ export class AppTool {
     done('___ compiled with success')
   }
 
-  async buildWithEsbuild (threadName, esbuildConfig, onRebuildSuccess) {
-    const cfg = onRebuildSuccess !== void 0
-      ? {
-        ...esbuildConfig,
-        watch: {
-          onRebuild: debounce(error => {
-            if (!error) {
-              onRebuildSuccess()
-            }
-          }, 600)
-        }
-      }
-      : esbuildConfig
+  async watchWithEsbuild (threadName, esbuildConfig, onRebuildSuccess) {
+    let resolve, esbuildCtx
 
+    if (esbuildConfig.plugins === void 0) {
+      esbuildConfig.plugins = []
+    }
+
+    esbuildConfig.plugins.push({
+      name: 'quasar:on-rebuild',
+      setup (build) {
+        let isFirst = true
+        let done
+
+        build.onStart(() => {
+          done = progress(
+            'Compiling of ___ with Esbuild in progress...',
+            threadName
+          )
+        })
+
+        build.onEnd(result => {
+          if (result.errors.length !== 0) {
+            return
+          }
+
+          done('___ compiled with success')
+
+          if (isFirst === true) {
+            isFirst = false
+            resolve()
+            return
+          }
+
+          onRebuildSuccess()
+        })
+      }
+    })
+
+    esbuildCtx = await esbuild.context(esbuildConfig)
+    await esbuildCtx.watch()
+
+    return new Promise(res => {
+      resolve = () => {
+        res(esbuildCtx)
+      }
+    })
+  }
+
+  async buildWithEsbuild (threadName, esbuildConfig) {
     const done = progress(
       'Compiling of ___ with Esbuild in progress...',
       threadName
     )
 
-    const result = await esBuild(cfg)
+    const result = await esbuild.build(esbuildConfig)
 
     done('___ compiled with success')
     return result

@@ -7,7 +7,7 @@ import Ouch from 'ouch'
 import serialize from 'serialize-javascript'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
+import { AppDevServer as QuasarDevServer } from '../../app-devserver.js'
 import { getPackage } from '../../helpers/get-package.js'
 import { openBrowser } from '../../helpers/open-browser.js'
 import { ssrConfig } from './ssr-config.js'
@@ -72,7 +72,7 @@ function renderStoreState (ssrContext) {
   return `<script${nonce}>window.__INITIAL_STATE__=${state};${autoRemove}</script>`
 }
 
-export class AppDevServer extends QuasarDevserver {
+export class AppDevServer extends QuasarDevServer {
   #closeWebserver
   #viteClient
   #viteServer
@@ -163,15 +163,15 @@ export class AppDevServer extends QuasarDevserver {
     }
 
     const esbuildConfig = await ssrConfig.webserver(quasarConf)
-    await this.buildWithEsbuild('SSR Webserver', esbuildConfig, () => {
+    await this.watchWithEsbuild('SSR Webserver', esbuildConfig, () => {
       if (this.#closeWebserver !== void 0) {
         queue(async () => {
           await this.#closeWebserver()
           return this.#bootWebserver(quasarConf)
         })
       }
-    }).then(result => {
-      this.#webserverWatcher = { close: result.stop }
+    }).then(esbuildCtx => {
+      this.#webserverWatcher = { close: esbuildCtx.dispose }
     })
   }
 
@@ -405,10 +405,10 @@ export class AppDevServer extends QuasarDevserver {
 
     if (quasarConf.pwa.workboxMode === 'injectManifest') {
       const esbuildConfig = await config.customSw(quasarConf)
-      await this.buildWithEsbuild('injectManifest Custom SW', esbuildConfig, () => {
+      await this.watchWithEsbuild('injectManifest Custom SW', esbuildConfig, () => {
         queue(() => buildPwaServiceWorker(quasarConf.pwa.workboxMode, workboxConfig))
-      }).then(result => {
-        this.#pwaServiceWorkerWatcher = { close: result.stop }
+      }).then(esbuildCtx => {
+        this.#pwaServiceWorkerWatcher = { close: esbuildCtx.dispose }
       })
     }
 

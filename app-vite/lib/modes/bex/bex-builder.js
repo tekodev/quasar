@@ -5,7 +5,7 @@ import archiver from 'archiver'
 
 import { AppBuilder } from '../../app-builder.js'
 import { progress } from '../../helpers/logger.js'
-import { bexConfig} from './bex-config.js'
+import { modeConfig} from './bex-config.js'
 import { createManifest, copyBexAssets } from './utils.js'
 import { appPackageJson } from '../../helpers/app-package-json.js'
 
@@ -13,21 +13,21 @@ const { name } = appPackageJson
 
 export class AppProdBuilder extends AppBuilder {
   async build () {
-    const viteConfig = await bexConfig.vite(this.quasarConf)
+    const viteConfig = await modeConfig.vite(this.quasarConf)
     await this.buildWithVite('BEX UI', viteConfig)
 
     const { err } = createManifest(this.quasarConf)
     if (err !== void 0) { process.exit(1) }
 
-    const backgroundConfig = await bexConfig.backgroundScript(this.quasarConf)
+    const backgroundConfig = await modeConfig.backgroundScript(this.quasarConf)
     await this.buildWithEsbuild('Background Script', backgroundConfig)
 
     for (const name of this.quasarConf.bex.contentScripts) {
-      const contentConfig = await bexConfig.contentScript(this.quasarConf, name)
+      const contentConfig = await modeConfig.contentScript(this.quasarConf, name)
       await this.buildWithEsbuild('Content Script', contentConfig)
     }
 
-    const domConfig = await bexConfig.domScript(this.quasarConf)
+    const domConfig = await modeConfig.domScript(this.quasarConf)
     await this.buildWithEsbuild('Dom Script', domConfig)
 
     copyBexAssets(this.quasarConf)

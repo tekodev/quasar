@@ -46,11 +46,15 @@ if (argv.help) {
   process.exit(0)
 }
 
-require('../helpers/ensure-argv')(argv, 'inspect')
-require('../helpers/banner-global')(argv, argv.cmd)
+import { ensureArgv } from '../helpers/ensure-argv.js'
+ensureArgv(argv, 'inspect')
+
+import { displayBanner } from '../helpers/banner-global.js'
+displayBanner(argv, argv.cmd)
 
 import { log, fatal } from '../helpers/logger.js'
-import { isInstalled } from `../modes/${argv.mode}/${argv.mode}-installation.js`
+
+const { isInstalled } = await import(`../modes/${argv.mode}/${argv.mode}-installation.js`)
 
 if (isInstalled() !== true) {
   fatal('Requested mode for inspection is NOT installed.')
@@ -85,10 +89,10 @@ async function inspect () {
     fatal(quasarConf.error, 'FAIL')
   }
 
-  const { generateConfig } = await import(`../modes/${argv.mode}/${argv.mode}-config.js`)
+  const { modeConfig } = await import(`../modes/${argv.mode}/${argv.mode}-config.js`)
 
   const cfgEntries = []
-  let threadList = Object.keys(generateConfig)
+  let threadList = Object.keys(modeConfig)
 
   if (argv.thread) {
     if (threadList.includes(argv.thread) === false) {
@@ -101,7 +105,7 @@ async function inspect () {
   for (const name of threadList) {
     cfgEntries.push({
       name,
-      object: await generateConfig[ name ](quasarConf)
+      object: await modeConfig[ name ](quasarConf)
     })
   }
 

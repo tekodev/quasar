@@ -110,7 +110,9 @@ export async function createViteConfig (quasarConf, quasarRunMode) {
       target: quasarRunMode === 'ssr-server'
         ? build.target.node
         : build.target.browser,
-      polyfillModulePreload: build.polyfillModulePreload,
+      modulePreload: build.polyfillModulePreload === true
+        ? true
+        : { polyfill: false },
       emptyOutDir: false,
       minify: build.minify,
       sourcemap: build.sourcemap === true
@@ -154,8 +156,9 @@ export async function createViteConfig (quasarConf, quasarRunMode) {
 
     const analyze = quasarConf.build.analyze
     if (analyze) {
+      const { default: rollupPluginVisualizer } = await import('rollup-plugin-visualizer')
       viteConf.plugins.push(
-        require('rollup-plugin-visualizer').visualizer({
+        rollupPluginVisualizer.visualizer({
           open: true,
           filename: `.quasar/stats-${ quasarRunMode }.html`,
           ...(Object(analyze) === analyze ? analyze : {})

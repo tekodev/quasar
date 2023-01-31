@@ -2,17 +2,17 @@
 import { createServer } from 'vite'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
+import { AppDevServer as QuasarDevServer } from '../../app-devserver.js'
 import { CapacitorConfigFile } from './config-file.js'
 import { log, fatal } from '../../helpers/logger.js'
 import { spawn } from '../../helpers/spawn.js'
 import { onShutdown } from '../../helpers/on-shutdown.js'
 import { openIDE } from '../../helpers/open-ide.js'
-import { capacitorConfig } from './capacitor-config.js'
-
+import { modeConfig } from './capacitor-config.js'
 import { capBin } from './cap-cli.js'
+import { fixAndroidCleartext } from '../../helpers/fix-android-cleartext.js'
 
-export class AppDevServer extends QuasarDevserver {
+export class AppDevServer extends QuasarDevServer {
   #pid = 0
   #server
   #target
@@ -29,7 +29,7 @@ export class AppDevServer extends QuasarDevserver {
     this.#target = opts.quasarConf.ctx.targetName
 
     if (this.#target === 'android') {
-      require('../../helpers/fix-android-cleartext')('capacitor')
+      fixAndroidCleartext('capacitor')
     }
 
     onShutdown(() => {
@@ -54,7 +54,7 @@ export class AppDevServer extends QuasarDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await capacitorConfig.vite(quasarConf)
+    const viteConfig = await modeConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()

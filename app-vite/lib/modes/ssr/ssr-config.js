@@ -8,7 +8,7 @@ import {
 
 import appPaths from '../../app-paths.js'
 
-import { pwaConfig } from '../pwa/pwa-config.js'
+import { modeConfig as pwaConfig } from '../pwa/pwa-config.js'
 import { quasarVitePluginPwaResources } from '../pwa/vite-plugin.pwa-resources.js'
 
 export const ssrConfig = {

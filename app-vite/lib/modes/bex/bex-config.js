@@ -26,7 +26,7 @@ async function createScript (quasarConf, scriptName, entry) {
   return extendEsbuildConfig(cfg, quasarConf.bex, 'BexScripts')
 }
 
-export const bexConfig = {
+export const modeConfig = {
   vite: async quasarConf => {
     const cfg = await createViteConfig(quasarConf)
 

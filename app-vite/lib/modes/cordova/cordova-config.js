@@ -3,7 +3,7 @@ import appPaths from '../../app-paths.js'
 import { createViteConfig, extendViteConfig } from '../../config-tools.js'
 import { cordovaPlatformInject } from './vite-plugin.dev.cordova-platform-inject.js'
 
-export const cordovaConfig = {
+export const modeConfig = {
   vite: async quasarConf => {
     const cfg = await createViteConfig(quasarConf)
 

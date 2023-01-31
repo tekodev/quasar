@@ -1,12 +1,20 @@
 
+import { readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
 import { createServer } from 'vite'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
+import { AppDevServer as QuasarDevServer } from '../../app-devserver.js'
 import { log, warn, fatal } from '../../helpers/logger.js'
 import { spawn } from '../../helpers/spawn.js'
-import { getPackage } from '../../helpers/get-package.js'
-import { electronConfig } from './electron-config.js'
+import { getPackagePath } from '../../helpers/get-package-path.js'
+import { modeConfig } from './electron-config.js'
+
+const electronPkgPath = getPackagePath('electron/package.json')
+const electronPkg = JSON.parse(
+  readFileSync(electronPkgPath, 'utf-8')
+)
+const electronExecutable = join(dirname(electronPkgPath), electronPkg.bin.electron)
 
 function wait (time) {
   return new Promise(resolve => {
@@ -14,7 +22,7 @@ function wait (time) {
   })
 }
 
-export class AppDevServer extends QuasarDevserver {
+export class AppDevServer extends QuasarDevServer {
   #pid = 0
   #server
   #stopMain
@@ -56,7 +64,7 @@ export class AppDevServer extends QuasarDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await electronConfig.vite(quasarConf)
+    const viteConfig = await modeConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()
@@ -76,26 +84,26 @@ export class AppDevServer extends QuasarDevserver {
     let mainReady = false
     let preloadReady = false
 
-    const cfgMain = await electronConfig.main(quasarConf)
-    const cfgPreload = await electronConfig.preload(quasarConf)
+    const cfgMain = await modeConfig.main(quasarConf)
+    const cfgPreload = await modeConfig.preload(quasarConf)
 
     return Promise.all([
-      this.buildWithEsbuild('Electron Main', cfgMain, () => {
+      this.watchWithEsbuild('Electron Main', cfgMain, () => {
         if (preloadReady === true) {
           this.#runElectron(quasarConf)
         }
-      }).then(result => {
+      }).then(esbuildCtx => {
         mainReady = true
-        this.#stopMain = result.stop
+        this.#stopMain = esbuildCtx.dispose
       }),
 
-      this.buildWithEsbuild('Electron Preload', cfgPreload, () => {
+      this.watchWithEsbuild('Electron Preload', cfgPreload, () => {
         if (mainReady === true) {
           this.#runElectron(quasarConf)
         }
-      }).then(result => {
+      }).then(esbuildCtx => {
         preloadReady = true
-        this.#stopPreload = result.stop
+        this.#stopPreload = esbuildCtx.dispose
       })
     ]).then(() => {
       return this.#runElectron(quasarConf)
@@ -116,7 +124,7 @@ export class AppDevServer extends QuasarDevserver {
     }
 
     this.#pid = spawn(
-      await getPackage('electron'),
+      electronExecutable,
       [
         '--inspect=' + quasarConf.electron.inspectPort,
         appPaths.resolve.app(`.quasar/electron/electron-main.js`)

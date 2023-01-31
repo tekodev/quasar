@@ -15,7 +15,7 @@ const target = appPaths.resolve.capacitor('node_modules')
 const depsList = Object.keys(dependencies)
 const capacitorRE = new RegExp('^(' + depsList.map(escapeRegexString).join('|') + ')')
 
-export const capacitorConfig = {
+export const modeConfig = {
   vite: async quasarConf => {
     const cfg = await createViteConfig(quasarConf)
 

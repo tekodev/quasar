@@ -2,16 +2,16 @@
 import { createServer } from 'vite'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
+import { AppDevServer as QuasarDevServer } from '../../app-devserver.js'
 import { CordovaConfigFile } from './config-file.js'
 import { log, fatal } from '../../helpers/logger.js'
 import { spawn } from '../../helpers/spawn.js'
 import { onShutdown } from '../../helpers/on-shutdown.js'
 import { openIDE } from '../../helpers/open-ide.js'
-import { cordovaConfig } from './cordova-config.js'
+import { modeConfig } from './cordova-config.js'
 import { fixAndroidCleartext } from '../../helpers/fix-android-cleartext.js'
 
-export class AppDevServer extends QuasarDevserver {
+export class AppDevServer extends QuasarDevServer {
   #pid = 0
   #server
   #ctx
@@ -55,7 +55,7 @@ export class AppDevServer extends QuasarDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await cordovaConfig.vite(quasarConf)
+    const viteConfig = await modeConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()
@@ -70,7 +70,7 @@ export class AppDevServer extends QuasarDevserver {
         ['prepare', this.#target].concat(this.argv._)
       )
 
-      await openIde('cordova', quasarConf.bin, this.#target, true)
+      await openIDE('cordova', quasarConf.bin, this.#target, true)
       return
     }
 

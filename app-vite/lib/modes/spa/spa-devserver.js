@@ -1,11 +1,11 @@
 
 import { createServer } from 'vite'
 
-import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
+import { AppDevServer as QuasarDevServer } from '../../app-devserver.js'
 import { openBrowser } from '../../helpers/open-browser.js'
-import { spaConfig } from './spa-config.js'
+import { modeConfig } from './spa-config.js'
 
-export class AppDevServer extends QuasarDevserver {
+export class AppDevServer extends QuasarDevServer {
   #server
 
   run (quasarConf, __isRetry) {
@@ -21,7 +21,7 @@ export class AppDevServer extends QuasarDevserver {
       this.#server.close()
     }
 
-    const viteConfig = await spaConfig.vite(quasarConf)
+    const viteConfig = await modeConfig.vite(quasarConf)
 
     this.#server = await createServer(viteConfig)
     await this.#server.listen()

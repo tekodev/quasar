@@ -1,5 +1,6 @@
 
-import { join, existsSync } from 'node:path'
+import { join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
 import fse from 'fs-extra'
 
 import appPaths from '../../app-paths.js'

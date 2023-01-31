@@ -48,7 +48,7 @@ Now we have our final release binary called HelloWorld.apk and we can release th
 
 (There are a few other ways to sign APKs. Refer to the official Android App Signing documentation for more information.)
 
-### Google Play Store
+### Google Play Storee
 Now that we have our release APK ready for the Google Play Store, we can create a Play Store listing and upload our APK.
 
 To start, you’ll need to visit the [Google Play Store Developer Console](https://play.google.com/apps/publish) and create a new developer account. Unfortunately, this is not free. However, the cost is only $25 compared to Apple’s $99.

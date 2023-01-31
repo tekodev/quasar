@@ -1,15 +1,15 @@
 
 import debounce from 'lodash/debounce.js'
 import chokidar from 'chokidar'
-import { copySync } from 'fs-extra'
+import fse from 'fs-extra'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { bexConfig } from './bex-config.js'
 import { createManifest, copyBexAssets } from './utils.js'
 import { clean, add } from '../../artifacts.js'
 
-export class BexDevServer extends AppDevserver {
+export class AppDevserver extends QuasarDevserver {
   #uiWatchers = []
   #scriptWatchers = []
 
@@ -137,7 +137,7 @@ export class BexDevServer extends AppDevserver {
     const watcher = chokidar.watch(appPaths.publicDir, { ignoreInitial: true })
 
     const copy = debounce(() => {
-      copySync(appPaths.publicDir, quasarConf.build.distDir)
+      fse.copySync(appPaths.publicDir, quasarConf.build.distDir)
       this.printBanner(quasarConf)
     }, 1000)
 

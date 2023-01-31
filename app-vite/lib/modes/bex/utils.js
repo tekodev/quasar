@@ -1,6 +1,6 @@
 
-import { join } from 'node:path'
-import { writeFileSync, copySync, existsSync } from 'fs-extra'
+import { join, existsSync } from 'node:path'
+import fse from 'fs-extra'
 
 import appPaths from '../../app-paths.js'
 import { warn } from '../../helpers/logger.js'
@@ -52,7 +52,7 @@ export function createManifest (quasarConf) {
     quasarConf.bex.extendBexManifestJson(json)
   }
 
-  writeFileSync(
+  fse.writeFileSync(
     join(quasarConf.build.distDir, 'manifest.json'),
     JSON.stringify(json, null, quasarConf.build.minify === true ? void 0 : 2),
     'utf-8'
@@ -64,12 +64,12 @@ export function createManifest (quasarConf) {
 export function copyBexAssets (quasarConf) {
   const folders = [ assetsFolder, iconsFolder ]
 
-  copySync(assetsFolder, join(quasarConf.build.distDir, 'assets'))
-  copySync(iconsFolder, join(quasarConf.build.distDir, 'icons'))
+  fse.copySync(assetsFolder, join(quasarConf.build.distDir, 'assets'))
+  fse.copySync(iconsFolder, join(quasarConf.build.distDir, 'icons'))
 
   if (existsSync(localesFolder) === true) {
     folders.push(localesFolder)
-    copySync(localesFolder, join(quasarConf.build.distDir, '_locales'))
+    fse.copySync(localesFolder, join(quasarConf.build.distDir, '_locales'))
   }
 
   return folders

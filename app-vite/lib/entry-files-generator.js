@@ -1,7 +1,7 @@
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, lstatSync } from 'node:fs'
-import { removeSync, copySync } from 'fs-extra'
 import path from 'node:path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, lstatSync } from 'node:fs'
+import fse from 'fs-extra'
 import compileTemplate from 'lodash/template.js'
 
 import appPaths from './app-paths.js'
@@ -60,7 +60,7 @@ class EntryFilesGenerator {
       mkdirSync(quasarFolder)
     }
     else if (!lstatSync(quasarFolder).isDirectory()) {
-      removeSync(quasarFolder)
+      fse.removeSync(quasarFolder)
       mkdirSync(quasarFolder)
     }
 
@@ -69,9 +69,11 @@ class EntryFilesGenerator {
     })
 
     this.#folders.forEach(folder => {
-      copySync(folder.src, folder.dest)
+      fse.copySync(folder.src, folder.dest)
     })
   }
 }
 
-export default ctx => new EntryFilesGenerator(ctx)
+export function createEntryFilesGenerator (ctx) {
+  return new EntryFilesGenerator(ctx)
+}

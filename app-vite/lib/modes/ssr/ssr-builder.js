@@ -11,7 +11,7 @@ import { appPackageJson } from '../../helpers/app-package-json.js'
 
 import { injectPwaManifest, buildPwaServiceWorker } from '../pwa/utils.js'
 
-export class SsrBuilder extends AppBuilder {
+export class AppProdBuilder extends AppBuilder {
   async build () {
     await this.#buildWebserver()
     await this.#copyWebserverFiles()
@@ -127,7 +127,7 @@ export class SsrBuilder extends AppBuilder {
 
     const templateFn = getProdSsrTemplateFn(html, this.quasarConf)
 
-    this.writeFile('render-template.js', `module.exports=${templateFn.source}`)
+    this.writeFile('render-template.js', `export default ${templateFn.source}`)
 
     if (this.quasarConf.ssr.pwa === true) {
       this.writeFile(

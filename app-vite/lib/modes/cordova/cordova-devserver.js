@@ -2,7 +2,7 @@
 import { createServer } from 'vite'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { CordovaConfigFile } from './config-file.js'
 import { log, fatal } from '../../helpers/logger.js'
 import { spawn } from '../../helpers/spawn.js'
@@ -11,7 +11,7 @@ import { openIDE } from '../../helpers/open-ide.js'
 import { cordovaConfig } from './cordova-config.js'
 import { fixAndroidCleartext } from '../../helpers/fix-android-cleartext.js'
 
-export class CordovaDevServer extends AppDevserver {
+export class AppDevServer extends QuasarDevserver {
   #pid = 0
   #server
   #ctx

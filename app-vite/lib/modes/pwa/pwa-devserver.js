@@ -3,13 +3,13 @@ import { createServer } from 'vite'
 import chokidar from 'chokidar'
 import debounce from 'lodash/debounce.js'
 
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { openBrowser } from '../../helpers/open-browser.js'
 import { pwaConfig } from './pwa-config.js'
 import { injectPwaManifest, buildPwaServiceWorker } from './utils.js'
 import { log } from '../../helpers/logger.js'
 
-export class PwaDevServer extends AppDevserver {
+export class AppDevServer extends QuasarDevserver {
   #server
 
   // also update ssr-devserver.js when changing here

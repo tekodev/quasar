@@ -12,7 +12,7 @@ import { spawn } from '../../helpers/spawn.js'
 import { openIDE } from '../../helpers/open-ide.js'
 import { onShutdown } from '../../helpers/on-shutdown.js'
 
-export class CapacitorBuilder extends AppBuilder {
+export class AppProdBuilder extends AppBuilder {
   #cordovaConfigFile = new CordovaConfigFile()
 
   async build () {

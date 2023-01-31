@@ -6,7 +6,7 @@ import { warning, error, success } from '../helpers/logger.js'
 
 const errorFiles = new Set()
 
-export function viteEslintPlugin (quasarConf, getLinterOpts) {
+export function quasarVitePluginESLint (quasarConf, getLinterOpts) {
   const {
     eslint,
     filter,

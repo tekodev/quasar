@@ -1,11 +1,11 @@
 
 import { createServer } from 'vite'
 
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { openBrowser } from '../../helpers/open-browser.js'
 import { spaConfig } from './spa-config.js'
 
-export class SpaDevServer extends AppDevserver {
+export class AppDevServer extends QuasarDevserver {
   #server
 
   run (quasarConf, __isRetry) {

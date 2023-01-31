@@ -7,7 +7,7 @@ import Ouch from 'ouch'
 import serialize from 'serialize-javascript'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { getPackage } from '../../helpers/get-package.js'
 import { openBrowser } from '../../helpers/open-browser.js'
 import { ssrConfig } from './ssr-config.js'
@@ -72,7 +72,7 @@ function renderStoreState (ssrContext) {
   return `<script${nonce}>window.__INITIAL_STATE__=${state};${autoRemove}</script>`
 }
 
-export class SsrDevServer extends AppDevserver {
+export class AppDevServer extends QuasarDevserver {
   #closeWebserver
   #viteClient
   #viteServer

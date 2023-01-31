@@ -1,10 +1,12 @@
 
 import path from 'node:path'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import fse from 'fs-extra'
 import { merge } from 'webpack-merge'
 import chokidar from 'chokidar'
 import debounce from 'lodash/debounce.js'
 import { transformAssetUrls } from '@quasar/vite-plugin'
+import esbuild from 'esbuild'
 
 import appPaths from './app-paths.js'
 import { log, warn, tip } from './helpers/logger.js'
@@ -90,17 +92,19 @@ function uniquePathFilter (value, index, self) {
   return self.map(obj => obj.path).indexOf(value.path) === index
 }
 
+let addressChosenHost, addressRunning = false
+
 async function onAddress ({ host, port }, mode) {
-  if (this.chosenHost) {
-    host = this.chosenHost
+  if (addressChosenHost) {
+    host = addressChosenHost
   }
   else if (
     ['cordova', 'capacitor'].includes(mode) &&
     (!host || ['0.0.0.0', 'localhost', '127.0.0.1', '::1'].includes(host.toLowerCase()))
   ) {
-    const { getExternalIP } = await import('../lib/helpers/get-external-ip')
+    const { getExternalIP } = await import('../lib/helpers/get-external-ip.js')
     host = await getExternalIP()
-    this.chosenHost = host
+    addressChosenHost = host
   }
 
   try {
@@ -129,15 +133,31 @@ async function onAddress ({ host, port }, mode) {
 
     warn()
 
-    if (!this.running) {
+    if (addressRunning === false) {
       process.exit(1)
     }
 
     return null
   }
 
-  this.running = true
+  addressRunning = true
   return { host, port }
+}
+
+async function compileQuasarConfigFile (file, { format = 'esm' } = {}) {
+  const ext = format === 'esm' ? 'mjs' : 'cjs'
+  const compiledFile = `${file}.${Date.now()}.${ext}`
+
+  await esbuild.build({
+    platform: 'node',
+    format,
+    bundle: true,
+    packages: 'external',
+    entryPoints: [ file ],
+    outfile: compiledFile
+  })
+
+  return compiledFile
 }
 
 export class QuasarConfFile {
@@ -149,13 +169,15 @@ export class QuasarConfFile {
   constructor ({ ctx, host, port }) {
     this.#ctx = ctx
     this.#opts = { host, port }
+  }
 
+  async init () {
     if (this.#ctx.mode.pwa) {
       // Enable this when workbox bumps version (as of writing these lines, we're handling v6)
       // this.#initialVersions.workbox = getPackageMajorVersion('workbox-build')
     }
     else if (this.#ctx.mode.capacitor) {
-      const { capVersion } from './modes/capacitor/cap-cli')
+      const { capVersion } = await import('./modes/capacitor/cap-cli.js')
       const getCapPluginVersion = capVersion <= 2
         ? () => true
         : name => {
@@ -179,16 +201,16 @@ export class QuasarConfFile {
     .watch(appPaths.quasarConfigFilename, { ignoreInitial: true })
     .on('change', debounce(async () => {
       console.log()
-      log(`Reading quasar.config.js as it changed`)
+      log(`Reading quasar.config file as it changed`)
 
       const result = await this.read()
 
       if (result.error !== void 0) {
         warn(result.error)
-        warn('Changes to quasar.config.js have NOT been applied due to error above')
+        warn('Changes to quasar.config file have NOT been applied due to error above')
       }
       else {
-        log(`Applying quasar.config.js changes`)
+        log(`Applying quasar.config file changes`)
         log()
 
         onChange(result)
@@ -196,26 +218,42 @@ export class QuasarConfFile {
     }, 550))
   }
 
-  async read () {
-    let quasarConfigFunction
+  async #getQuasarConfigFn () {
+    if (existsSync(appPaths.quasarConfigFilename)) {
+      let tempFile
 
-    try {
-      delete require.cache[appPaths.quasarConfigFilename]
-      quasarConfigFunction from appPaths.quasarConfigFilename)
+      try {
+        tempFile = await compileQuasarConfigFile(appPaths.quasarConfigFilename)
+        const { default: fn } = await import(tempFile)
+
+        fse.removeSync(tempFile)
+        return fn
+      }
+      catch (e) {
+        tempFile && fse.removeSync(tempFile)
+        console.error(e)
+        return { error: 'quasar.config.js has errors' }
+      }
     }
-    catch (e) {
-      console.error(e)
-      return { error: 'quasar.config.js has JS errors' }
+
+    fatal('Could not load quasar.config file', 'FAIL')
+  }
+
+  async read () {
+    const quasarConfigFn = await this.#getQuasarConfigFn()
+
+    if (quasarConfigFn.error !== void 0) {
+      return quasarConfigFn
     }
 
     let userCfg
 
     try {
-      userCfg = await quasarConfigFunction(this.#ctx)
+      userCfg = await quasarConfigFn(this.#ctx)
     }
     catch (e) {
       console.error(e)
-      return { error: 'quasar.config.js has JS errors' }
+      return { error: 'quasar.config.js has runtime errors' }
     }
 
     const rawQuasarConf = merge({

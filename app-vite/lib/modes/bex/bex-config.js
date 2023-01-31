@@ -14,8 +14,8 @@ const contentScriptTemplate = readFileSync(
   'utf-8'
 )
 
-function createScript (quasarConf, scriptName, entry) {
-  const cfg = createBrowserEsbuildConfig(quasarConf, { cacheSuffix: `bex-${ scriptName }` })
+async function createScript (quasarConf, scriptName, entry) {
+  const cfg = await createBrowserEsbuildConfig(quasarConf, { cacheSuffix: `bex-${ scriptName }` })
 
   cfg.entryPoints = [
     entry || appPaths.resolve.app(`.quasar/bex/entry-${ scriptName }.js`)

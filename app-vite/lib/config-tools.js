@@ -1,32 +1,24 @@
 
-import { readFileSync } from 'node:fs'
-import { mergeConfig: mergeViteConfig } from 'vite'
-import { quasar: quasarVitePlugin } from '@quasar/vite-plugin'
+import { mergeConfig as mergeViteConfig } from 'vite'
+import { quasar as quasarVitePlugin } from '@quasar/vite-plugin'
 import vueVitePlugin from '@vitejs/plugin-vue'
 import { merge } from 'webpack-merge'
-import { removeSync } from 'fs-extra'
+import fse from 'fs-extra'
 
 import appPaths from './app-paths.js'
 import { parseEnv } from './parse-env.js'
 import { getPackage } from './helpers/get-package.js'
 import { log, warn, tip } from './helpers/logger.js'
 import { extensionRunner } from './app-extension/extensions-runner.js'
-import { appPackageJson } from './helpers/app-package-json.js'
 
 import { quasarVitePluginIndexHtmlTransform } from './plugins/vite.index-html-transform.js'
 import { quasarViteStripFilenameHashes } from './plugins/vite.strip-filename-hashes.js'
 
-const { dependencies:cliDepsObject } = JSON.parse(
-  readFileSync(appPaths.resolve.cli('package.json'), 'utf-8')
-)
-
-const cliDeps = Object.keys(cliDepsObject)
-
-function parseVitePlugins (entries) {
+async function parseVitePlugins (entries) {
   const acc = []
   let showTip = false
 
-  entries.forEach(entry => {
+  for (const entry of entries) {
     if (!entry) {
       // example:
       // [
@@ -72,7 +64,7 @@ function parseVitePlugins (entries) {
     }
 
     acc.push((plugin.default || plugin)(opts))
-  })
+  }
 
   if (showTip === true) {
     tip(`If you want changes to quasar.config.js > build > vitePlugins to be picked up, specify them in this form: [ [ 'plugin-name', { /* opts */ } ], ... ] or [ [ pluginFn, { /* opts */ } ], ... ]`)
@@ -81,13 +73,13 @@ function parseVitePlugins (entries) {
   return acc
 }
 
-export function createViteConfig (quasarConf, quasarRunMode) {
+export async function createViteConfig (quasarConf, quasarRunMode) {
   const { ctx, build } = quasarConf
   const cacheSuffix = quasarRunMode || ctx.modeName
   const cacheDir = appPaths.resolve.app(`node_modules/.q-cache/vite/${ cacheSuffix }`)
 
   if (quasarConf.build.rebuildCache === true) {
-    removeSync(cacheDir)
+    fse.removeSync(cacheDir)
   }
 
   const vueVitePluginOptions = quasarRunMode !== 'ssr-server'
@@ -138,7 +130,7 @@ export function createViteConfig (quasarConf, quasarRunMode) {
         sassVariables: quasarConf.metaConf.css.variablesFile,
         devTreeshaking: quasarConf.build.devQuasarTreeshaking === true
       }),
-      ...parseVitePlugins(build.vitePlugins)
+      ...(await parseVitePlugins(build.vitePlugins))
     ]
   }
 
@@ -176,7 +168,7 @@ export function createViteConfig (quasarConf, quasarRunMode) {
     const { warnings, errors } = quasarConf.eslint
     if (warnings === true || errors === true) {
       // require only if actually needed (as it imports app's eslint pkg)
-      const quasarVitePluginESLint from './plugins/vite.eslint')
+      const { quasarVitePluginESLint } = await import('./plugins/vite.eslint.js')
       viteConf.plugins.push(
         quasarVitePluginESLint(quasarConf, { cacheSuffix })
       )
@@ -205,20 +197,14 @@ export function extendViteConfig (viteConf, quasarConf, invokeParams) {
   return promise.then(() => viteConf)
 }
 
-export function createNodeEsbuildConfig (quasarConf, getLinterOpts) {
-  const { dependencies:appDeps = {}, devDependencies:appDevDeps = {} } = appPackageJson
-
+export async function createNodeEsbuildConfig (quasarConf, format, getLinterOpts) {
   const cfg = {
     platform: 'node',
     target: quasarConf.build.target.node,
-    format: 'cjs',
+    format,
     bundle: true,
+    packages: 'external',
     sourcemap: quasarConf.metaConf.debugging === true ? 'inline' : false,
-    external: [
-      ...cliDeps,
-      ...Object.keys(appDeps),
-      ...Object.keys(appDevDeps)
-    ],
     minify: quasarConf.build.minify !== false,
     define: parseEnv(quasarConf.build.env, quasarConf.build.rawDefine)
   }
@@ -226,7 +212,7 @@ export function createNodeEsbuildConfig (quasarConf, getLinterOpts) {
   const { warnings, errors } = quasarConf.eslint
   if (warnings === true || errors === true) {
     // require only if actually needed (as it imports app's eslint pkg)
-    const quasarEsbuildPluginESLint from './plugins/esbuild.eslint')
+    const { quasarEsbuildPluginESLint } = await import('./plugins/esbuild.eslint.js')
     cfg.plugins = [
       quasarEsbuildPluginESLint(quasarConf, getLinterOpts)
     ]
@@ -235,7 +221,7 @@ export function createNodeEsbuildConfig (quasarConf, getLinterOpts) {
   return cfg
 }
 
-export function createBrowserEsbuildConfig (quasarConf, getLinterOpts) {
+export async function createBrowserEsbuildConfig (quasarConf, getLinterOpts) {
   const cfg = {
     platform: 'browser',
     target: quasarConf.build.target.browser,
@@ -249,7 +235,7 @@ export function createBrowserEsbuildConfig (quasarConf, getLinterOpts) {
   const { warnings, errors } = quasarConf.eslint
   if (warnings === true || errors === true) {
     // require only if actually needed (as it imports app's eslint pkg)
-    const quasarEsbuildPluginESLint from './plugins/esbuild.eslint')
+    const { quasarEsbuildPluginESLint } = await import('./plugins/esbuild.eslint.js')
     cfg.plugins = [
       quasarEsbuildPluginESLint(quasarConf, getLinterOpts)
     ]

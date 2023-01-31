@@ -1,7 +1,8 @@
 
-const appPaths = require('../../app-paths')
-const { createHeadTags } = require('./utils')
-const { static: serveStatic } = require('express')
+import { static as serveStatic } from 'express'
+
+import appPaths from '../../app-paths.js'
+import { createHeadTags } from './utils.js'
 
 export function quasarVitePluginPwaResources (quasarConf) {
   let pwaManifest = null

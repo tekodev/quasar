@@ -6,7 +6,7 @@ import { AppBuilder } from '../../app-builder.js'
 import { pwaConfig } from './pwa-config.js'
 import { injectPwaManifest, buildPwaServiceWorker } from './utils.js'
 
-export class PwaBuilder extends AppBuilder {
+export class AppProdBuilder extends AppBuilder {
   async build () {
     injectPwaManifest(this.quasarConf)
 

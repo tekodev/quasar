@@ -28,6 +28,7 @@ function getAppInfo () {
 
 const { appDir, quasarConfigFilename, quasarConfigFileFormat } = getAppInfo()
 const cliDir = new URL('..', import.meta.url).pathname
+const publicDir = resolve(appDir, 'public')
 const srcDir = resolve(appDir, 'src')
 const pwaDir = resolve(appDir, 'src-pwa')
 const ssrDir = resolve(appDir, 'src-ssr')
@@ -39,6 +40,7 @@ const bexDir = resolve(appDir, 'src-bex')
 export default {
   cliDir,
   appDir,
+  publicDir,
   srcDir,
   pwaDir,
   ssrDir,
@@ -52,6 +54,7 @@ export default {
   resolve: {
     cli: dir => join(cliDir, dir),
     app: dir => join(appDir, dir),
+    public: dir => join(publicDir, dir),
     src: dir => join(srcDir, dir),
     pwa: dir => join(pwaDir, dir),
     ssr: dir => join(ssrDir, dir),

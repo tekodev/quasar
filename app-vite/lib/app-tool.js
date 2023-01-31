@@ -1,6 +1,6 @@
 
-import { build: viteBuild } from 'vite'
-import { build: esBuild } from 'esbuild'
+import { build as viteBuild } from 'vite'
+import { build as esBuild } from 'esbuild'
 import debounce from 'lodash/debounce.js'
 
 import { clean } from './artifacts.js'

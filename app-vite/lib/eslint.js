@@ -1,6 +1,6 @@
 
 import { resolve } from 'node:path'
-import { removeSync } from 'fs-extra'
+import fse from 'fs-extra'
 import { createFilter } from '@rollup/pluginutils'
 
 import appPaths from './app-paths.js'
@@ -46,7 +46,7 @@ function extractStore ({
     )
 
     if (quasarConf.build.rebuildCache === true) {
-      removeSync(eslintOptions.cacheLocation)
+      fse.removeSync(eslintOptions.cacheLocation)
     }
   }
 

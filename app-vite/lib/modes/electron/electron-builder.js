@@ -12,7 +12,7 @@ import { getPackageJson } from '../../helpers/get-package-json.js'
 import { getFixedDeps } from '../../helpers/get-fixed-deps.js'
 import { appPackageJson } from '../../helpers/app-package-json.js'
 
-export class ElectronBuilder extends AppBuilder {
+export class AppProdBuilder extends AppBuilder {
   async build () {
     await this.#buildFiles()
     await this.#writePackageJson()
@@ -150,5 +150,3 @@ export class ElectronBuilder extends AppBuilder {
     })
   }
 }
-
-module.exports = ElectronBuilder

@@ -2,7 +2,7 @@
 import { createServer } from 'vite'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { CapacitorConfigFile } from './config-file.js'
 import { log, fatal } from '../../helpers/logger.js'
 import { spawn } from '../../helpers/spawn.js'
@@ -12,7 +12,7 @@ import { capacitorConfig } from './capacitor-config.js'
 
 import { capBin } from './cap-cli.js'
 
-export class CapacitorDevServer extends AppDevserver {
+export class AppDevServer extends QuasarDevserver {
   #pid = 0
   #server
   #target

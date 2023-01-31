@@ -118,13 +118,13 @@ export function progress (msg, token) {
     ? text => text.replace('___', underline(green(token)))
     : text => text
 
-  module.exports.info(parseMsg(msg), 'WAIT')
+  info(parseMsg(msg), 'WAIT')
 
   const startTime = Date.now()
 
   return msg => {
     const diffTime = +new Date() - startTime
-    module.exports.success(`${parseMsg(msg)} ${dot} ${diffTime}ms`, 'DONE')
-    module.exports.log()
+    success(`${parseMsg(msg)} ${dot} ${diffTime}ms`, 'DONE')
+    log()
   }
 }

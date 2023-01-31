@@ -2,7 +2,7 @@
 import { createServer } from 'vite'
 
 import appPaths from '../../app-paths.js'
-import { AppDevserver } from '../../app-devserver.js'
+import { AppDevserver as QuasarDevserver } from '../../app-devserver.js'
 import { log, warn, fatal } from '../../helpers/logger.js'
 import { spawn } from '../../helpers/spawn.js'
 import { getPackage } from '../../helpers/get-package.js'
@@ -14,7 +14,7 @@ function wait (time) {
   })
 }
 
-export class ElectronDevServer extends AppDevserver {
+export class AppDevServer extends QuasarDevserver {
   #pid = 0
   #server
   #stopMain

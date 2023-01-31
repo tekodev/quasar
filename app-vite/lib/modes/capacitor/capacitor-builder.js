@@ -15,7 +15,7 @@ import { fixAndroidCleartext } from '../../helpers/fix-android-cleartext'
 
 import { capBin } from './cap-cli.js'
 
-export class CapacitorBuilder extends AppBuilder {
+export class AppProdBuilder extends AppBuilder {
   #capacitorConfigFile = new CapacitorConfigFile()
   #packagedDir
 

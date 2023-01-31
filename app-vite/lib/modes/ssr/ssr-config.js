@@ -78,8 +78,8 @@ export const ssrConfig = {
     return extendViteConfig(cfg, quasarConf, { isServer: true })
   },
 
-  webserver: quasarConf => {
-    const cfg = createNodeEsbuildConfig(quasarConf, { cacheSuffix: 'ssr-webserver' })
+  webserver: async quasarConf => {
+    const cfg = await createNodeEsbuildConfig(quasarConf, 'esm', { cacheSuffix: 'ssr-webserver' })
 
     cfg.define['process.env.CLIENT'] = false
     cfg.define['process.env.SERVER'] = true

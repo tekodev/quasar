@@ -1,10 +1,9 @@
 
 import { join, parse } from 'node:path'
-import fs from 'node:fs'
+import { existsSync } from 'node:fs'
 import fse from 'fs-extra'
 
 import { log } from './logger.js'
-import { getMode } from '../mode/index.js'
 import appPaths from '../app-paths.js'
 
 function getStoreFlagPath(storeIndexPath) {
@@ -33,12 +32,12 @@ export async function regenerateTypesFeatureFlags (quasarConf) {
         appPaths.resolve.app(getStoreFlagPath(quasarConf.sourceFiles.store))
       ]
       : [
-        (await getMode(feature)).isInstalled,
+        (await import(`../modes/${feature}/${feature}-installation.js`)).isInstalled,
         appPaths.resolve.cli(`templates/${feature}/${feature}-flag.d.ts`),
         appPaths.resolve[feature](`${feature}-flag.d.ts`)
       ]
 
-    if (isFeatureInstalled && !fs.existsSync(destFlagPath)) {
+    if (isFeatureInstalled && !existsSync(destFlagPath)) {
       fse.copySync(sourceFlagPath, destFlagPath)
       log(`'${feature}' feature flag was missing and has been regenerated`)
     }

@@ -141,6 +141,8 @@ async function goLive () {
     host: argv.hostname
   })
 
+  await quasarConfFile.init()
+
   const quasarConf = await quasarConfFile.read()
   if (quasarConf.error !== void 0) {
     fatal(quasarConf.error, 'FAIL')

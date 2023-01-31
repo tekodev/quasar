@@ -1,16 +1,15 @@
 
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
 
 import appPaths from '../../app-paths.js'
-import escapeRegexString from '../../helpers/escape-regex-string.js'
+import { escapeRegexString } from '../../helpers/escape-regex-string.js'
 import { appPackageJson } from '../../helpers/app-package-json.js'
 import {
   createViteConfig, extendViteConfig,
   createBrowserEsbuildConfig, extendEsbuildConfig
 } from '../../config-tools.js'
 
-import quasarVitePluginPwaResources from './vite-plugin.pwa-resources.js'
+import { quasarVitePluginPwaResources } from './vite-plugin.pwa-resources.js'
 
 export const pwaConfig = {
   vite: async quasarConf => {
@@ -122,8 +121,8 @@ export const pwaConfig = {
   },
 
   // exported to ssr-config.js as well
-  customSw: quasarConf => {
-    const cfg = createBrowserEsbuildConfig(quasarConf, { cacheSuffix: 'inject-manifest-custom-sw' })
+  customSw: async quasarConf => {
+    const cfg = await createBrowserEsbuildConfig(quasarConf, { cacheSuffix: 'inject-manifest-custom-sw' })
 
     cfg.define['process.env.PWA_FALLBACK_HTML'] = JSON.stringify(
       quasarConf.ctx.mode.ssr === true && quasarConf.ctx.prod === true

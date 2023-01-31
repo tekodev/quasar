@@ -7,7 +7,7 @@ import { entryPointMarkup, attachMarkup } from '../helpers/html-template.js'
 
 const file = appPaths.resolve.app('index.html')
 
-module.exports = function (_cfg) {
+export function appFilesValidations (_cfg) {
   let content
   let valid = true
 

@@ -2,6 +2,7 @@
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+
 import { quasarPath } from './quasar-path.js'
 
 const { version } = JSON.parse(

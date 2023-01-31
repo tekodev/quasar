@@ -1,5 +1,5 @@
 
-import { join, relative } from 'node:path'
+import { join } from 'node:path'
 
 import appPaths from '../../app-paths.js'
 
@@ -20,9 +20,9 @@ export const modeConfig = {
   main: async quasarConf => {
     const cfg = await createNodeEsbuildConfig(quasarConf, 'cjs', { cacheSuffix: 'electron-main' })
 
-    // need a relative path, otherwise esbuild's "packages: external" will consider
+    // need an absolute path, otherwise esbuild's "packages: external" will consider
     // the entry point as external too and will error out
-    cfg.entryPoints = [ './' + relative(process.cwd(), appPaths.resolve.app(quasarConf.sourceFiles.electronMain)) ]
+    cfg.entryPoints = [ appPaths.resolve.app(quasarConf.sourceFiles.electronMain) ]
 
     cfg.outfile = quasarConf.ctx.dev === true
       ? appPaths.resolve.app('.quasar/electron/electron-main.js')
@@ -46,9 +46,9 @@ export const modeConfig = {
   preload: async quasarConf => {
     const cfg = await createNodeEsbuildConfig(quasarConf, 'cjs', { cacheSuffix: 'electron-preload' })
 
-    // need a relative path, otherwise esbuild's "packages: external" will consider
+    // need an absolute path, otherwise esbuild's "packages: external" will consider
     // the entry point as external too and will error out
-    cfg.entryPoints = [ './' + relative(process.cwd(), appPaths.resolve.app(quasarConf.sourceFiles.electronPreload)) ]
+    cfg.entryPoints = [ appPaths.resolve.app(quasarConf.sourceFiles.electronPreload) ]
 
     cfg.outfile = quasarConf.ctx.dev === true
       ? appPaths.resolve.app('.quasar/electron/electron-preload.js')

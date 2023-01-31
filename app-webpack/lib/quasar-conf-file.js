@@ -1,5 +1,6 @@
 import path from 'node:path'
-import fs from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import fse from 'fs-extra'
 import { merge } from 'webpack-merge'
 import chokidar from 'chokidar'
 import debounce from 'lodash/debounce.js'
@@ -97,7 +98,7 @@ function uniqueRegexFilter (value, index, self) {
   return self.map(regex => regex.toString()).indexOf(value.toString()) === index
 }
 
-async function nodeCompile (file, { format = 'esm' } = {}) {
+async function compileQuasarConfigFile (file, { format = 'esm' } = {}) {
   const ext = format === 'esm' ? 'mjs' : 'cjs'
   const compiledFile = `${file}.${Date.now()}.${ext}`
 
@@ -122,9 +123,8 @@ export class QuasarConfFile {
   constructor (ctx, opts = {}) {
     this.ctx = ctx
     this.opts = opts
-    this.filename = appPaths.quasarConfigFilename
     this.pkg = JSON.parse(
-      fs.readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
+      readFileSync(appPaths.resolve.app('package.json'), 'utf-8')
     )
     this.watch = opts.onBuildChange || opts.onAppChange
 
@@ -166,19 +166,43 @@ export class QuasarConfFile {
     await this.compile()
   }
 
+  async #getQuasarConfigFn () {
+    if (existsSync(appPaths.quasarConfigFilename)) {
+      let tempFile
+
+      try {
+        tempFile = await compileQuasarConfigFile(appPaths.quasarConfigFilename)
+        const { default: fn } = await import(tempFile)
+
+        fse.removeSync(tempFile)
+        return fn
+      }
+      catch (e) {
+        tempFile && fse.removeSync(tempFile)
+        console.error(e)
+        return { error: 'quasar.config.js has errors' }
+      }
+    }
+
+    fatal('Could not load quasar.config file', 'FAIL')
+  }
+
   async prepare () {
-    let quasarConfigFunction
+    const quasarConfigFn = await this.#getQuasarConfigFn()
 
-    if (fs.existsSync(this.filename)) {
-      const tempFile = await nodeCompile(this.filename)
-      const { default: fn } = await import(tempFile)
-      quasarConfigFunction = fn
-    }
-    else {
-      fatal('Could not load quasar.config file', 'FAIL')
+    if (quasarConfigFn.error !== void 0) {
+      return quasarConfigFn
     }
 
-    const initialConf = await quasarConfigFunction(this.ctx)
+    let initialConf
+
+    try {
+      initialConf = await quasarConfigFn(this.#ctx)
+    }
+    catch (e) {
+      console.error(e)
+      return { error: 'quasar.config.js has runtime errors' }
+    }
 
     const cfg = merge({
       ctx: this.ctx,
@@ -555,9 +579,9 @@ export class QuasarConfFile {
     // do we have a store?
     const storePath = appPaths.resolve.app(cfg.sourceFiles.store)
     cfg.store = (
-      fs.existsSync(storePath) ||
-      fs.existsSync(storePath + '.js') ||
-      fs.existsSync(storePath + '.ts')
+      existsSync(storePath) ||
+      existsSync(storePath + '.js') ||
+      existsSync(storePath + '.ts')
     )
 
     // make sure we have preFetch in config
@@ -843,7 +867,7 @@ export class QuasarConfFile {
       const icon = appPaths.resolve.electron('icons/icon.png')
       const builderIcon = process.platform === 'linux'
         // backward compatible (linux-512x512.png)
-        ? (fs.existsSync(icon) === true ? icon : appPaths.resolve.electron('icons/linux-512x512.png'))
+        ? (existsSync(icon) === true ? icon : appPaths.resolve.electron('icons/linux-512x512.png'))
         : appPaths.resolve.electron('icons/icon')
 
       cfg.electron = merge({
